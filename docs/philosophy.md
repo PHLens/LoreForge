@@ -152,6 +152,14 @@ For small personal experiments, a lighter llm-wiki may be enough. LoreForge is f
 - define naming rules and duplicate handling
 - improve task views for query, ingest, writeback, promotion, and maintenance
 
+Next discussion focus:
+
+- decide whether domain-first should remain the default structure
+- define exact `Sources/`, `Cards/`, `MOCs/`, and `+Wiki Index.md` responsibilities
+- define how staged package candidates map to stable notes
+- define minimum frontmatter and naming rules for stable notes
+- decide how source provenance should be represented without making notes noisy
+
 ### Phase 3: Quality Gates
 
 - expand lint checks for package manifests, broken provenance, stale index entries, duplicate cards, and orphaned stable notes
