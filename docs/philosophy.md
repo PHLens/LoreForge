@@ -119,6 +119,32 @@ Key differences:
 
    Agent-local experience stays outside the shared wiki. This prevents the professional knowledge base from becoming a memory dump.
 
+## What To Learn From Hermes
+
+Hermes is closer to a lifelong agent runtime than a shared knowledge substrate, but several ideas are worth adapting carefully.
+
+Borrow:
+
+- **Session orientation**: before operating on a wiki, read schema, maps, compact indexes, and recent meaningful log entries.
+- **Memory/skill split**: keep facts, preferences, procedures, and durable knowledge in separate stores.
+- **Source immutability**: preserve source provenance and avoid rewriting source-grounded notes casually.
+- **Session search as recovery**: use file-based staged package manifests and logs so agents can recover work after compaction or session changes.
+- **Profile isolation lesson**: do not let agent-local experience leak into shared professional knowledge.
+- **Quality signals**: consider `confidence`, `contested`, `superseded_by`, or contradiction markers for mature notes.
+- **Source drift detection**: later, record source URL, access date, and optional hash/version to detect changed external sources.
+- **Log hygiene**: keep log useful as an evolution timeline, with rotation/archive if it grows too large.
+- **Skill evolution discipline**: update skills from repeated real usage pain, not from speculative design.
+
+Do not borrow:
+
+- autonomous memory growth into the shared wiki
+- agent profile state
+- gateway/chat UI responsibilities
+- runtime orchestration
+- unrestricted self-modifying skills
+
+LoreForge can be used by Hermes-hosted agents, but LoreForge should remain the shared knowledge layer rather than becoming a Hermes replacement.
+
 ## Design Trade-Off
 
 LoreForge is slower than a fully autonomous all-in-one wiki skill.
@@ -165,6 +191,8 @@ Next discussion focus:
 - expand lint checks for package manifests, broken provenance, stale index entries, duplicate cards, and orphaned stable notes
 - add promotion checklist rules
 - add examples of acceptable and unacceptable writeback
+- consider confidence, contested, superseded, and contradiction markers for mature notes
+- consider source drift checks using access dates, source versions, or hashes
 - define log rotation or archival strategy
 
 ### Phase 4: Tooling
@@ -187,4 +215,5 @@ Next discussion focus:
 - run LoreForge against a real personal/professional wiki
 - measure whether query cost and repeated summarization decrease
 - collect failure cases where agents stage low-value knowledge
+- compare usage against Hermes-style all-in-one llm-wiki workflows
 - refine package, index, and promotion rules from actual use
