@@ -1,0 +1,19 @@
+{
+  "name": "loreforge",
+  "description": "LoreForge provides skills, templates, and routing rules for operating LLM-wiki style shared professional knowledge bases.",
+  "version": "0.1.0",
+  "author": {
+    "name": "PHLens",
+    "url": "https://github.com/PHLens"
+  },
+  "repository": "https://github.com/PHLens/LoreForge",
+  "homepage": "https://github.com/PHLens/LoreForge#readme",
+  "license": "MIT",
+  "keywords": [
+    "llm-wiki",
+    "knowledge-base",
+    "agent-skills",
+    "wiki",
+    "knowledge-management"
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "name": "loreforge",
+  "version": "0.1.0",
+  "description": "LoreForge provides skills, templates, and routing rules for operating LLM-wiki style shared professional knowledge bases.",
+  "author": {
+    "name": "PHLens",
+    "url": "https://github.com/PHLens"
+  },
+  "homepage": "https://github.com/PHLens/LoreForge#readme",
+  "repository": "https://github.com/PHLens/LoreForge",
+  "license": "MIT",
+  "keywords": [
+    "llm-wiki",
+    "knowledge-base",
+    "agent-skills",
+    "wiki",
+    "knowledge-management"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "LoreForge",
+    "shortDescription": "Operate shared LLM-wiki knowledge bases.",
+    "longDescription": "LoreForge helps agents query, capture, ingest, write back, promote, lint, register, and sync shared professional wiki knowledge while keeping agent-local experience in memory systems such as pamem.",
+    "developerName": "PHLens",
+    "category": "Productivity",
+    "capabilities": [
+      "Knowledge Management",
+      "Read",
+      "Write"
+    ],
+    "websiteURL": "https://github.com/PHLens/LoreForge",
+    "defaultPrompt": [
+      "Query my LoreForge wiki before searching.",
+      "Capture this source into LoreForge.",
+      "Write back this reusable answer."
+    ],
+    "brandColor": "#2563EB"
+  }
+}

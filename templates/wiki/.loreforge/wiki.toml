@@ -1,0 +1,34 @@
+# LoreForge wiki instance metadata
+
+schema_version = "0.1"
+name = "example"
+description = "Example LoreForge wiki instance"
+
+# Entry files, relative to wiki root.
+agents_file = "AGENTS.md"
+vault_map = "00_System/Vault Map.md"
+schema_file = "00_System/Schema.md"
+log_file = "00_System/Wiki Log.md"
+views_dir = "00_System/Views"
+
+# Default task view used when no more specific view is requested.
+default_view = "default"
+
+[views]
+default = "00_System/Views/default.md"
+domain_query = "00_System/Views/domain-query.md"
+source_ingest = "00_System/Views/source-ingest.md"
+wiki_maintenance = "00_System/Views/wiki-maintenance.md"
+
+[paths]
+inbox = "10_Inbox"
+capture = "10_Inbox/capture"
+ingest = "10_Inbox/ingest"
+writeback = "10_Inbox/writeback"
+domains = "20_Domains"
+shared = "30_Shared"
+archive = "40_Archive"
+
+[git]
+remote = ""
+default_branch = "main"

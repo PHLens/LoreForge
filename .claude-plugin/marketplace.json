@@ -1,0 +1,14 @@
+{
+  "name": "phlens",
+  "owner": {
+    "name": "PHLens"
+  },
+  "plugins": [
+    {
+      "name": "loreforge",
+      "source": "./",
+      "description": "LoreForge provides skills, templates, and routing rules for operating LLM-wiki style shared professional knowledge bases.",
+      "version": "0.1.0"
+    }
+  ]
+}
