@@ -232,10 +232,6 @@ validate_manifest() {
     issues=$((issues + 1))
   fi
 
-  if [ -n "$(manifest_field "$manifest" "domain")" ]; then
-    echo "  - legacy manifest field ignored: $manifest domain"
-  fi
-
   for section in provenance candidate_notes; do
     if ! section_has_items "$manifest" "$section"; then
       echo "  - invalid manifest: $manifest $section must include at least one item"
