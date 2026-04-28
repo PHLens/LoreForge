@@ -3,6 +3,8 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 LINT="$ROOT/skills/lint/scripts/lint-wiki.sh"
+LINT_PROTOCOL="$ROOT/skills/lint/scripts/lint-protocol.sh"
+LINT_NATIVE="$ROOT/skills/lint/scripts/lint-native.sh"
 
 TMP_DIR="$(mktemp -d)"
 trap 'rm -rf "$TMP_DIR"' EXIT
@@ -47,6 +49,60 @@ write_file() {
   shift
   mkdir -p "$(dirname "$path")"
   printf '%s\n' "$@" > "$path"
+}
+
+make_protocol_binding() {
+  local root="$1"
+  local registry="$root/registry.toml"
+  local repo="$root/repo"
+  local state="$root/state/notes"
+
+  mkdir -p "$repo/docs" "$repo/references" "$state/packages/ingest/2026-04-28-example/candidates"
+  mkdir -p "$state/packages/writeback" "$state/packages/archive" "$state/reports" "$state/cache" "$state/locks" "$state/tmp"
+  printf '# Existing\n' > "$repo/docs/existing.md"
+  write_file "$state/state.toml" \
+    'schema_version = "0.1"' \
+    'binding = "notes"' \
+    "target_repo = \"$repo\""
+  write_file "$state/packages/ingest/2026-04-28-example/manifest.toml" \
+    'type = "ingest"' \
+    'status = "staged"' \
+    'binding = "notes"' \
+    'created_at = "2026-04-28T12:00:00+08:00"' \
+    '' \
+    '[[sources]]' \
+    'type = "url"' \
+    'ref = "https://example.com/article"' \
+    'snapshot = "extract"' \
+    '' \
+    '[[outputs]]' \
+    'kind = "file"' \
+    'target = "notes"' \
+    'path = "topic/example.md"' \
+    'candidate = "candidates/example.md"' \
+    'mode = "create"'
+  write_file "$state/packages/ingest/2026-04-28-example/candidates/example.md" '# Candidate'
+  write_file "$registry" \
+    'default = "notes"' \
+    '' \
+    '[[bindings]]' \
+    'name = "notes"' \
+    "target_repo = \"$repo\"" \
+    "state_dir = \"$state\"" \
+    'mode = "generic"' \
+    'remote = ""' \
+    'description = "Protocol fixture"' \
+    'default_target = "notes"' \
+    'read_roots = ["."]' \
+    '' \
+    '[bindings.targets.notes]' \
+    'path = "docs"' \
+    'description = "General notes"' \
+    '' \
+    '[bindings.targets.sources]' \
+    'path = "references"' \
+    'description = "References"'
+  printf '%s\n' "$registry"
 }
 
 make_default_wiki() {
@@ -159,6 +215,27 @@ make_custom_path_wiki() {
 
 bash -n "$LINT"
 pass "lint script syntax"
+
+bash -n "$LINT_PROTOCOL"
+pass "protocol lint script syntax"
+
+protocol_root="$TMP_DIR/protocol"
+protocol_registry="$(make_protocol_binding "$protocol_root")"
+protocol_output="$(bash "$LINT_PROTOCOL" --registry "$protocol_registry" notes)"
+assert_contains "protocol lint fixture" "$protocol_output" '^=== LoreForge Protocol Lint Report: notes ===$'
+assert_contains "protocol lint fixture" "$protocol_output" '^  Binding issues: 0$'
+assert_contains "protocol lint fixture" "$protocol_output" '^  Runtime issues: 0$'
+assert_contains "protocol lint fixture" "$protocol_output" '^  Package issues: 0$'
+pass "protocol lint fixture is clean"
+
+bad_root="$TMP_DIR/protocol-bad"
+bad_registry="$(make_protocol_binding "$bad_root")"
+bad_manifest="$bad_root/state/notes/packages/ingest/2026-04-28-example/manifest.toml"
+sed -i 's|path = "topic/example.md"|path = "../escape.md"|' "$bad_manifest"
+bad_output="$(bash "$LINT_PROTOCOL" --registry "$bad_registry" notes)"
+assert_contains "protocol lint traversal fixture" "$bad_output" 'output path escapes target'
+assert_contains "protocol lint traversal fixture" "$bad_output" '^  Package issues: 1$'
+pass "protocol lint detects path traversal"
 
 template_output="$(bash "$LINT" "$ROOT/templates/wiki")"
 assert_no_findings "templates/wiki" "$template_output"
