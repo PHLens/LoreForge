@@ -2,7 +2,6 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-LINT="$ROOT/skills/lint/scripts/lint-wiki.sh"
 LINT_PROTOCOL="$ROOT/skills/lint/scripts/lint-protocol.sh"
 LINT_NATIVE="$ROOT/skills/lint/scripts/lint-native.sh"
 
@@ -27,7 +26,7 @@ assert_no_findings() {
     fail "$name produced lint findings"
   fi
 
-  if ! printf '%s\n' "$output" | rg -q '^=== Lint Complete ===$'; then
+  if ! printf '%s\n' "$output" | rg -q '^=== Native Lint Complete ===$'; then
     printf '%s\n' "$output" >&2
     fail "$name did not complete lint"
   fi
@@ -213,8 +212,8 @@ make_custom_path_wiki() {
   done
 }
 
-bash -n "$LINT"
-pass "lint script syntax"
+bash -n "$LINT_NATIVE"
+pass "native lint script syntax"
 
 bash -n "$LINT_PROTOCOL"
 pass "protocol lint script syntax"
@@ -237,19 +236,19 @@ assert_contains "protocol lint traversal fixture" "$bad_output" 'output path esc
 assert_contains "protocol lint traversal fixture" "$bad_output" '^  Package issues: 1$'
 pass "protocol lint detects path traversal"
 
-template_output="$(bash "$LINT" "$ROOT/templates/wiki")"
+template_output="$(bash "$LINT_NATIVE" "$ROOT/templates/wiki")"
 assert_no_findings "templates/wiki" "$template_output"
 pass "templates/wiki is clean"
 
 default_wiki="$TMP_DIR/default-wiki"
 make_default_wiki "$default_wiki"
-default_output="$(bash "$LINT" "$default_wiki")"
+default_output="$(bash "$LINT_NATIVE" "$default_wiki")"
 assert_no_findings "default generated fixture" "$default_output"
 pass "default generated fixture is clean"
 
 custom_wiki="$TMP_DIR/custom-path-wiki"
 make_custom_path_wiki "$custom_wiki"
-custom_output="$(bash "$LINT" "$custom_wiki")"
+custom_output="$(bash "$LINT_NATIVE" "$custom_wiki")"
 assert_no_findings "custom path fixture" "$custom_output"
 assert_contains "custom path fixture" "$custom_output" '^  index: System/Card Index.md$'
 assert_contains "custom path fixture" "$custom_output" '^  cards: Knowledge/Cards$'
@@ -273,7 +272,7 @@ write_file "$bad_manifest_wiki/10_Inbox/ingest/2026-04-28-bad/manifest.md" \
   'promotion_reason: Exercise manifest validation.' \
   '---' \
   '# Bad Package'
-bad_manifest_output="$(bash "$LINT" "$bad_manifest_wiki")"
+bad_manifest_output="$(bash "$LINT_NATIVE" "$bad_manifest_wiki")"
 assert_contains "bad manifest fixture" "$bad_manifest_output" 'card candidates require 00_System/\+Wiki Index.md in updates'
 assert_contains "bad manifest fixture" "$bad_manifest_output" '^  Package issues: 1$'
 pass "bad manifest fixture reports expected issue"
