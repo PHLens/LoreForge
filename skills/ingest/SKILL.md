@@ -66,7 +66,7 @@ Acceptable inputs:
   - source summaries: `<sources>/<Type>/`
   - concept cards: `<cards>/`
   - topic maps: `<mocs>/`
-- Obsidian adapter vaults may define different index/log paths; follow their `.loreforge/wiki.toml` after resolving the wiki type.
+- If a wiki repo defines custom index or log paths, follow its `.loreforge/wiki.toml` after resolving the wiki.
 - Wait for user confirmation before moving staged notes to stable locations.
 - Use `promote` for stable moves, index updates, MOC updates, archive moves, and promotion log entries.
 

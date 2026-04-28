@@ -99,7 +99,7 @@ Cards/
 Sources/
 ```
 
-For Obsidian adapter vaults that configure `MOCs/Scope/+Wiki Index.md`, follow the adapter's `.loreforge/wiki.toml` paths.
+For any wiki with custom paths, follow the wiki's `.loreforge/wiki.toml`.
 
 ## GitHub Remote Support
 

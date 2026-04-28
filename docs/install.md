@@ -5,13 +5,17 @@ LoreForge has two parts:
 1. Framework repo: this repository.
 2. Wiki instance: a separate repository or vault created from `templates/wiki/`.
 
-## Create A Wiki Instance
+The wiki instance is the product. It is a plain Markdown git repo, so it can be opened in Obsidian, VS Code, or any other Markdown client without a separate compatibility layer.
 
-Copy the generic template:
+## Create A Wiki Repo
+
+Create a new repo from the generic template:
 
 ```bash
 mkdir -p /path/to/my-wiki
 cp -R templates/wiki/. /path/to/my-wiki/
+cd /path/to/my-wiki
+git init
 ```
 
 Then edit:
@@ -23,6 +27,8 @@ Then edit:
 - `Cards/`
 - `Sources/`
 - `MOCs/`
+
+If the repo needs local path or workflow choices, record them in `.loreforge/wiki.toml` and `AGENTS.md` inside that wiki repo.
 
 ## Use With pamem
 

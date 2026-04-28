@@ -17,7 +17,7 @@ LoreForge wiki instances use a type-first structure.
 
 Use `templates/wiki/` as the generic starting point for a new wiki instance.
 
-Adapter-specific templates may exist under `adapters/`.
+Concrete wiki repos may customize this template in their own repository through `AGENTS.md` and `.loreforge/wiki.toml`.
 
 ## Default Layout
 

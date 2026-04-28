@@ -53,6 +53,8 @@ Purpose:
 - records path conventions
 - optionally records Git defaults
 
+The framework template is the default. Concrete wiki repos may customize paths or views here, but those choices live in the wiki repo rather than in this framework repo.
+
 Template:
 
 ```text

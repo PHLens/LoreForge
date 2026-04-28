@@ -30,7 +30,6 @@ LoreForge framework repo
   schema
   task views
   skills
-  adapters
 ```
 
 LoreForge is not an agent memory store. It is a framework and plugin distribution used to create and operate separate wiki instances.
@@ -49,12 +48,11 @@ LoreForge/
 ├── docs/                     # Philosophy, schema, install guidance
 ├── templates/config/          # Local registry templates
 ├── templates/wiki/           # Generic LoreForge wiki instance template
-├── skills/                   # Core LoreForge operations
-└── adapters/
-    └── obsidian-vault/       # Obsidian-specific template and conventions
+└── skills/                   # Core LoreForge operations
 ```
 
 Actual knowledge should live in a separate wiki repository or vault created from `templates/wiki/`.
+The generated repo is plain Markdown plus `.loreforge/wiki.toml`; no separate compatibility layer is required.
 
 Agents discover those wiki instances through a machine-local registry:
 
@@ -121,7 +119,7 @@ Keep the initial workflow simple:
 
 Automation should grow from repeated usage pain, not be designed up front.
 
-These operations are framework core concepts, implemented under `skills/`. Adapter-specific path conventions should be documented under `adapters/`.
+These operations are framework core concepts, implemented under `skills/`. Any repo-specific path conventions should be documented in the concrete wiki repo itself, usually in `AGENTS.md` and `.loreforge/wiki.toml`.
 
 `capture` remains a convenient command, but its behavior is `ingest mode=capture`. Processed `ingest` and `writeback` outputs are staged packages with a `manifest.md`; `promote` is the stable-write transaction that can promote one or more candidate notes, update `00_System/+Wiki Index.md` for stable cards, optionally update MOCs, move consumed staging material to `Archive/`, and append the wiki log.
 
@@ -167,15 +165,11 @@ The current `~/wiki` structure already has useful ideas:
 
 LoreForge should generalize those ideas into a reusable framework. `~/wiki` can remain a concrete wiki instance or source of design feedback.
 
-## Obsidian Adapter
+## Wiki Repo Generation
 
-The previous Obsidian-oriented draft now lives under:
+Create a wiki repo by copying `templates/wiki/` into a new git repository. The resulting repo is client-agnostic Markdown.
 
-```text
-adapters/obsidian-vault/
-```
-
-Use it when the target wiki is an Obsidian vault that expects `MOCs/Scope/` conventions.
+If a wiki repo needs special paths or views, record them in that repo's `AGENTS.md` and `.loreforge/wiki.toml`.
 
 ## License
 

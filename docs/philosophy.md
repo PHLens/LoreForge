@@ -27,7 +27,6 @@ LoreForge framework repo
   schema
   task views
   skills
-  adapters
 ```
 
 ## First Principle
@@ -202,10 +201,10 @@ Next discussion focus:
 - summarize promotion plans
 - avoid large automation until repeated usage proves the need
 
-### Phase 5: Adapters And Integration
+### Phase 5: Integration
 
 - maintain Codex and Claude plugin metadata
-- improve Obsidian adapter conventions
+- document concrete wiki-repo bootstrap conventions
 - document how Hermes/OpenClaw/Slock-hosted agents can use LoreForge as a shared knowledge substrate
 - support GitHub-backed wiki repos through local-first sync
 

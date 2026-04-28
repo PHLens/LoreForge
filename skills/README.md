@@ -16,7 +16,7 @@ These skills define framework-level workflows that any LoreForge wiki instance s
 | `register` | Register wiki instances in local machine config |
 | `sync` | Synchronize a local wiki clone with its Git remote |
 
-Core skills should resolve paths from the local registry and wiki-local `.loreforge/wiki.toml` whenever possible. Obsidian-specific conventions belong under `adapters/obsidian-vault/`.
+Core skills should resolve paths from the local registry and wiki-local `.loreforge/wiki.toml` whenever possible. Repo-specific conventions belong in the concrete wiki repo, not in this framework repo.
 
 `loreforge-router` is intentionally small. It exists so installed plugin sessions can recover the correct operation after context compaction.
 
