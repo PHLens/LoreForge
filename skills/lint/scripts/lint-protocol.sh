@@ -327,6 +327,31 @@ target_path_for() {
   return 1
 }
 
+target_seen() {
+  local wanted="$1"
+  local index
+
+  for index in "${!target_names[@]}"; do
+    if [ "${target_names[$index]}" = "$wanted" ]; then
+      return 0
+    fi
+  done
+
+  return 1
+}
+
+native_stable_target_path() {
+  local path="${1%/}"
+
+  case "$path" in
+    Cards|Cards/*|Sources|Sources/*|MOCs|MOCs/*)
+      return 0
+      ;;
+  esac
+
+  return 1
+}
+
 binding_issue() {
   printf '  - %s\n' "$*"
   binding_issues=$((binding_issues + 1))
@@ -431,6 +456,10 @@ validate_manifest() {
     package_issue "invalid manifest: $manifest type $manifest_type does not match $package_root_type package root"
   fi
 
+  if [ -n "$manifest_status" ] && [ "$manifest_status" != "staged" ]; then
+    package_issue "invalid manifest: $manifest status must be staged while under active package roots"
+  fi
+
   if [ -n "$manifest_binding" ] && [ "$manifest_binding" != "$binding_name" ]; then
     package_issue "invalid manifest: $manifest binding $manifest_binding does not match $binding_name"
   fi
@@ -444,6 +473,8 @@ validate_manifest() {
 
     if [ -z "${output_kind[$index]:-}" ]; then
       package_issue "invalid manifest: $manifest output $index missing or empty kind"
+    elif [ "${output_kind[$index]}" != "file" ] && [ "${output_kind[$index]}" != "patch" ]; then
+      package_issue "invalid manifest: $manifest output $index kind must be file or patch: ${output_kind[$index]}"
     fi
     if [ -z "${output_target[$index]:-}" ]; then
       package_issue "invalid manifest: $manifest output $index missing or empty target"
@@ -453,6 +484,8 @@ validate_manifest() {
     fi
     if [ -z "${output_mode[$index]:-}" ]; then
       package_issue "invalid manifest: $manifest output $index missing or empty mode"
+    elif [ "${output_mode[$index]}" != "create" ] && [ "${output_mode[$index]}" != "update" ]; then
+      package_issue "invalid manifest: $manifest output $index mode must be create or update: ${output_mode[$index]}"
     fi
     if [ -z "${output_candidate[$index]:-}" ] && [ -z "${output_patch[$index]:-}" ]; then
       package_issue "invalid manifest: $manifest output $index missing candidate or patch"
@@ -556,6 +589,8 @@ binding_label="${binding_name:-<unspecified>}"
 binding_found=0
 target_repo=""
 state_dir=""
+binding_mode=""
+default_target=""
 target_repo_abs=""
 state_dir_abs=""
 read_roots=()
@@ -573,6 +608,10 @@ if [ -f "$registry" ] && [ -n "$binding_name" ]; then
           target_repo="$value"
         elif [ "$key" = "state_dir" ]; then
           state_dir="$value"
+        elif [ "$key" = "mode" ]; then
+          binding_mode="$value"
+        elif [ "$key" = "default_target" ]; then
+          default_target="$value"
         fi
         ;;
       read_root)
@@ -611,16 +650,36 @@ else
     binding_issue "target_repo is not a directory: $target_repo"
   fi
 
-  if [ -z "$state_dir" ]; then
-    binding_issue "missing state_dir for binding: $binding_name"
-  elif [ ! -d "$state_dir_abs" ]; then
-    binding_issue "state_dir is not a directory: $state_dir"
-  elif [ ! -r "$state_dir_abs" ] || [ ! -w "$state_dir_abs" ]; then
-    binding_issue "state_dir is not readable and writable: $state_dir"
-  fi
+	  if [ -z "$state_dir" ]; then
+	    binding_issue "missing state_dir for binding: $binding_name"
+	  elif [ ! -d "$state_dir_abs" ]; then
+	    binding_issue "state_dir is not a directory: $state_dir"
+	  elif [ ! -r "$state_dir_abs" ] || [ ! -w "$state_dir_abs" ]; then
+	    binding_issue "state_dir is not readable and writable: $state_dir"
+	  fi
 
-  if [ -n "$target_repo_abs" ]; then
-    for read_root in "${read_roots[@]}"; do
+	  if [ -z "$binding_mode" ]; then
+	    binding_issue "missing mode for binding: $binding_name"
+	  elif [ "$binding_mode" != "generic" ] && [ "$binding_mode" != "native" ]; then
+	    binding_issue "mode must be generic or native: $binding_mode"
+	  fi
+
+	  if [ "${#target_names[@]}" -eq 0 ]; then
+	    binding_issue "missing configured targets for binding: $binding_name"
+	  fi
+
+	  if [ -z "$default_target" ]; then
+	    binding_issue "missing default_target for binding: $binding_name"
+	  elif ! target_seen "$default_target"; then
+	    binding_issue "default_target is not configured: $default_target"
+	  fi
+
+	  if [ "${#read_roots[@]}" -eq 0 ]; then
+	    binding_issue "missing read_roots for binding: $binding_name"
+	  fi
+
+	  if [ -n "$target_repo_abs" ]; then
+	    for read_root in "${read_roots[@]}"; do
       read_root_abs="$(resolve_from_base "$target_repo_abs" "$read_root")"
       if ! path_inside_root "$target_repo_abs" "$read_root_abs"; then
         binding_issue "read_root escapes target_repo: $read_root"
@@ -629,17 +688,20 @@ else
       fi
     done
 
-    for target_path in "${target_paths[@]}"; do
-      target_abs="$(resolve_from_base "$target_repo_abs" "$target_path")"
-      if ! path_inside_root "$target_repo_abs" "$target_abs"; then
-        binding_issue "target path escapes target_repo: $target_path"
-      elif [ -e "$target_abs" ] && [ ! -d "$target_abs" ]; then
-        binding_issue "target path exists but is not a directory: $target_path"
-      elif ! path_is_creatable_dir "$target_repo_abs" "$target_abs"; then
-        binding_issue "target path is not writable or creatable: $target_path"
-      fi
-    done
-  fi
+	    for target_path in "${target_paths[@]}"; do
+	      target_abs="$(resolve_from_base "$target_repo_abs" "$target_path")"
+	      if ! path_inside_root "$target_repo_abs" "$target_abs"; then
+	        binding_issue "target path escapes target_repo: $target_path"
+	      elif [ -e "$target_abs" ] && [ ! -d "$target_abs" ]; then
+	        binding_issue "target path exists but is not a directory: $target_path"
+	      elif ! path_is_creatable_dir "$target_repo_abs" "$target_abs"; then
+	        binding_issue "target path is not writable or creatable: $target_path"
+	      fi
+	      if [ "$binding_mode" = "native" ] && native_stable_target_path "$target_path"; then
+	        binding_issue "native target path points at stable knowledge; use 10_Inbox staging target: $target_path"
+	      fi
+	    done
+	  fi
 fi
 echo "  Binding issues: $binding_issues"
 echo ""
@@ -662,10 +724,14 @@ if [ "$binding_found" -eq 1 ] && [ -n "$target_repo_abs" ] && [ -d "$target_repo
   for package_root_type in ingest writeback; do
     package_root="$state_dir_abs/packages/$package_root_type"
     [ -d "$package_root" ] || continue
-    while IFS= read -r -d '' manifest; do
-      package_dir="$(dirname "$manifest")"
-      validate_manifest "$manifest" "$package_dir" "$package_root_type"
-    done < <(find "$package_root" -mindepth 2 -maxdepth 2 -type f -name manifest.toml -print0 2>/dev/null | sort -z)
+    while IFS= read -r -d '' package_dir; do
+      manifest="$package_dir/manifest.toml"
+      if [ ! -f "$manifest" ]; then
+        package_issue "staged package missing manifest.toml: $package_dir"
+      else
+        validate_manifest "$manifest" "$package_dir" "$package_root_type"
+      fi
+    done < <(find "$package_root" -mindepth 1 -maxdepth 1 -type d -print0 2>/dev/null | sort -z)
   done
 fi
 echo "  Package issues: $package_issues"

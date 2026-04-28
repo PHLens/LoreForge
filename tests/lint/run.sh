@@ -249,6 +249,44 @@ assert_contains "protocol lint file target fixture" "$file_target_output" 'targe
 assert_contains "protocol lint file target fixture" "$file_target_output" '^  Binding issues: 1$'
 pass "protocol lint detects unusable target paths"
 
+bad_registry_fields_root="$TMP_DIR/protocol-bad-registry-fields"
+bad_registry_fields_registry="$(make_protocol_binding "$bad_registry_fields_root")"
+sed -i 's|mode = "generic"|mode = "surprise"|' "$bad_registry_fields_registry"
+sed -i 's|default_target = "notes"|default_target = "missing"|' "$bad_registry_fields_registry"
+bad_registry_fields_output="$(bash "$LINT_PROTOCOL" --registry "$bad_registry_fields_registry" notes)"
+assert_contains "protocol lint bad registry fields fixture" "$bad_registry_fields_output" 'mode must be generic or native'
+assert_contains "protocol lint bad registry fields fixture" "$bad_registry_fields_output" 'default_target is not configured'
+assert_contains "protocol lint bad registry fields fixture" "$bad_registry_fields_output" '^  Binding issues: 2$'
+pass "protocol lint validates mode and default target"
+
+native_stable_target_root="$TMP_DIR/protocol-native-stable-target"
+native_stable_target_registry="$(make_protocol_binding "$native_stable_target_root")"
+sed -i 's|mode = "generic"|mode = "native"|' "$native_stable_target_registry"
+sed -i 's|path = "docs"|path = "Cards"|' "$native_stable_target_registry"
+native_stable_target_output="$(bash "$LINT_PROTOCOL" --registry "$native_stable_target_registry" notes)"
+assert_contains "protocol lint native stable target fixture" "$native_stable_target_output" 'native target path points at stable knowledge'
+assert_contains "protocol lint native stable target fixture" "$native_stable_target_output" '^  Binding issues: 1$'
+pass "protocol lint rejects native stable targets"
+
+missing_manifest_root="$TMP_DIR/protocol-missing-manifest"
+missing_manifest_registry="$(make_protocol_binding "$missing_manifest_root")"
+mkdir -p "$missing_manifest_root/state/notes/packages/ingest/2026-04-28-missing"
+missing_manifest_output="$(bash "$LINT_PROTOCOL" --registry "$missing_manifest_registry" notes)"
+assert_contains "protocol lint missing manifest fixture" "$missing_manifest_output" 'staged package missing manifest.toml'
+assert_contains "protocol lint missing manifest fixture" "$missing_manifest_output" '^  Package issues: 1$'
+pass "protocol lint detects missing package manifests"
+
+bad_output_fields_root="$TMP_DIR/protocol-bad-output-fields"
+bad_output_fields_registry="$(make_protocol_binding "$bad_output_fields_root")"
+bad_output_fields_manifest="$bad_output_fields_root/state/notes/packages/ingest/2026-04-28-example/manifest.toml"
+sed -i 's|kind = "file"|kind = "unknown"|' "$bad_output_fields_manifest"
+sed -i 's|mode = "create"|mode = "overwrite"|' "$bad_output_fields_manifest"
+bad_output_fields_output="$(bash "$LINT_PROTOCOL" --registry "$bad_output_fields_registry" notes)"
+assert_contains "protocol lint bad output fields fixture" "$bad_output_fields_output" 'kind must be file or patch'
+assert_contains "protocol lint bad output fields fixture" "$bad_output_fields_output" 'mode must be create or update'
+assert_contains "protocol lint bad output fields fixture" "$bad_output_fields_output" '^  Package issues: 2$'
+pass "protocol lint validates output kind and mode"
+
 bad_patch_root="$TMP_DIR/protocol-bad-patch"
 bad_patch_registry="$(make_protocol_binding "$bad_patch_root")"
 bad_patch_package="$bad_patch_root/state/notes/packages/writeback/2026-04-28-bad-patch"
@@ -292,6 +330,7 @@ pass "custom path fixture is clean"
 bad_manifest_wiki="$TMP_DIR/bad-manifest-wiki"
 make_default_wiki "$bad_manifest_wiki"
 mkdir -p "$bad_manifest_wiki/10_Inbox/ingest/2026-04-28-bad"
+write_file "$bad_manifest_wiki/10_Inbox/ingest/2026-04-28-bad/Cards/Bad Card.md" '# Bad Card'
 write_file "$bad_manifest_wiki/10_Inbox/ingest/2026-04-28-bad/manifest.md" \
   '---' \
   'type: ingest' \
@@ -311,3 +350,48 @@ bad_manifest_output="$(bash "$LINT_NATIVE" "$bad_manifest_wiki")"
 assert_contains "bad manifest fixture" "$bad_manifest_output" 'card candidates require 00_System/\+Wiki Index.md in updates'
 assert_contains "bad manifest fixture" "$bad_manifest_output" '^  Package issues: 1$'
 pass "bad manifest fixture reports expected issue"
+
+bad_candidate_wiki="$TMP_DIR/bad-candidate-wiki"
+make_default_wiki "$bad_candidate_wiki"
+mkdir -p "$bad_candidate_wiki/10_Inbox/ingest/2026-04-28-bad-candidate"
+write_file "$bad_candidate_wiki/10_Inbox/ingest/2026-04-28-bad-candidate/manifest.md" \
+  '---' \
+  'type: ingest' \
+  'source_type: docs' \
+  'status: staged' \
+  'created: 2026-04-28' \
+  'provenance:' \
+  '  - fixture-source' \
+  'candidate_notes:' \
+  '  - ../../Cards/Escape.md' \
+  'updates:' \
+  '  - 00_System/+Wiki Index.md' \
+  'promotion_reason: Exercise candidate validation.' \
+  '---' \
+  '# Bad Candidate Package'
+bad_candidate_output="$(bash "$LINT_NATIVE" "$bad_candidate_wiki")"
+assert_contains "bad candidate fixture" "$bad_candidate_output" 'candidate path escapes package'
+pass "native lint rejects escaping candidate paths"
+
+missing_candidate_wiki="$TMP_DIR/missing-candidate-wiki"
+make_default_wiki "$missing_candidate_wiki"
+mkdir -p "$missing_candidate_wiki/10_Inbox/writeback/2026-04-28-missing-candidate"
+write_file "$missing_candidate_wiki/10_Inbox/writeback/2026-04-28-missing-candidate/manifest.md" \
+  '---' \
+  'type: writeback' \
+  'source_type: conversation_synthesis' \
+  'status: staged' \
+  'created: 2026-04-28' \
+  'provenance:' \
+  '  - conversation: fixture' \
+  'candidate_notes:' \
+  '  - Cards/Missing.md' \
+  'updates:' \
+  '  - 00_System/+Wiki Index.md' \
+  'promotion_reason: Exercise missing candidate validation.' \
+  '---' \
+  '# Missing Candidate Package'
+missing_candidate_output="$(bash "$LINT_NATIVE" "$missing_candidate_wiki")"
+assert_contains "missing candidate fixture" "$missing_candidate_output" 'candidate file missing'
+assert_contains "missing candidate fixture" "$missing_candidate_output" '^  Package issues: 1$'
+pass "native lint detects missing candidate files"

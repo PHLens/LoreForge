@@ -18,12 +18,12 @@ Adopting an existing repository is binding setup, not wiki creation. Do not resh
 |---|---|---|
 | Existing repo or directory | Generic binding | Create registry binding and runtime state only |
 | Missing target path | Generic binding | Create target directory and runtime state |
-| New native starter | Native binding | Copy `templates/wiki`, initialize git, create runtime state |
+| New native starter | Native binding | Copy `templates/wiki`, initialize git, create runtime state, register staging targets |
 | Existing native repo | Native binding | Register native paths and run protocol plus native lint |
 
 Generic mode supports setup, ingest, writeback, search, and protocol lint over configured repository paths. It does not require native LoreForge structure.
 
-Native mode is an optional profile for repositories that use LoreForge's native template and retrieval contract. It adds query, promote, native lint, native indexes, views, cards, sources, MOCs, and native logs.
+Native mode is an optional profile for repositories that use LoreForge's native template and retrieval contract. It adds query, promote, native lint, native indexes, views, cards, sources, MOCs, and native logs. Native writeback targets are staging paths under `10_Inbox/`, not stable `Cards/`, `Sources/`, or `MOCs/`.
 
 Generic setup must not create `.loreforge/`, `00_System/`, `10_Inbox/`, `Cards/`, `Sources/`, or `MOCs/` in the target repo.
 
@@ -45,9 +45,9 @@ For native starter creation, call the same helper with native mode:
 bash <loreforge-root>/scripts/setup-binding.sh <name> <target_repo> \
   --mode native \
   --init-native-template \
-  --target "cards=Cards:Native cards" \
-  --target "sources=Sources:Native source notes" \
-  --default-target cards
+  --target "writeback_staging=10_Inbox/writeback:Native staged writeback packages" \
+  --target "ingest_staging=10_Inbox/ingest:Native staged ingest packages" \
+  --default-target writeback_staging
 ```
 
 ## Workflow
@@ -57,6 +57,8 @@ bash <loreforge-root>/scripts/setup-binding.sh <name> <target_repo> \
 3. For generic setup, preserve the target repository layout and create only the target directory if it is missing.
 4. For native starter setup, require a missing or empty target path before copying `templates/wiki`.
 5. Run `scripts/setup-binding.sh` with explicit targets and default target.
+   - Generic targets may point at durable user-chosen writeback directories.
+   - Native targets must point at staging directories such as `10_Inbox/writeback` and `10_Inbox/ingest`.
 6. If updating an existing binding, report the old and new registry values before relying on the updated entry.
 7. Run protocol lint on the binding.
 8. For native bindings, also run native lint against `target_repo`.

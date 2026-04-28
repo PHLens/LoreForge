@@ -20,7 +20,7 @@
   "interface": {
     "displayName": "LoreForge",
     "shortDescription": "Operate binding-centric LoreForge workflows.",
-    "longDescription": "LoreForge provides binding-centric workflows for setup, ingest, writeback, search, lint, and native query/promote while keeping agent-local experience in pamem.",
+    "longDescription": "LoreForge provides binding-centric workflows for setup, ingest, generic writeback, native review staging, search, lint, and native query/promote while keeping agent-local experience in pamem.",
     "developerName": "PHLens",
     "category": "Productivity",
     "capabilities": [
@@ -33,7 +33,7 @@
       "Set up a binding before working in a new target repo.",
       "Search configured read roots before ingest or writeback.",
       "Use protocol lint to check binding state and package health.",
-      "Use native query and promote only on mode=native bindings."
+      "Use native promote for stable writes on mode=native bindings."
     ],
     "brandColor": "#2563EB"
   }

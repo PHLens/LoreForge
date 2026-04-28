@@ -86,16 +86,16 @@ name = "cs"
 target_repo = "/home/me/cs-wiki"
 state_dir = "~/.local/state/loreforge/cs"
 mode = "native"
-default_target = "cards"
+default_target = "writeback_staging"
 read_roots = ["."]
 
-[bindings.targets.cards]
-path = "Cards"
-description = "Native cards"
+[bindings.targets.writeback_staging]
+path = "10_Inbox/writeback"
+description = "Native staged writeback packages"
 
-[bindings.targets.sources]
-path = "Sources"
-description = "Native source notes"
+[bindings.targets.ingest_staging]
+path = "10_Inbox/ingest"
+description = "Native staged ingest packages"
 
 [bindings.native]
 index_file = "00_System/+Wiki Index.md"
@@ -107,7 +107,7 @@ Rules:
 
 - `target_repo` is the user-owned repository or directory.
 - `state_dir` defaults to `~/.local/state/loreforge/<binding>`, but users may override it.
-- `targets` are the only paths that writeback may modify.
+- Generic `targets` are the only durable paths that writeback may modify; native `targets` are review staging paths under `10_Inbox/`.
 - `read_roots` define the search and context boundary.
 - `mode = "generic"` enables core workflows only.
 - `mode = "native"` enables core workflows plus native query, promote, and native lint.

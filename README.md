@@ -8,7 +8,7 @@ It is inspired by [Karpathy's LLM Wiki](https://gist.github.com/karpathy/442a6bf
 - make that knowledge readable by humans and agents
 - reduce repeated raw search and re-summarization
 - keep agent-local experience out of shared repositories
-- keep workflow staging outside the user's durable content by default
+- keep durable knowledge separate from review staging and runtime state
 
 ## Core Boundary
 
@@ -20,15 +20,15 @@ pamem
   agent-local experience
 
 LoreForge runtime state
-  staged ingest and writeback packages
-  source extracts and optional snapshots
+  generic staged ingest and writeback packages
+  native source extracts and optional snapshots
   reports, caches, locks, and temporary files
   run metadata
 
 User target repositories
   durable professional knowledge
   notes, docs, source notes, and examples
-  optional native LoreForge structure
+  optional native LoreForge structure and 10_Inbox review staging
   user-owned Git history and remotes
 
 LoreForge framework repo
@@ -41,7 +41,7 @@ LoreForge framework repo
 
 LoreForge core is a workflow layer over user-owned repositories. It is not an agent memory store, not the authoritative content repository, and not a requirement that every target repo follow a single native shape.
 
-Stable professional knowledge belongs in the target repository selected by a binding. Runtime packages and generated working files belong in LoreForge runtime state. Agent-local experience, preferences, and task state belong in `pamem`.
+Stable professional knowledge belongs in the target repository selected by a binding. Generic staged packages and generated working files belong in LoreForge runtime state. Native staged packages belong in the target repo `10_Inbox/` so humans and other agents can review them before promotion. Agent-local experience, preferences, and task state belong in `pamem`.
 
 ## Repository Form
 
@@ -70,15 +70,15 @@ Agents discover target repositories through the machine-local binding registry:
 ~/.config/loreforge/registry.toml
 ```
 
-A binding records the user-owned `target_repo`, LoreForge-managed `state_dir`, searchable `read_roots`, writeback targets, and mode. See [docs/config.md](docs/config.md) for the registry format.
+A binding records the user-owned `target_repo`, LoreForge-managed `state_dir`, searchable `read_roots`, writeback or staging targets, and mode. See [docs/config.md](docs/config.md) for the registry format.
 
 ## Operations
 
 | Operation | Layer | Purpose |
 |---|---|---|
 | Setup | Core | Bind an existing target repo or create an optional native starter, initialize runtime state, and update the registry |
-| Ingest | Core | Read source material and stage a package in runtime state without writing durable repo content |
-| Writeback | Core | Validate and apply staged outputs to configured target paths |
+| Ingest | Core | Read source material and stage a package without writing stable knowledge |
+| Writeback | Core | Generic: apply approved staged outputs to configured targets. Native: stage conversation/query outputs in `10_Inbox/writeback/` |
 | Search | Core | Run lightweight filesystem and Markdown search over configured read roots |
 | Lint protocol | Core | Check registry resolution, runtime state, package manifests, targets, and writeback safety |
 | Query | Native | Answer from native indexes, views, cards, sources, MOCs, and provenance conventions |
@@ -87,9 +87,9 @@ A binding records the user-owned `target_repo`, LoreForge-managed `state_dir`, s
 | Register | Support | Maintain registry entries directly when low-level edits are needed |
 | Sync | Support | Pull, inspect, commit, or push a bound target repo through Git |
 
-Core means setup, ingest, writeback, search, and protocol lint. These operations work for generic and native bindings and do not require `Cards`, `Sources`, `MOCs`, native indexes, or native views.
+Core means setup, ingest, writeback, search, and protocol lint. These operations work for generic and native bindings, but their write backend depends on mode: generic uses `state_dir` package manifests, while native uses repo-local `10_Inbox/` packages for review.
 
-Native means query, promote, and native lint. These operations require `mode = "native"` and a native retrieval contract.
+Native means query, promote, and native lint. These operations require `mode = "native"` and a native retrieval contract. In native mode, stable writes to `Cards/`, `Sources/`, `MOCs/`, indexes, logs, and archive happen through `promote`.
 
 `register` is intentionally lower level than `setup`: use `setup` for normal binding creation and adoption, and `register` only when directly maintaining the registry. `sync` operates on the target repo's Git state.
 
@@ -119,9 +119,9 @@ Create a native starter only when the target should use the high-structure profi
 bash scripts/setup-binding.sh cs /path/to/cs-native \
   --mode native \
   --init-native-template \
-  --target "cards=Cards:Native cards" \
-  --target "sources=Sources:Native source notes" \
-  --default-target cards
+  --target "writeback_staging=10_Inbox/writeback:Native staged writeback packages" \
+  --target "ingest_staging=10_Inbox/ingest:Native staged ingest packages" \
+  --default-target writeback_staging
 ```
 
 Bind an existing repository without the native starter when the user's current layout should remain authoritative:

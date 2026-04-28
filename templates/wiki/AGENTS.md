@@ -21,7 +21,6 @@ It is not agent-local memory. Agent-local experience, preferences, and current t
 Allowed without confirmation:
 
 - New staged packages under `10_Inbox/ingest/` or `10_Inbox/writeback/`
-- Wiki log entries for substantive staged package creation
 - Read-only reports
 
 Requires confirmation:

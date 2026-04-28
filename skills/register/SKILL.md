@@ -10,6 +10,8 @@ Use `register` only for low-level edits to `~/.config/loreforge/registry.toml`. 
 
 `register` exists for direct registry maintenance when the user already knows the desired binding fields. It does not replace setup, runtime state initialization, or lint.
 
+For native bindings, registry targets must be staging targets such as `10_Inbox/writeback` or `10_Inbox/ingest`. Do not register stable native `Cards/`, `Sources/`, or `MOCs/` as writeback targets.
+
 ## Purpose
 
 Agents should not guess binding paths. They should discover bindings through:
@@ -89,6 +91,14 @@ log_file = "00_System/Wiki Log.md"
 views_dir = "00_System/Views"
 ```
 
+Native target example:
+
+```toml
+[bindings.targets.writeback_staging]
+path = "10_Inbox/writeback"
+description = "Native staged writeback packages"
+```
+
 ## Workflow
 
 1. Locate registry at `~/.config/loreforge/registry.toml`.
@@ -113,6 +123,7 @@ A registry entry is valid when:
 - `read_roots` entries do not escape `target_repo`
 - `default_target` is non-empty and configured
 - every `[bindings.targets.<name>]` has a safe relative `path`
+- native targets do not point at stable native `Cards/`, `Sources/`, or `MOCs/`
 - `remote` is either empty or a valid Git remote string
 
 Use `setup` instead when the user wants to create target directories, initialize runtime state, create a native starter, or adopt an existing repository through the normal flow.

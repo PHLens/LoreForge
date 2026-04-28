@@ -170,9 +170,9 @@ bash "$SETUP" cs "$native_repo" \
   --init-native-template \
   --description "Native knowledge repo" \
   --read-root "." \
-  --target "cards=Cards:Native cards" \
-  --target "sources=Sources:Native source notes" \
-  --default-target "cards" >/dev/null
+  --target "writeback_staging=10_Inbox/writeback:Native staged writeback packages" \
+  --target "ingest_staging=10_Inbox/ingest:Native staged ingest packages" \
+  --default-target "writeback_staging" >/dev/null
 
 [ -f "$native_repo/.loreforge/wiki.toml" ] || fail "native wiki config missing"
 [ -f "$native_repo/00_System/+Wiki Index.md" ] || fail "native index missing"
@@ -261,7 +261,7 @@ Options:
   --registry PATH          Registry path, default: ~/.config/loreforge/registry.toml
   --read-root PATH         Add read root, repeatable, default: .
   --target SPEC            Add target as name=path[:description], repeatable
-  --default-target NAME    Default writeback target
+  --default-target NAME    Default writeback or staging target
   --no-default             Do not make this binding the registry default
   --no-git                 Do not run git init for native starter creation
   -h, --help               Show help
@@ -275,8 +275,9 @@ DEFAULT_REGISTRY="${LOREFORGE_REGISTRY:-$HOME/.config/loreforge/registry.toml}"
 DEFAULT_STATE_DIR="$HOME/.local/state/loreforge/$NAME"
 DEFAULT_MODE="generic"
 DEFAULT_READ_ROOT="."
-DEFAULT_TARGET="notes"
-DEFAULT_TARGET_SPEC="notes=.:Default writeback target"
+DEFAULT_GENERIC_TARGET="notes"
+DEFAULT_GENERIC_TARGET_SPEC="notes=notes:Default durable notes target"
+DEFAULT_NATIVE_TARGET="writeback_staging"
 ```
 
 Use these runtime directories:
@@ -390,16 +391,16 @@ state_dir = "~/.local/state/loreforge/cs"
 mode = "native"
 remote = "git@github.com:OWNER/cs-native.git"
 description = "Example native LoreForge repository"
-default_target = "cards"
+default_target = "writeback_staging"
 read_roots = ["."]
 
-[bindings.targets.cards]
-path = "Cards"
-description = "Native cards"
+[bindings.targets.writeback_staging]
+path = "10_Inbox/writeback"
+description = "Native staged writeback packages"
 
-[bindings.targets.sources]
-path = "Sources"
-description = "Native source notes"
+[bindings.targets.ingest_staging]
+path = "10_Inbox/ingest"
+description = "Native staged ingest packages"
 
 [bindings.native]
 index_file = "00_System/+Wiki Index.md"
@@ -1106,9 +1107,9 @@ Add native starter flow:
 bash scripts/setup-binding.sh cs ~/wikis/cs \
   --mode native \
   --init-native-template \
-  --target "cards=Cards:Native cards" \
-  --target "sources=Sources:Native source notes" \
-  --default-target cards
+  --target "writeback_staging=10_Inbox/writeback:Native staged writeback packages" \
+  --target "ingest_staging=10_Inbox/ingest:Native staged ingest packages" \
+  --default-target writeback_staging
 ```
 ~~~
 

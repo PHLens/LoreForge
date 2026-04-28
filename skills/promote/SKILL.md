@@ -18,8 +18,8 @@ Promote is the transaction boundary for native stable writes. It applies reviewe
 
 Acceptable inputs:
 
-- staged native ingest folder
-- staged native writeback folder
+- staged native ingest folder under `10_Inbox/ingest/`
+- staged native writeback folder under `10_Inbox/writeback/`
 - specific staged source, card, or MOC files
 - a user-approved native promotion plan
 
@@ -82,7 +82,7 @@ Do not batch unrelated topics just because they were staged near the same time.
 
 1. Read the staged package `manifest.md`. If missing, infer a plan from staged files only after telling the user the package is incomplete.
 2. Read `candidate_notes`, `updates`, `source_type`, `provenance`, and `promotion_reason` from the manifest.
-3. Resolve each `candidate_notes` item as a package-relative path.
+3. Resolve each `candidate_notes` item as a package-relative path and each `updates` item as a target-repo-relative path.
 4. Infer the stable target from the candidate path:
    - `Cards/*.md` -> `<cards>/*.md`
    - `Sources/<Type>/*.md` -> `<sources>/<Type>/*.md`
@@ -125,7 +125,7 @@ promotion_reason: <why this should become stable native knowledge>
 # Package: <Title>
 ```
 
-`candidate_notes` and `updates` are package-relative path lists. Do not use `domain`, `path:`, or `kind:` objects in the manifest.
+`candidate_notes` are package-relative path lists. `updates` are target-repo-relative paths changed by promotion. Do not use `domain`, `path:`, or `kind:` objects in the manifest.
 
 If `candidate_notes` contains multiple items, treat them as one batch and promote only the approved subset.
 
@@ -194,7 +194,7 @@ Do not write logs for:
 - query
 - search
 - incomplete staged drafts
-- staged package creation already logged before promotion
+- ordinary staged package creation
 - read-only lint
 - git sync
 

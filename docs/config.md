@@ -15,7 +15,7 @@ Purpose:
 - machine-local discovery
 - maps binding names to user-owned target repositories
 - records LoreForge runtime state locations
-- defines search roots and writeback targets
+- defines search roots and writeback or staging targets
 - records optional Git remotes and native profile paths
 
 Template:
@@ -58,16 +58,16 @@ state_dir = "~/.local/state/loreforge/cs"
 mode = "native"
 remote = "git@github.com:OWNER/cs-native.git"
 description = "Native LoreForge knowledge repository"
-default_target = "cards"
+default_target = "writeback_staging"
 read_roots = ["."]
 
-[bindings.targets.cards]
-path = "Cards"
-description = "Native cards"
+[bindings.targets.writeback_staging]
+path = "10_Inbox/writeback"
+description = "Native staged writeback packages"
 
-[bindings.targets.sources]
-path = "Sources"
-description = "Native source notes"
+[bindings.targets.ingest_staging]
+path = "10_Inbox/ingest"
+description = "Native staged ingest packages"
 
 [bindings.native]
 index_file = "00_System/+Wiki Index.md"
@@ -85,12 +85,12 @@ The registry is not a knowledge store. Do not put notes, findings, summaries, so
 | `target_repo` | User-owned repository or directory that holds durable content |
 | `state_dir` | LoreForge-managed runtime directory for packages, reports, caches, locks, and temporary files |
 | `mode` | `generic` for core workflows only, or `native` for core workflows plus native query/promote/native lint |
-| `default_target` | Writeback target used when a package does not select another configured target |
+| `default_target` | Generic default durable writeback target, or native default staging target |
 | `read_roots` | Relative paths inside `target_repo` that search and context gathering may read |
-| `[bindings.targets.*]` | Named writeback target tables; each target defines a safe relative `path` and optional `description` |
+| `[bindings.targets.*]` | Named generic writeback or native staging target tables; each target defines a safe relative `path` and optional `description` |
 | `[bindings.native]` | Native-only paths such as `index_file`, `log_file`, and `views_dir` |
 
-`targets` are the only target-repo paths that writeback may modify. `read_roots` are the search boundary. Both are relative to `target_repo` and must stay inside it.
+For generic bindings, `targets` are the only target-repo paths that writeback may modify. For native bindings, `targets` should point to staging paths such as `10_Inbox/writeback` or `10_Inbox/ingest`; stable native paths such as `Cards/`, `Sources/`, and `MOCs/` are not valid writeback targets. `read_roots` are the search boundary. Both are relative to `target_repo` and must stay inside it.
 
 ## Setup And Register
 
@@ -165,9 +165,10 @@ archive = "Archive"
 1. Agent reads `~/.config/loreforge/registry.toml`.
 2. Agent resolves the requested binding name, or the registry `default`.
 3. Agent loads `target_repo`, `state_dir`, `mode`, `read_roots`, targets, and native fields.
-4. Core operations use the target repo plus runtime state.
-5. Native operations additionally read native target metadata and views when present.
-6. The selected operation reports the binding it used.
+4. Generic core write operations use runtime packages in `state_dir`.
+5. Native core write operations stage review packages under the target repo `10_Inbox/` and use `state_dir` for runtime evidence, reports, caches, and snapshots.
+6. Native operations additionally read native target metadata and views when present.
+7. The selected operation reports the binding it used.
 
 Agents should not guess target paths when the registry is available.
 

@@ -16,7 +16,7 @@ pamem
   agent-local experience
 
 LoreForge runtime state
-  staged packages
+  generic staged packages
   source extracts and optional snapshots
   reports, caches, locks, and temporary files
   operation metadata
@@ -24,7 +24,7 @@ LoreForge runtime state
 User target repositories
   durable professional knowledge
   notes, docs, source-grounded summaries, and examples
-  optional native LoreForge profile
+  optional native LoreForge profile and 10_Inbox review staging
   Git history and remotes owned by the user
 
 LoreForge framework repo
@@ -35,7 +35,7 @@ LoreForge framework repo
   skills, tests, and documentation
 ```
 
-LoreForge core is a workflow layer over user-owned repositories. It binds a target repo to runtime state, stages ingest and writeback work outside the target repo, and applies durable writes only through explicit validated operations.
+LoreForge core is a workflow layer over user-owned repositories. It binds a target repo to runtime state, stages generic ingest and writeback work outside the target repo, stages native review packages inside `10_Inbox/`, and applies durable writes only through explicit validated operations.
 
 Native repos are optional. They provide a higher-structure profile for `query`, `promote`, and `lint native` through indexes, views, cards, sources, MOCs, provenance conventions, and logs.
 
@@ -85,10 +85,11 @@ The boundary is intentional:
 | User preference | `pamem` or host agent memory |
 | Agent operating experience | `pamem` or host agent memory |
 | Current task state | session, project files, or `pamem` |
-| Runtime package, extract, report, cache, or lock | LoreForge runtime state |
+| Generic runtime package, extract, report, cache, or lock | LoreForge runtime state |
+| Native review package awaiting promotion | target repo `10_Inbox/` |
 | Reusable professional concept | user target repository |
 | Source-grounded summary | user target repository |
-| Cross-agent knowledge package awaiting review | LoreForge runtime state |
+| Cross-agent native knowledge package awaiting review | target repo `10_Inbox/` |
 | Stable reviewed knowledge | user target repository |
 
 ## Difference From Other LLM-Wiki Systems

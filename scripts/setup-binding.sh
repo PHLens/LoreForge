@@ -7,8 +7,11 @@ NAME_REGEX='^[A-Za-z0-9._-]+$'
 TARGET_NAME_REGEX='^[A-Za-z0-9_-]+$'
 DEFAULT_MODE="generic"
 DEFAULT_READ_ROOT="."
-DEFAULT_TARGET="notes"
-DEFAULT_TARGET_SPEC="notes=.:Default writeback target"
+DEFAULT_GENERIC_TARGET="notes"
+DEFAULT_GENERIC_TARGET_SPEC="notes=notes:Default durable notes target"
+DEFAULT_NATIVE_TARGET="writeback_staging"
+DEFAULT_NATIVE_WRITEBACK_TARGET_SPEC="writeback_staging=10_Inbox/writeback:Native staged writeback packages"
+DEFAULT_NATIVE_INGEST_TARGET_SPEC="ingest_staging=10_Inbox/ingest:Native staged ingest packages"
 DEFAULT_REGISTRY="${LOREFORGE_REGISTRY:-$HOME/.config/loreforge/registry.toml}"
 
 usage() {
@@ -25,7 +28,7 @@ Options:
   --registry PATH          Registry path, default: ~/.config/loreforge/registry.toml
   --read-root PATH         Add read root, repeatable, default: .
   --target SPEC            Add target as name=path[:description], repeatable
-  --default-target NAME    Default writeback target
+  --default-target NAME    Default writeback or staging target
   --no-default             Do not make this binding the registry default
   --no-git                 Do not run git init for native starter creation
   -h, --help               Show help
@@ -160,6 +163,41 @@ target_seen() {
   done
 
   return 1
+}
+
+add_default_targets() {
+  if [ "$MODE" = "native" ]; then
+    add_target_spec "$DEFAULT_NATIVE_WRITEBACK_TARGET_SPEC"
+    add_target_spec "$DEFAULT_NATIVE_INGEST_TARGET_SPEC"
+  else
+    add_target_spec "$DEFAULT_GENERIC_TARGET_SPEC"
+  fi
+}
+
+native_stable_target_path() {
+  local path="${1%/}"
+
+  case "$path" in
+    Cards|Cards/*|Sources|Sources/*|MOCs|MOCs/*)
+      return 0
+      ;;
+  esac
+
+  return 1
+}
+
+reject_native_stable_targets() {
+  local index
+  local target_path
+
+  [ "$MODE" = "native" ] || return 0
+
+  for index in "${!target_names[@]}"; do
+    target_path="${target_paths[$index]}"
+    if native_stable_target_path "$target_path"; then
+      die "native target ${target_names[$index]} points at stable path $target_path; use 10_Inbox staging targets and promote for stable writes"
+    fi
+  done
 }
 
 add_target_spec() {
@@ -743,7 +781,7 @@ REMOTE_SET=0
 STATE_DIR_INPUT=""
 STATE_DIR_SET=0
 REGISTRY_INPUT="$DEFAULT_REGISTRY"
-DEFAULT_TARGET_NAME="$DEFAULT_TARGET"
+DEFAULT_TARGET_NAME="$DEFAULT_GENERIC_TARGET"
 DEFAULT_TARGET_SET=0
 NO_DEFAULT=0
 NO_GIT=0
@@ -866,12 +904,20 @@ if [ "$INIT_NATIVE_TEMPLATE" -eq 1 ]; then
   fi
 fi
 
+if [ "$DEFAULT_TARGET_SET" -eq 0 ] && [ -z "$existing_default_target" ]; then
+  if [ "$MODE" = "native" ]; then
+    DEFAULT_TARGET_NAME="$DEFAULT_NATIVE_TARGET"
+  else
+    DEFAULT_TARGET_NAME="$DEFAULT_GENERIC_TARGET"
+  fi
+fi
+
 if [ "${#read_roots[@]}" -eq 0 ]; then
   read_roots+=("$DEFAULT_READ_ROOT")
 fi
 
 if [ "${#target_names[@]}" -eq 0 ]; then
-  add_target_spec "$DEFAULT_TARGET_SPEC"
+  add_default_targets
 fi
 
 if ! [[ "$DEFAULT_TARGET_NAME" =~ $TARGET_NAME_REGEX ]]; then
@@ -881,6 +927,8 @@ fi
 if ! target_seen "$DEFAULT_TARGET_NAME"; then
   die "default target is not configured: $DEFAULT_TARGET_NAME"
 fi
+
+reject_native_stable_targets
 
 if [ -z "$STATE_DIR_INPUT" ]; then
   STATE_DIR_INPUT="$HOME/.local/state/loreforge/$NAME"

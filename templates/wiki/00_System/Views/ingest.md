@@ -18,8 +18,7 @@ Use this view when processing a new article, paper, document, repository, local 
 4. Create a staged package with `manifest.md`.
 5. Use type-first candidate paths such as `Sources/Docs/<source>.md` and `Cards/<concept>.md`.
 6. Include `00_System/+Wiki Index.md` in `updates` when the package contains card candidates.
-7. Log substantive package creation in `00_System/Wiki Log.md`.
-8. Use `promote` for stable notes, index updates, archive moves, and promotion log entries.
+7. Use `promote` for stable notes, index updates, archive moves, and promotion log entries.
 
 ## Boundary
 

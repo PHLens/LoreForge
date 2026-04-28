@@ -91,6 +91,20 @@ assert_file_contains "$registry" '^path = "references"$'
 bash "$LINT_PROTOCOL" --registry "$registry" notes >/dev/null
 pass "repeat setup preserves existing binding fields"
 
+default_repo="$TMP_DIR/default-generic-repo"
+default_registry="$TMP_DIR/default-registry.toml"
+default_state="$TMP_DIR/state/default"
+bash "$SETUP" default "$default_repo" \
+  --registry "$default_registry" \
+  --state-dir "$default_state" >/dev/null
+
+[ -d "$default_repo/notes" ] || fail "default generic target dir missing"
+assert_file_contains "$default_registry" '^default_target = "notes"$'
+assert_file_contains "$default_registry" '^\[bindings.targets.notes\]$'
+assert_file_contains "$default_registry" '^path = "notes"$'
+bash "$LINT_PROTOCOL" --registry "$default_registry" default >/dev/null
+pass "default generic setup avoids repository root target"
+
 native_repo="$TMP_DIR/native-repo"
 native_state="$TMP_DIR/state/cs"
 bash "$SETUP" cs "$native_repo" \
@@ -100,20 +114,37 @@ bash "$SETUP" cs "$native_repo" \
   --init-native-template \
   --description "Native knowledge repo" \
   --read-root "." \
-  --target "cards=Cards:Native cards" \
-  --target "sources=Sources:Native source notes" \
-  --default-target "cards" >/dev/null
+  --target "writeback_staging=10_Inbox/writeback:Native staged writeback packages" \
+  --target "ingest_staging=10_Inbox/ingest:Native staged ingest packages" \
+  --default-target "writeback_staging" >/dev/null
 
 [ -f "$native_repo/.loreforge/wiki.toml" ] || fail "native wiki config missing"
 [ -f "$native_repo/00_System/+Wiki Index.md" ] || fail "native index missing"
 [ -d "$native_state/packages/ingest" ] || fail "native runtime state missing"
 assert_file_contains "$registry" '^name = "cs"$'
 assert_file_contains "$registry" '^mode = "native"$'
+assert_file_contains "$registry" '^default_target = "writeback_staging"$'
+assert_file_contains "$registry" '^\[bindings.targets.writeback_staging\]$'
+assert_file_contains "$registry" '^path = "10_Inbox/writeback"$'
+assert_file_contains "$registry" '^\[bindings.targets.ingest_staging\]$'
+assert_file_contains "$registry" '^path = "10_Inbox/ingest"$'
 assert_file_contains "$registry" '^\[bindings.native\]$'
 assert_file_contains "$registry" '^index_file = "00_System/\+Wiki Index.md"$'
 
 bash "$LINT_PROTOCOL" --registry "$registry" cs >/dev/null
 pass "native binding creates starter repo and passes protocol lint"
+
+bad_native_target="$TMP_DIR/bad-native-target"
+bash "$SETUP" badnative "$bad_native_target" \
+  --registry "$registry" \
+  --mode native \
+  --init-native-template \
+  --target "cards=Cards:Native cards" \
+  --default-target "cards" >/tmp/loreforge-native-stable-target.out 2>&1 && {
+  cat /tmp/loreforge-native-stable-target.out >&2
+  fail "native setup allowed stable writeback target"
+}
+pass "native setup rejects stable writeback targets"
 
 non_empty_native="$TMP_DIR/non-empty-native"
 mkdir -p "$non_empty_native"

@@ -2,9 +2,11 @@
 
 This document describes LoreForge's optional native repository profile and native retrieval contract.
 
-Generic bindings do not need this structure. A generic binding only needs a registry entry, runtime state, configured read roots, and configured writeback targets. Use `search` for generic retrieval and `writeback` for generic writes.
+Generic bindings do not need this structure. A generic binding only needs a registry entry, runtime state, configured read roots, and configured writeback targets. Use `search` for generic retrieval and `writeback` for generic stable writes.
 
 Native bindings add a high-structure profile for `query`, `promote`, and `lint native`. The native profile gives agents predictable indexes, views, note kinds, provenance conventions, and promotion logs.
+
+Native staging is repo-local by design. Native ingest and writeback create review packages under `10_Inbox/` so humans and other agents can inspect them before `promote` writes stable knowledge. `state_dir` remains available for extracts, snapshots, reports, cache, locks, and temporary runtime evidence.
 
 ## Native Layers
 
@@ -99,11 +101,11 @@ Promotion is the native transaction that:
 4. moves consumed staging material to `Archive/promoted/` or `Archive/rejected/`
 5. appends one entry to `00_System/Wiki Log.md`
 
-Generic bindings use `writeback` as their stable write operation. Generic writeback validates configured targets and paths but does not require native indexes, logs, MOCs, or promotion semantics.
+Generic bindings use `writeback` as their stable write operation. Generic writeback validates configured targets and paths but does not require native indexes, logs, MOCs, or promotion semantics. Native bindings use `writeback` only to create staged packages under `10_Inbox/writeback/`; stable native writes go through `promote`.
 
 ## Native Manifest Convention
 
-Core runtime packages use `manifest.toml` in `state_dir` and are checked by protocol lint. Native repos may additionally use Markdown package manifests when material is staged inside the native layout.
+Generic runtime packages use `manifest.toml` in `state_dir` and are checked by protocol lint. Native review packages use `manifest.md` under `10_Inbox/ingest/` or `10_Inbox/writeback/` and are checked by native lint.
 
 Minimum native manifest:
 
@@ -123,7 +125,7 @@ promotion_reason: <why this should become stable native knowledge>
 ---
 ```
 
-`candidate_notes` and `updates` are simple package-relative path lists. Do not use a `domain` field or `path`/`kind` objects in the native manifest.
+`candidate_notes` are simple package-relative path lists. `updates` are target-repo-relative paths that will be changed during promotion, such as `00_System/+Wiki Index.md`. Do not use a `domain` field or `path`/`kind` objects in the native manifest.
 
 ## Native Note Metadata
 
@@ -172,6 +174,6 @@ up: ""
 
 ## Native Log
 
-`00_System/Wiki Log.md` is broader than promotion history. It may record substantive native package creation and lint passes with meaningful findings, but should not record ordinary queries, read-only lint with no meaningful findings, or sync operations.
+`00_System/Wiki Log.md` is broader than promotion history, but staged package creation is already represented by the package manifest. The log may record promotions and lint passes with meaningful findings, but should not record ordinary queries, ordinary staged package creation, read-only lint with no meaningful findings, or sync operations.
 
 This log convention applies to native repos only.

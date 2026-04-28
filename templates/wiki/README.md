@@ -1,6 +1,6 @@
 # LoreForge Wiki Template
 
-This is the generic LoreForge wiki instance template.
+This is the native LoreForge wiki starter template.
 
 The template is type-first: directories describe what a note is, not which domain owns it. Domain and topic structure should emerge through MOCs, links, tags, and the card index.
 
@@ -69,7 +69,7 @@ ingest/writeback package -> promote -> stable notes + card index + wiki log + ar
 
 ## Manifest Shape
 
-Staged packages use `manifest.md` with package-relative path lists:
+Staged packages use `manifest.md` with package-relative candidate paths and target-repo-relative update paths:
 
 ```yaml
 ---

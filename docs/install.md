@@ -5,7 +5,7 @@ LoreForge has two setup flows:
 1. Bind an existing user-owned repository.
 2. Create an optional native starter repository.
 
-The first flow is the default. It keeps the target repository's existing layout and stores LoreForge workflow state outside the repo.
+The first flow is the default. It keeps the target repository's existing layout and stores generic LoreForge package state outside the repo.
 
 ## Bind An Existing Repository
 
@@ -51,12 +51,12 @@ The helper command is:
 bash scripts/setup-binding.sh cs /path/to/cs-native \
   --mode native \
   --init-native-template \
-  --target "cards=Cards:Native cards" \
-  --target "sources=Sources:Native source notes" \
-  --default-target cards
+  --target "writeback_staging=10_Inbox/writeback:Native staged writeback packages" \
+  --target "ingest_staging=10_Inbox/ingest:Native staged ingest packages" \
+  --default-target writeback_staging
 ```
 
-Native starter creation copies `templates/wiki/` into a missing or empty target path, initializes runtime state, and registers the binding as `mode = "native"`. This is optional; it is not the default shape for all LoreForge usage.
+Native starter creation copies `templates/wiki/` into a missing or empty target path, initializes runtime state, and registers the binding as `mode = "native"`. Native writeback targets point at `10_Inbox/` staging paths, not stable `Cards/`, `Sources/`, or `MOCs/`. This is optional; it is not the default shape for all LoreForge usage.
 
 ## Configure Local Discovery
 
@@ -127,4 +127,4 @@ Claude plugin metadata:
 .claude/CLAUDE.md
 ```
 
-The plugin contains routing rules and skills only. Durable knowledge stays in bound user target repositories, while workflow packages and reports stay in LoreForge runtime state.
+The plugin contains routing rules and skills only. Durable knowledge stays in bound user target repositories. Generic workflow packages and reports stay in LoreForge runtime state; native review packages stay in the target repo `10_Inbox/`, with runtime evidence in `state_dir`.

@@ -12,14 +12,13 @@ Log:
 - promoted writeback packages
 - approved stable note edits made during promotion
 - card index updates caused by promotion
-- substantive staged ingest package creation
-- substantive staged writeback package creation
 - lint pass with meaningful findings
 
 Do not log:
 
 - ordinary query
 - incomplete staged drafts
+- ordinary staged package creation
 - read-only lint with no meaningful findings
 - git sync
 
@@ -40,22 +39,6 @@ Do not log:
   - `<item>` - <reason>
 - reason:
   - <why this became stable wiki knowledge>
-```
-
-## Staged Package Entry
-
-```markdown
-## YYYY-MM-DD | stage | <ingest|writeback> | <package-slug>
-
-- package:
-  - `<ingest-or-writeback>/<YYYY-MM-DD>-<short-slug>/`
-- source_type:
-  - `<source type>`
-- candidate_notes:
-  - `Cards/<candidate-card>.md`
-  - `Sources/<Type>/<candidate-source>.md`
-- reason:
-  - <why this package may deserve promotion>
 ```
 
 ## Lint Findings Entry

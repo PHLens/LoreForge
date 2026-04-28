@@ -5,8 +5,34 @@ set -euo pipefail
 
 VAULT="${1:-.}"
 cd "$VAULT"
+VAULT_ROOT="$(pwd -P)"
 
 CONFIG=".loreforge/wiki.toml"
+
+absolute_path() {
+  local path="$1"
+
+  if command -v realpath >/dev/null 2>&1; then
+    realpath -m -- "$path"
+    return
+  fi
+
+  case "$path" in
+    /*)
+      printf '%s\n' "$path"
+      ;;
+    *)
+      printf '%s/%s\n' "$(pwd -P)" "$path"
+      ;;
+  esac
+}
+
+path_inside_root() {
+  local root="$1"
+  local path="$2"
+
+  [ "$path" = "$root" ] || [[ "$path" == "$root/"* ]]
+}
 
 toml_get() {
   local section="$1"
@@ -198,6 +224,11 @@ validate_manifest() {
   local manifest="$1"
   local expected_type="$2"
   local issues=0
+  local package_dir
+  local package_root
+
+  package_dir="$(dirname "$manifest")"
+  package_root="$(absolute_path "$package_dir")"
 
   if ! has_frontmatter "$manifest"; then
     echo "  - invalid manifest: $manifest missing frontmatter"
@@ -241,6 +272,10 @@ validate_manifest() {
 
   local candidate_notes
   local updates
+  local candidate
+  local candidate_abs
+  local update
+  local update_abs
   candidate_notes="$(section_list_items "$manifest" "candidate_notes" || true)"
   updates="$(section_list_items "$manifest" "updates" || true)"
 
@@ -252,6 +287,49 @@ validate_manifest() {
     echo "  - invalid manifest: $manifest candidate_notes must not use kind objects"
     issues=$((issues + 1))
   fi
+
+  while IFS= read -r candidate; do
+    [ -z "$candidate" ] && continue
+    case "$candidate" in
+      /*)
+        echo "  - invalid manifest: $manifest candidate path must be package-relative: $candidate"
+        issues=$((issues + 1))
+        continue
+        ;;
+    esac
+    case "$candidate" in
+      Cards/*|Sources/*|MOCs/*)
+        ;;
+      *)
+        echo "  - invalid manifest: $manifest candidate path must start with Cards/, Sources/, or MOCs/: $candidate"
+        issues=$((issues + 1))
+        ;;
+    esac
+    candidate_abs="$(absolute_path "$package_dir/$candidate")"
+    if ! path_inside_root "$package_root" "$candidate_abs"; then
+      echo "  - invalid manifest: $manifest candidate path escapes package: $candidate"
+      issues=$((issues + 1))
+    elif [ ! -f "$candidate_abs" ]; then
+      echo "  - invalid manifest: $manifest candidate file missing: $candidate"
+      issues=$((issues + 1))
+    fi
+  done <<< "$candidate_notes"
+
+  while IFS= read -r update; do
+    [ -z "$update" ] && continue
+    case "$update" in
+      /*)
+        echo "  - invalid manifest: $manifest update path must be target-repo-relative: $update"
+        issues=$((issues + 1))
+        continue
+        ;;
+    esac
+    update_abs="$(absolute_path "$VAULT_ROOT/$update")"
+    if ! path_inside_root "$VAULT_ROOT" "$update_abs"; then
+      echo "  - invalid manifest: $manifest update path escapes target repo: $update"
+      issues=$((issues + 1))
+    fi
+  done <<< "$updates"
 
   if printf '%s\n' "$candidate_notes" | rg -q "^${CARDS_DIR}/|^Cards/"; then
     if ! printf '%s\n' "$updates" | grep -Fxq "$INDEX_FILE"; then

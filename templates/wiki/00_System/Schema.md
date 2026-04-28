@@ -126,7 +126,7 @@ promotion_reason: <why this should become stable wiki knowledge>
 ---
 ```
 
-`candidate_notes` and `updates` are package-relative path lists. Do not use `domain`, `path:`, or `kind:` objects in the manifest.
+`candidate_notes` are package-relative path lists. `updates` are target-repo-relative paths changed by promotion. Do not use `domain`, `path:`, or `kind:` objects in the manifest.
 
 ## Promotion Boundary
 
@@ -156,8 +156,6 @@ Log meaningful wiki evolution events:
 - promoted writeback packages
 - approved stable note edits made during promotion
 - card index updates caused by promotion
-- substantive staged ingest package creation
-- substantive staged writeback package creation
 - lint pass with meaningful findings
 
-Do not log ordinary query, incomplete staged drafts, read-only lint with no meaningful findings, or git sync.
+Do not log ordinary query, ordinary staged package creation, incomplete staged drafts, read-only lint with no meaningful findings, or git sync.
