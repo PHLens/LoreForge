@@ -18,8 +18,11 @@ Then edit:
 
 - `AGENTS.md`
 - `00_System/Vault Map.md`
+- `00_System/+Wiki Index.md`
 - `00_System/Views/`
-- `20_Domains/`
+- `Cards/`
+- `Sources/`
+- `MOCs/`
 
 ## Use With pamem
 

@@ -3,6 +3,7 @@ aliases:
 tags:
   - system/guide
   - agent
+kind: moc
 up: "[[+Atlas]]"
 ---
 # +Vault Guide
@@ -13,16 +14,16 @@ Structural guide for agents operating on this vault. For workflow steps, see [[+
 
 | Directory | Purpose | Agent Access |
 |-----------|---------|-------------|
-| `Cards/` | Atomic concept notes | Stage first, confirm to promote |
-| `MOCs/` | Maps of Content | Stage first, confirm to promote |
-| `MOCs/Scope/` | Agent-facing indexes and logs | Update during approved promotion |
-| `Sources/Article/` | Article source notes | Write-once, additive only |
+| `Cards/` | Flat atomic concept notes | Stage first, confirm to promote |
+| `MOCs/` | Emergent Maps of Content | Stage first, confirm to promote |
+| `MOCs/Scope/` | Vault-level views plus adapter index/log | Update index/log during approved promotion |
+| `Sources/Article/` | Legacy article source notes | Write-once, additive only |
 | `Sources/Papers/` | Paper notes | Write-once, additive only |
-| `Sources/Cubox/` | Cubox sync content | Write-once, additive only |
+| `Sources/Cubox/` | Legacy Cubox sync content | Migration source only |
 | `10_Inbox/ingest/` | Staged source packages | Auto-create packages |
 | `10_Inbox/writeback/` | Staged conversation/query packages | Auto-create packages |
-| `Spaces/` | GTD, research, work | Stage first, confirm to promote |
-| `Inbox/` | Quick capture | Auto-create |
+| `Spaces/` | GTD, research, work | Human workspace, not a promote target |
+| `10_Inbox/capture/` | Quick capture | Auto-create |
 | `Extras/Media/Img/` | Images and figures | Auto-save |
 | `Extras/Templates/` | Note templates | Read-only |
 
@@ -30,7 +31,7 @@ Structural guide for agents operating on this vault. For workflow steps, see [[+
 
 | File | Purpose | Update Rule |
 |------|---------|------------|
-| `MOCs/Scope/+Wiki Index.md` | Agent-facing compact manifest of stable notes | Update during approved promotion |
+| `MOCs/Scope/+Wiki Index.md` | Adapter-configured operational card index | Update for promoted cards during approved promotion |
 | `MOCs/Scope/+Wiki Log.md` | Append-only operation log | Append for substantive staging and approved promotion |
 | `MOCs/Scope/+Atlas.md` | User dashboard | Do NOT modify |
 | `Cards/+ Index of Cards.md` | Dataview BOAT/Evergreen index | Do NOT modify |
@@ -57,14 +58,14 @@ tags:
   - agent
 category:
 modification date: YYYY-MM-DD
-up: "[[Parent Note]]"
+up: "<parent wikilink>"
 ---
 ```
 
 ### Inline Metadata
 
-- `up:: [[Parent Note]]` — double colon, no quotes (Dataview inline field)
-- `X:: [[Related Note]]` — only for distinction/comparison concepts
+- `up:: <parent wikilink>` — double colon, no quotes (Dataview inline field)
+- `X:: <related wikilink>` — only for distinction/comparison concepts
 
 ## Naming Conventions
 
@@ -77,12 +78,12 @@ up: "[[Parent Note]]"
 Run `bash <skill-path>/lint/scripts/lint-wiki.sh [vault_path]`.
 
 Check items:
-1. Undiscoverable notes (triply unreachable: no inbound link, no +Wiki Index entry, no `up` field)
-2. Missing `up` field (informational)
-3. Unresolved `[[link]]` targets
+1. Card index membership and integration classification
+2. Flat Cards structure
+3. Unresolved wikilink targets
 4. Duplicate/near-duplicate titles
 5. Staged packages in `10_Inbox/ingest/` or `10_Inbox/writeback/`, including missing or invalid manifests
-6. MOC stale references (entries pointing to missing cards)
+6. Source reference/provenance health
 7. Metadata drift (inconsistent tags, empty sub-tags, missing frontmatter)
 
 Output: structured report in chat. No file writes. Log lint only when it has meaningful findings and the user approves.

@@ -8,7 +8,7 @@ user-invocable: true
 
 `capture` is the quick-entry form of `ingest mode=capture`.
 
-Use it to save a short, source-oriented note without deciding domain, final structure, or stable value.
+Use it to save a short, source-oriented note without deciding final structure, MOC placement, or stable value.
 
 ## Trigger
 
@@ -61,7 +61,7 @@ status: captured
 - Auto-create only inside the configured inbox. Inbox is staging.
 - Keep the note short. Do not synthesize a full article unless the user asked for that.
 - Do not process into concept cards; use `ingest mode=process` for that.
-- Prefer capture when the material may be valuable but the correct domain or structure is unclear
+- Prefer capture when the material may be valuable but the correct card, source, MOC, or stable structure is unclear.
 - Do not store agent-local experience, preferences, or task state in the wiki; use `pamem` for that.
 - Do not update the wiki log unless this capture is later processed into a staged package.
 - Do not commit or push git changes.

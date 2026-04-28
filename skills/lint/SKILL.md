@@ -1,6 +1,6 @@
 ---
 name: lint
-description: Use for LoreForge wiki health checks, structure validation, unresolved links, missing package manifests, domain index drift, metadata drift, and read-only lint reports.
+description: Use for LoreForge wiki health checks, structure validation, unresolved links, missing package manifests, card index drift, metadata drift, and read-only lint reports.
 user-invocable: true
 ---
 
@@ -27,12 +27,14 @@ If no path is given, run against the current directory.
 ## Check Items
 
 1. **Discovery health** - required files such as `.loreforge/wiki.toml`, `AGENTS.md`, vault map, wiki log, and configured view files.
-2. **Domain health** - each domain should have a domain map and `+Wiki Index.md`.
+2. **Type-first structure** - required paths such as `00_System/+Wiki Index.md`, `Cards/`, `Sources/`, `MOCs/`, and `Archive/`.
 3. **Unresolved links** - `[[link]]` targets that do not exist as files, excluding common attachments.
 4. **Duplicate or near-duplicate titles** - case/spacing variants across Markdown files.
 5. **Staged material** - captured or staged notes still under the configured inbox, plus ingest/writeback packages with missing or invalid `manifest.md`.
-6. **Card discoverability** - cards with no inbound link, no domain index entry, and no `up:` field.
-7. **Metadata drift** - empty tags, missing frontmatter on stable cards, and common malformed fields.
+6. **Flat Cards** - stable cards should live directly under `Cards/`, not in domain or migration subdirectories.
+7. **Card discoverability** - classify cards as integrated, index-only, unindexed, or orphaned.
+8. **Source reference health** - stable sources should be referenced by Cards/MOCs or traceable through package/log provenance.
+9. **Metadata drift** - missing frontmatter, missing `kind`, malformed fields, and syntax-level tag issues.
 
 ## Output
 

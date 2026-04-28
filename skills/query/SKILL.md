@@ -1,6 +1,6 @@
 ---
 name: query
-description: Use when answering from a configured LoreForge or llm-wiki knowledge base; query wiki maps, domain indexes, cards, MOCs, and sources before broad web search.
+description: Use when answering from a configured LoreForge or llm-wiki knowledge base; query the card index, Atlas/MOCs, cards, and sources before broad web search.
 user-invocable: true
 ---
 
@@ -14,11 +14,12 @@ Use compiled wiki knowledge first:
 
 1. Locate the wiki instance.
 2. Load the correct task view.
-3. Read the vault map and domain map.
-4. Use compact indexes.
-5. Search cards and MOCs.
-6. Search sources only when provenance matters.
-7. Use raw web search only when the wiki is missing or stale.
+3. Read the vault map.
+4. Read `00_System/+Wiki Index.md`.
+5. Use Atlas and MOCs to preselect semantic views when helpful.
+6. Search Cards by title, aliases, and content.
+7. Search Sources only when provenance matters.
+8. Use raw web search only when the wiki is missing or stale.
 
 ## Hard Boundary
 
@@ -74,34 +75,31 @@ If the path exists, operate on the local clone.
 4. Read `.loreforge/wiki.toml` if present.
 5. Read the wiki `AGENTS.md`.
 6. Read `00_System/Vault Map.md`.
-7. Select the task view:
-   - default query: `domain-query`
-   - source investigation: `source-ingest`
-   - structure/cleanup: `wiki-maintenance`
-8. Identify target domain from the question or ask the user if ambiguous.
-9. Read the target domain map.
-10. Read relevant sections of the target domain `+Wiki Index.md`.
-11. Search `Cards/` and `MOCs/`.
-12. Search `Sources/` only when evidence or provenance matters.
-13. Answer with wiki-grounded synthesis.
-14. If the wiki lacks durable knowledge, propose a capture or staged note; do not write by default.
+7. Select the query view from config, falling back to `00_System/Views/query.md`.
+8. Read `00_System/+Wiki Index.md` or configured `index_file`.
+9. Read `MOCs/Scope/+Atlas.md` if present.
+10. Use Atlas and MOCs to preselect likely semantic views when helpful.
+11. Search `Cards/` by title, aliases, and content.
+12. Read relevant `MOCs/` for synthesis and context.
+13. Search `Sources/` only when evidence, freshness, or provenance matters.
+14. Answer with wiki-grounded synthesis.
+15. If the wiki lacks durable knowledge, propose a capture or staged note; do not write by default.
 
 ## Search Order
 
-Use this order inside a wiki instance:
+Use this order inside a generic wiki instance:
 
 ```text
 00_System/Vault Map.md
-00_System/Views/<view>.md
-20_Domains/<Domain>/<Domain> Map.md
-20_Domains/<Domain>/+Wiki Index.md
-20_Domains/<Domain>/Cards/
-20_Domains/<Domain>/MOCs/
-20_Domains/<Domain>/Sources/
-30_Shared/
+00_System/Views/query.md
+00_System/+Wiki Index.md
+MOCs/Scope/+Atlas.md, if present
+MOCs/
+Cards/
+Sources/
 ```
 
-For Obsidian adapter vaults that still use `MOCs/Scope/+Wiki Index.md`, follow the adapter conventions in `adapters/obsidian-vault/`.
+For Obsidian adapter vaults that configure `MOCs/Scope/+Wiki Index.md`, follow the adapter's `.loreforge/wiki.toml` paths.
 
 ## GitHub Remote Support
 
@@ -124,8 +122,8 @@ If a local clone exists, use local files. Report dirty git state when relevant, 
 When answering, include:
 
 - which wiki was used
-- which view/domain was used
-- important source notes or cards consulted
+- which view was used
+- important cards, MOCs, or source notes consulted
 - any detected gap that should be captured or ingested later
 
 Keep the answer concise unless the user asks for detailed synthesis.

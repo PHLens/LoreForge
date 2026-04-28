@@ -101,7 +101,7 @@ Key differences:
 
 2. **Manifest as handoff protocol**
 
-   A staged package records source type, domain, provenance, candidate notes, proposed updates, and promotion reason. One agent can stage, another can review or promote, and a human can inspect the package.
+   A staged package records source type, provenance, candidate notes, proposed updates, and promotion reason. One agent can stage, another can review or promote, and a human can inspect the package.
 
 3. **Human-readable first**
 
@@ -172,16 +172,15 @@ For small personal experiments, a lighter llm-wiki may be enough. LoreForge is f
 
 ### Phase 2: Wiki Structure
 
-- finalize domain-first directory structure
-- define source note, concept card, MOC, and index conventions
-- clarify when content belongs in `20_Domains` vs `30_Shared`
+- finalize type-first directory structure
+- define source note, card, MOC, and card index conventions
+- clarify how `Cards/`, `Sources/`, `MOCs/`, and `Archive/` interact
 - define naming rules and duplicate handling
 - improve task views for query, ingest, writeback, promotion, and maintenance
 
 Next discussion focus:
 
-- decide whether domain-first should remain the default structure
-- define exact `Sources/`, `Cards/`, `MOCs/`, and `+Wiki Index.md` responsibilities
+- refine exact `Sources/`, `Cards/`, `MOCs/`, and `+Wiki Index.md` responsibilities from real use
 - define how staged package candidates map to stable notes
 - define minimum frontmatter and naming rules for stable notes
 - decide how source provenance should be represented without making notes noisy

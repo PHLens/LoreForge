@@ -6,17 +6,12 @@ up: "[[+Atlas]]"
 ---
 # +Wiki Index
 
-Agent-facing compact manifest. One line per entry, grouped by category.
-Updated by agents after every ingest/writeback. Not manually maintained.
+Adapter-configured operational card index.
 
-## MOC
-[[GPU Architecture]] — GPU architecture entry point [map]
-[[ML-System MOC]] — ML systems overview [map]
+This file lists stable Cards only by default. MOCs may be listed as convenience pointers, but MOC membership is not the card discoverability gate.
 
-## Card
-[[Memory Consistency Model]] — memory ordering and visibility guarantees [concept/gpu]
-[[Nvidia GPU Memory Model]] — CUDA memory model hierarchy [concept/gpu]
+Updated by approved promotion, not ordinary staging.
 
-## Source
+## Cards
 
-## Space
+## Optional MOC Pointers

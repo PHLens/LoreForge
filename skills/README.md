@@ -38,7 +38,7 @@ Pipeline:
 query -> answer
 ingest mode=capture -> inbox capture
 ingest/writeback -> staged package + package log
-promote -> stable notes + domain index + archive staging + promotion log
+promote -> stable notes + card index + optional MOC updates + archive staging + promotion log
 sync -> git persistence
 ```
 

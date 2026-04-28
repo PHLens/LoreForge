@@ -13,8 +13,8 @@ It is not agent-local memory. Agent-local experience, preferences, and current t
 1. Read this file.
 2. Read `00_System/Vault Map.md`.
 3. Choose the relevant task view from `00_System/Views/`.
-4. Read the relevant domain map before searching raw notes.
-5. Search the compact indexes before broad full-text search.
+4. Read `00_System/+Wiki Index.md` before broad full-text search.
+5. Use `MOCs/Scope/+Atlas.md` and relevant MOCs as optional semantic views.
 
 ## Write Policy
 
@@ -33,18 +33,19 @@ Requires confirmation:
 - Deletions, moves, or large restructures
 - Changes to `00_System/` rules or views
 
-Stable promotion should update notes and the target domain `+Wiki Index.md`, archive consumed staging material, and append `00_System/Wiki Log.md` in the same transaction.
+Stable promotion should update stable notes, update `00_System/+Wiki Index.md` for promoted cards, move consumed staging material to `Archive/`, and append `00_System/Wiki Log.md` in the same transaction.
 
 ## Storage Boundary
 
 | Content | Destination |
 |---|---|
-| Professional concept | `20_Domains/<Domain>/Cards/` |
-| Source summary | `20_Domains/<Domain>/Sources/` |
-| Topic map | `20_Domains/<Domain>/MOCs/` |
-| Cross-domain method | `30_Shared/Methods/` |
+| Professional concept or method | `Cards/` |
+| Source summary | `Sources/<Type>/` |
+| Topic map or semantic view | `MOCs/` |
+| Vault-level view | `MOCs/Scope/` |
 | Uncertain capture | `10_Inbox/capture/` |
 | Staged package | `10_Inbox/ingest/` or `10_Inbox/writeback/` |
+| Closed package | `Archive/promoted/` or `Archive/rejected/` |
 | Agent local experience | `pamem`, not this wiki |
 
 ## Do Not Store

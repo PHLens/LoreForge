@@ -6,7 +6,7 @@ All agents operating on this vault MUST follow these rules.
 
 ## Note Format
 
-- `up` field: frontmatter `up: "[[Parent]]"` (single colon, double quotes around wikilink); inline `up:: [[Parent]]` (double colon, no quotes)
+- `up` field: frontmatter `up: "<parent wikilink>"` (single colon, double quotes around wikilink); inline `up:: <parent wikilink>` (double colon, no quotes)
 - `X::` links: ONLY for distinction/comparison or easily confused concepts, NOT for all related notes
 - `agent` tag: add to all notes created by agents
 - `#map` tag for MOC notes, not `#moc`
@@ -29,12 +29,13 @@ All agents operating on this vault MUST follow these rules.
 
 - New ingest/writeback candidates stage as packages under `10_Inbox/ingest/` or `10_Inbox/writeback/`.
 - Legacy vaults may still contain `Sources/agents/`; treat it as an older staging area and migrate touched material into staged packages before promotion.
-- Wait for user confirmation before moving to final locations (`Cards/`, `MOCs/`, `Spaces/`)
+- Wait for user confirmation before moving to final LoreForge locations (`Cards/`, `Sources/<Type>/`, `MOCs/`)
+- `Spaces/` is a human workspace extension and not a stable promotion destination.
 - Do not touch final locations until user confirms
 
 ## +Wiki Index & Log
 
-- `MOCs/Scope/+Wiki Index.md` — agent-facing manifest of stable knowledge only. Update during approved promotion, not during ordinary staging.
+- `MOCs/Scope/+Wiki Index.md` — adapter-configured operational card index. Update for promoted cards during approved promotion, not during ordinary staging.
 - `MOCs/Scope/+Wiki Log.md` — append-only operation log for substantive staged packages and approved promotions.
   - Format: `## [YYYY-MM-DD] ingest|query|lint | <title>`
   - Body: `- source:`, `- created:`, `- updated:`, `- touched: N cards`
@@ -55,8 +56,8 @@ All agents operating on this vault MUST follow these rules.
 
 ## Discoverability
 
-- A note is discoverable if reachable via ANY of: inbound `[[link]]`, `+Wiki Index` entry, or `up` field
-- Lint reports "undiscoverable" notes (triply unreachable), not "orphans"
+- A stable card must appear in `+Wiki Index`; MOCs, `up`, `X::`, and inbound wikilinks are semantic integration signals.
+- Lint reports index-only cards as weakly integrated and unindexed/orphan cards as errors.
 
 ---
 

@@ -18,7 +18,7 @@ Modes:
 
 | Mode | Use when | Output |
 |---|---|---|
-| `capture` | Material may be useful but domain/value is unclear | short note under `<capture>/` |
+| `capture` | Material may be useful but structure/value is unclear | short note under `<capture>/` |
 | `process` | Source is ready to turn into wiki candidates | staged package under `<ingest>/` |
 | `research` | Source needs additional research before staging | staged package under `<ingest>/` |
 
@@ -28,7 +28,7 @@ Acceptable inputs:
 - source note
 - local file
 - URL or article
-- paper, docs, transcript, issue, PR, or dataset description
+- paper, docs, transcript, issue, PR, repository, or dataset description
 - user-provided source material
 
 ## Workflow
@@ -38,14 +38,15 @@ Acceptable inputs:
    - inbox: `10_Inbox`
    - capture: `10_Inbox/capture`
    - ingest: `10_Inbox/ingest`
-   - domains: `20_Domains`
-   - shared: `30_Shared`
-3. Read the wiki `AGENTS.md`, vault map, relevant task view, domain map, and relevant index sections.
+   - cards: `Cards`
+   - sources: `Sources`
+   - mocs: `MOCs`
+3. Read the wiki `AGENTS.md`, vault map, ingest view, card index, and relevant MOCs or cards.
 4. If mode is `capture`, save a short capture note and stop.
 5. If mode is `process` or `research`, read the source material or captured inbox note to understand content and provenance.
 6. If content is incomplete and mode is `research`, use an appropriate research skill or web search.
-7. Check for existing related source notes, cards, maps, and shared methods before creating new notes.
-8. Create a staged package with source notes, candidate cards, optional MOC drafts, and deltas. Keep cards atomic: one durable concept per card.
+7. Check existing Cards, MOCs, and Sources before creating new notes.
+8. Create a staged package with source notes, candidate cards, optional MOC drafts, and deltas.
 9. Add framework-required metadata and tags.
 10. Propose related links, index additions, and promotion destinations.
 11. Append a wiki log entry only when a substantive staged package is created.
@@ -56,19 +57,18 @@ Acceptable inputs:
 - Capture notes go to `<capture>/<YYYY-MM-DD>-<short-slug>.md`.
 - Processed material stages as a package under `<ingest>/<YYYY-MM-DD>-<short-slug>/`.
 - Use subfolders under the staging root when helpful:
-  - `Sources/`
+  - `Sources/<Type>/`
   - `Cards/`
   - `MOCs/`
   - `Deltas/`
   - `manifest.md`
 - Stable promotion destinations:
-  - source summaries: `<domains>/<Domain>/Sources/`
-  - concept cards: `<domains>/<Domain>/Cards/`
-  - topic maps: `<domains>/<Domain>/MOCs/`
-  - cross-domain methods: `<shared>/Methods/`
-- Obsidian adapter vaults may define different staging conventions; follow their adapter docs after resolving the wiki type.
+  - source summaries: `<sources>/<Type>/`
+  - concept cards: `<cards>/`
+  - topic maps: `<mocs>/`
+- Obsidian adapter vaults may define different index/log paths; follow their `.loreforge/wiki.toml` after resolving the wiki type.
 - Wait for user confirmation before moving staged notes to stable locations.
-- Use `promote` for stable moves, index updates, and promotion log entries.
+- Use `promote` for stable moves, index updates, MOC updates, archive moves, and promotion log entries.
 
 ## Staged Package Contract
 
@@ -79,20 +79,16 @@ Minimum manifest:
 ```markdown
 ---
 type: ingest
-source_type: <url|paper|docs|local_file|source_note|capture|user_material|research_synthesis>
+source_type: <article|paper|docs|book|talk|repo|dataset|local|capture|research_synthesis|user_material>
 status: staged
-domain: <Domain or unknown>
 created: YYYY-MM-DD
 provenance:
   - <source url/path/note>
 candidate_notes:
-  - path: Sources/<source-note>.md
-    kind: source
-  - path: Cards/<concept-card>.md
-    kind: card
+  - Sources/Docs/<source-note>.md
+  - Cards/<concept-card>.md
 updates:
-  - path: +Wiki Index.md
-    kind: index_delta
+  - 00_System/+Wiki Index.md
 promotion_reason: <why this should become stable wiki knowledge>
 ---
 # Package: <Title>
@@ -107,12 +103,14 @@ promotion_reason: <why this should become stable wiki knowledge>
 
 `promote` consumes this package. It may promote multiple candidate notes from one package.
 
+If the package contains card candidates, `updates` must include the configured card index, usually `00_System/+Wiki Index.md`. MOC updates are optional. Source-only packages do not need an index update.
+
 ## Stage Log Entry
 
 For substantive `process` or `research` packages, append one wiki log entry:
 
 ```markdown
-## YYYY-MM-DD | stage | ingest | <Domain or unknown>
+## YYYY-MM-DD | stage | ingest | <package-slug>
 
 - package:
   - `<ingest>/<YYYY-MM-DD>-<short-slug>/`
@@ -142,17 +140,18 @@ It may append a concise wiki log entry for a substantive staged ingest package. 
 
 ```markdown
 ---
+status: staged
+created: YYYY-MM-DD
+kind: card
 aliases:
   - Alternative names
 tags:
   - concept
-  - concept/<domain>
-domain: <Domain>
-status: staged
-created: YYYY-MM-DD
-up: "[[Parent Concept]]"
+up: ""
 ---
+
 X:: [[Related Concept]]
+
 # <Concept>
 
 ## Why It Matters

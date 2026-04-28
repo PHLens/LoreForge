@@ -13,7 +13,7 @@ name = "cs"
 path = "/path/to/cs-wiki"
 remote = "git@github.com:OWNER/cs-wiki.git"
 description = "Computer science, GPU, ML systems, PyTorch"
-default_view = "domain-query"
+default_view = "query"
 
 [[wikis]]
 name = "example"

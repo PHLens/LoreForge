@@ -3,6 +3,7 @@ aliases:
 tags:
   - system/guide
   - agent
+kind: moc
 up: "[[+Atlas]]"
 ---
 # +Agent Workflow
@@ -19,14 +20,15 @@ Knowledge grows bottom-up. MOCs emerge when conceptual clusters form naturally.
 
 ## 1. Source Note Creation
 
-Location: `Sources/Article/` or `Sources/Cubox/`
+Location: `Sources/<Type>/`
 
 ```markdown
 ---
 aliases:
 tags:
   - source/article
-domain: <domain>
+source_type: article
+source_system: cubox
 url: <original_url>
 author: <author>
 ---
@@ -82,7 +84,7 @@ After creating new cards, scan and update all related existing cards:
 - Additive only: add backlinks, See also, source references, short fact paragraphs (<3 lines)
 - Do NOT: rewrite existing content, delete content, restructure sections
 - Autonomy: additive-only → auto; semantic changes → confirm
-- Detection: use `up` field, `X::` links, `[[link]]` references, and `+Wiki Index` to find related cards
+- Detection: use `up` field, `X::` links, wikilink references, and `+Wiki Index` to find related cards
 
 ## 4. MOC Emergence (conditional)
 
@@ -103,7 +105,7 @@ Location: `MOCs/`
 Location: `MOCs/Scope/+Wiki Index.md`
 
 Update the index only during approved promotion:
-- Add stable entries: `[[Note]] — <one-line summary> [category]`
+- Add stable card entries: `<card wikilink> — <one-line summary> [category]`
 - Update existing stable entries if the approved promotion changes retrieval text
 - Remove entries only when an approved promotion or maintenance plan moves/deletes stable notes
 
@@ -113,7 +115,7 @@ Location: `MOCs/Scope/+Wiki Log.md`
 
 Append logs for substantive staged packages and approved promotions:
 ```markdown
-## [YYYY-MM-DD] stage|promote|lint | <title>
+## YYYY-MM-DD | stage|promote|lint | <package-or-scope>
 - source: <what was processed>
 - created: <new notes>
 - updated: <modified notes>
@@ -126,8 +128,8 @@ When a synthesized answer has lasting value:
 1. Deliver answer first — do not delay for writeback evaluation
 2. Evaluate: comparison/analysis → high; concept explanation → medium; simple lookup → skip
 3. Stage a writeback package under `10_Inbox/writeback/`
-4. Include candidate notes, proposed deltas, provenance, and promotion rationale in `manifest.md`
-5. Use `promote` for stable notes, index updates, staging archive, and promotion log entries after approval
+4. Include package-relative candidate notes, proposed deltas, provenance, and promotion rationale in `manifest.md`
+5. Use `promote` for stable notes, index updates, archive moves, and promotion log entries after approval
 
 ## Comparison Card Format
 
@@ -173,7 +175,7 @@ Reference:
 
 - [ ] Source note has Why/What/How structure
 - [ ] Each card is atomic (one concept)
-- [ ] Connections discovered and recorded (`[[link]]`, `X::`, `up`)
+- [ ] Connections discovered and recorded (wikilinks, `X::`, `up`)
 - [ ] Cards reference source notes
 - [ ] Tags follow convention (concept, concept/domain)
 - [ ] MOC created/updated ONLY if genuine cluster formed

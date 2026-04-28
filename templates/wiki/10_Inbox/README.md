@@ -2,7 +2,7 @@
 
 Temporary location for unsorted captures and staged packages.
 
-Use this area when knowledge may be durable but the correct domain, card, or source location is unclear.
+Use this area when knowledge may be durable but still needs review before stable placement.
 
 ## Layout
 

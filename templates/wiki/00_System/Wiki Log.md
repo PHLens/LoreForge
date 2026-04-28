@@ -11,7 +11,7 @@ Log:
 - promoted staged ingest material
 - promoted writeback packages
 - approved stable note edits made during promotion
-- index updates caused by promotion
+- card index updates caused by promotion
 - substantive staged ingest package creation
 - substantive staged writeback package creation
 - lint pass with meaningful findings
@@ -27,17 +27,16 @@ Do not log:
 ## Promotion Entry
 
 ```markdown
-## YYYY-MM-DD | promote | <Domain or Shared>
+## YYYY-MM-DD | promote | <package-slug>
 
 - staged_from:
   - `<staged path>`
 - created:
   - [[New Note]] (`path/to/New Note.md`)
 - updated:
-  - [[Existing Note]] (`path/to/Existing Note.md`)
-  - [[+Wiki Index]] (`20_Domains/<Domain>/+Wiki Index.md`)
+  - [[+Wiki Index]] (`00_System/+Wiki Index.md`)
 - archived_to:
-  - `40_Archive/promoted/<YYYY-MM-DD>-<short-slug>/`
+  - `Archive/promoted/<YYYY-MM-DD>-<short-slug>/`
 - skipped:
   - `<item>` - <reason>
 - reason:
@@ -47,7 +46,7 @@ Do not log:
 ## Staged Package Entry
 
 ```markdown
-## YYYY-MM-DD | stage | <ingest|writeback> | <Domain or unknown>
+## YYYY-MM-DD | stage | <ingest|writeback> | <package-slug>
 
 - package:
   - `<ingest-or-writeback>/<YYYY-MM-DD>-<short-slug>/`
@@ -55,7 +54,7 @@ Do not log:
   - `<source type>`
 - candidate_notes:
   - `Cards/<candidate-card>.md`
-  - `Sources/<candidate-source>.md`
+  - `Sources/<Type>/<candidate-source>.md`
 - reason:
   - <why this package may deserve promotion>
 ```

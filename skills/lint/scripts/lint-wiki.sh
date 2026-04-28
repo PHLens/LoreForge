@@ -123,12 +123,83 @@ manifest_section() {
   '
 }
 
+section_list_items() {
+  local file="$1"
+  local section="$2"
+  manifest_section "$file" "$section" | awk '
+    /^[[:space:]]*-[[:space:]]+/ {
+      line=$0
+      sub(/^[[:space:]]*-[[:space:]]*/, "", line)
+      print line
+    }
+  '
+}
+
+section_has_items() {
+  local file="$1"
+  local section="$2"
+  section_list_items "$file" "$section" | grep -q .
+}
+
+has_frontmatter() {
+  local file="$1"
+  head -n 1 "$file" | grep -qx -- '---'
+}
+
+frontmatter_value() {
+  local file="$1"
+  local key="$2"
+  frontmatter_text "$file" | awk -v key="$key" '
+    $0 ~ "^[[:space:]]*" key ":[[:space:]]*" {
+      sub(/^[^:]*:[[:space:]]*/, "", $0)
+      gsub(/^[[:space:]]*"|"[[:space:]]*$/, "", $0)
+      print
+      exit
+    }
+  '
+}
+
+has_nonempty_up() {
+  local file="$1"
+  local up_value
+  up_value="$(frontmatter_value "$file" "up")"
+  if [ -n "$up_value" ] && [ "$up_value" != '""' ]; then
+    return 0
+  fi
+  rg '^up::[[:space:]]*.' "$file" >/dev/null 2>&1
+}
+
+has_x_links() {
+  local file="$1"
+  rg '^X::[[:space:]]*\[\[' "$file" >/dev/null 2>&1
+}
+
+stable_note_paths() {
+  find "$CARDS_DIR" "$MOCS_DIR" -type f -name "*.md" 2>/dev/null \
+    ! -name "README.md" \
+    ! -path "$INDEX_FILE" \
+    ! -path "$LOG_FILE"
+}
+
+has_semantic_inbound() {
+  local card="$1"
+  local title="$2"
+  while IFS= read -r note; do
+    [ -z "$note" ] && continue
+    [ "$note" = "$card" ] && continue
+    if rg -F "[[$title" "$note" >/dev/null 2>&1; then
+      return 0
+    fi
+  done < <(stable_note_paths)
+  return 1
+}
+
 validate_manifest() {
   local manifest="$1"
   local expected_type="$2"
   local issues=0
 
-  if ! head -n 1 "$manifest" | grep -qx -- '---'; then
+  if ! has_frontmatter "$manifest"; then
     echo "  - invalid manifest: $manifest missing frontmatter"
     MANIFEST_ISSUES=1
     return
@@ -137,7 +208,7 @@ validate_manifest() {
   local type
   local status
   local value
-  for field in type source_type status domain created promotion_reason; do
+  for field in type source_type status created promotion_reason; do
     value="$(manifest_field "$manifest" "$field")"
     if [ -z "$value" ]; then
       echo "  - invalid manifest: $manifest missing or empty $field"
@@ -161,8 +232,12 @@ validate_manifest() {
     issues=$((issues + 1))
   fi
 
-  for section in provenance candidate_notes updates; do
-    if ! manifest_section "$manifest" "$section" | grep -q '^[[:space:]]*-'; then
+  if [ -n "$(manifest_field "$manifest" "domain")" ]; then
+    echo "  - legacy manifest field ignored: $manifest domain"
+  fi
+
+  for section in provenance candidate_notes; do
+    if ! section_has_items "$manifest" "$section"; then
       echo "  - invalid manifest: $manifest $section must include at least one item"
       issues=$((issues + 1))
     fi
@@ -170,26 +245,26 @@ validate_manifest() {
 
   local candidate_notes
   local updates
-  candidate_notes="$(manifest_section "$manifest" "candidate_notes")"
-  updates="$(manifest_section "$manifest" "updates")"
-  if [ -n "$candidate_notes" ]; then
-    if ! printf '%s\n' "$candidate_notes" | grep -q 'path:'; then
-      echo "  - invalid manifest: $manifest candidate_notes entries need path"
-      issues=$((issues + 1))
-    fi
-    if ! printf '%s\n' "$candidate_notes" | grep -q 'kind:'; then
-      echo "  - invalid manifest: $manifest candidate_notes entries need kind"
-      issues=$((issues + 1))
-    fi
+  candidate_notes="$(section_list_items "$manifest" "candidate_notes" || true)"
+  updates="$(section_list_items "$manifest" "updates" || true)"
+
+  if printf '%s\n' "$candidate_notes" | rg '(^|[[:space:]])path:' >/dev/null 2>&1; then
+    echo "  - invalid manifest: $manifest candidate_notes must be simple path list items, not path/kind objects"
+    issues=$((issues + 1))
   fi
-  if [ -n "$updates" ]; then
-    if ! printf '%s\n' "$updates" | grep -q 'path:'; then
-      echo "  - invalid manifest: $manifest updates entries need path"
+  if printf '%s\n' "$candidate_notes" | rg '(^|[[:space:]])kind:' >/dev/null 2>&1; then
+    echo "  - invalid manifest: $manifest candidate_notes must not use kind objects"
+    issues=$((issues + 1))
+  fi
+
+  if printf '%s\n' "$candidate_notes" | rg -q "^${CARDS_DIR}/|^Cards/"; then
+    if ! printf '%s\n' "$updates" | grep -Fxq "$INDEX_FILE"; then
+      echo "  - invalid manifest: $manifest card candidates require $INDEX_FILE in updates"
       issues=$((issues + 1))
     fi
-    if ! printf '%s\n' "$updates" | grep -q 'kind:'; then
-      echo "  - invalid manifest: $manifest updates entries need kind"
-      issues=$((issues + 1))
+  else
+    if [ -z "$updates" ]; then
+      :
     fi
   fi
 
@@ -199,22 +274,24 @@ validate_manifest() {
 AGENTS_FILE="$(toml_get "" "agents_file" "AGENTS.md")"
 VAULT_MAP="$(toml_get "" "vault_map" "00_System/Vault Map.md")"
 SCHEMA_FILE="$(toml_get "" "schema_file" "00_System/Schema.md")"
+INDEX_FILE="$(toml_get "" "index_file" "00_System/+Wiki Index.md")"
 LOG_FILE="$(toml_get "" "log_file" "00_System/Wiki Log.md")"
 VIEWS_DIR="$(toml_get "" "views_dir" "00_System/Views")"
 INBOX_DIR="$(toml_get "paths" "inbox" "10_Inbox")"
 CAPTURE_DIR="$(toml_get "paths" "capture" "${INBOX_DIR}/capture")"
 INGEST_DIR="$(toml_get "paths" "ingest" "${INBOX_DIR}/ingest")"
 WRITEBACK_DIR="$(toml_get "paths" "writeback" "${INBOX_DIR}/writeback")"
-DOMAINS_DIR="$(toml_get "paths" "domains" "20_Domains")"
-SHARED_DIR="$(toml_get "paths" "shared" "30_Shared")"
-ARCHIVE_DIR="$(toml_get "paths" "archive" "40_Archive")"
+CARDS_DIR="$(toml_get "paths" "cards" "Cards")"
+SOURCES_DIR="$(toml_get "paths" "sources" "Sources")"
+MOCS_DIR="$(toml_get "paths" "mocs" "MOCs")"
+ARCHIVE_DIR="$(toml_get "paths" "archive" "Archive")"
 
 echo "=== LoreForge Lint Report: $(basename "$(pwd)") ==="
 echo ""
 
 echo "## 1. Discovery Health"
 discovery_issues=0
-for required in "$CONFIG" "$AGENTS_FILE" "$VAULT_MAP" "$SCHEMA_FILE" "$LOG_FILE" "$VIEWS_DIR"; do
+for required in "$CONFIG" "$AGENTS_FILE" "$VAULT_MAP" "$SCHEMA_FILE" "$INDEX_FILE" "$LOG_FILE" "$VIEWS_DIR"; do
   if [ ! -e "$required" ]; then
     echo "  - missing: $required"
     discovery_issues=$((discovery_issues + 1))
@@ -235,32 +312,15 @@ done <<< "$view_values"
 echo "  Count: $discovery_issues"
 echo ""
 
-echo "## 2. Domain Health"
-domain_issues=0
-if [ ! -d "$DOMAINS_DIR" ]; then
-  echo "  - missing domains dir: $DOMAINS_DIR"
-  domain_issues=$((domain_issues + 1))
-else
-  while IFS= read -r -d '' domain_dir; do
-    domain_name="$(basename "$domain_dir")"
-    map_count="$(find "$domain_dir" -maxdepth 1 -type f -name "* Map.md" 2>/dev/null | wc -l | tr -d ' ')"
-    if [ "$map_count" -eq 0 ]; then
-      echo "  - $domain_name: missing domain map (* Map.md)"
-      domain_issues=$((domain_issues + 1))
-    fi
-    if [ ! -f "$domain_dir/+Wiki Index.md" ]; then
-      echo "  - $domain_name: missing +Wiki Index.md"
-      domain_issues=$((domain_issues + 1))
-    fi
-    for subdir in Cards Sources MOCs; do
-      if [ ! -d "$domain_dir/$subdir" ]; then
-        echo "  - $domain_name: missing $subdir/"
-        domain_issues=$((domain_issues + 1))
-      fi
-    done
-  done < <(find "$DOMAINS_DIR" -mindepth 1 -maxdepth 1 -type d -print0 2>/dev/null)
-fi
-echo "  Count: $domain_issues"
+echo "## 2. Type-First Structure"
+structure_issues=0
+for required_dir in "$INBOX_DIR" "$CAPTURE_DIR" "$INGEST_DIR" "$WRITEBACK_DIR" "$CARDS_DIR" "$SOURCES_DIR" "$MOCS_DIR" "$ARCHIVE_DIR"; do
+  if [ ! -d "$required_dir" ]; then
+    echo "  - missing dir: $required_dir"
+    structure_issues=$((structure_issues + 1))
+  fi
+done
+echo "  Count: $structure_issues"
 echo ""
 
 echo "## 3. Unresolved Links"
@@ -346,61 +406,140 @@ echo "  Count: $staged"
 echo "  Package issues: $package_issues"
 echo ""
 
-echo "## 6. Card Discoverability"
-undiscoverable=0
-if [ -d "$DOMAINS_DIR" ]; then
+echo "## 6. Flat Cards"
+flat_card_issues=0
+if [ -d "$CARDS_DIR" ]; then
+  while IFS= read -r nested_card; do
+    [ -z "$nested_card" ] && continue
+    [ "$(basename "$nested_card")" = "README.md" ] && continue
+    echo "  - nested card: $nested_card"
+    flat_card_issues=$((flat_card_issues + 1))
+  done < <(find "$CARDS_DIR" -mindepth 2 -type f -name "*.md" 2>/dev/null)
+fi
+echo "  Count: $flat_card_issues"
+echo ""
+
+echo "## 7. Card Discoverability"
+integrated=0
+index_only=0
+unindexed=0
+orphan=0
+stale_index=0
+
+if [ -d "$CARDS_DIR" ]; then
   while IFS= read -r -d '' card; do
     [ "$(basename "$card")" = "README.md" ] && continue
     title="$(basename "$card" .md)"
-    domain_root="${card%%/Cards/*}"
-    index_file="$domain_root/+Wiki Index.md"
-    inbound="$(rg -F -l "[[$title" --type md . 2>/dev/null | grep -vxF "$card" | head -1 || true)"
-    has_index=""
-    if [ -f "$index_file" ]; then
-      has_index="$(rg -F "[[$title" "$index_file" 2>/dev/null || true)"
+    indexed=""
+    if [ -f "$INDEX_FILE" ] && rg -F "[[$title" "$INDEX_FILE" >/dev/null 2>&1; then
+      indexed=1
     fi
-    has_up="$(rg '^up:[[:space:]]*.' "$card" 2>/dev/null || true)"
-    if [ -z "$inbound" ] && [ -z "$has_index" ] && [ -z "$has_up" ]; then
-      echo "  - $card"
-      undiscoverable=$((undiscoverable + 1))
+    semantic=""
+    if has_nonempty_up "$card" || has_x_links "$card" || has_semantic_inbound "$card" "$title"; then
+      semantic=1
     fi
-  done < <(find "$DOMAINS_DIR" -path "*/Cards/*.md" -type f -print0 2>/dev/null)
+
+    if [ -n "$indexed" ] && [ -n "$semantic" ]; then
+      integrated=$((integrated + 1))
+    elif [ -n "$indexed" ]; then
+      echo "  - index-only: $card"
+      index_only=$((index_only + 1))
+    elif [ -n "$semantic" ]; then
+      echo "  - unindexed: $card"
+      unindexed=$((unindexed + 1))
+    else
+      echo "  - orphan: $card"
+      orphan=$((orphan + 1))
+    fi
+  done < <(find "$CARDS_DIR" -maxdepth 1 -type f -name "*.md" -print0 2>/dev/null)
 fi
-echo "  Count: $undiscoverable"
+
+if [ -f "$INDEX_FILE" ]; then
+  index_links="$(
+    awk '/^## Optional MOC Pointers/ { exit } { print }' "$INDEX_FILE" \
+      | rg -o '\[\[[^\]]+\]\]' 2>/dev/null \
+      | sed 's/^\[\[//;s/\]\]$//;s/[|#].*$//' \
+      | sort -u || true
+  )"
+  while IFS= read -r index_link; do
+    [ -z "$index_link" ] && continue
+    if ! has_file_named "$index_link"; then
+      echo "  - stale index: [[$index_link]]"
+      stale_index=$((stale_index + 1))
+    fi
+  done <<< "$index_links"
+fi
+
+echo "  Integrated: $integrated"
+echo "  Index-only warnings: $index_only"
+echo "  Unindexed errors: $unindexed"
+echo "  Orphan errors: $orphan"
+echo "  Stale index errors: $stale_index"
 echo ""
 
-echo "## 7. Metadata Drift"
+echo "## 8. Source Reference Health"
+source_warnings=0
+if [ -d "$SOURCES_DIR" ]; then
+  while IFS= read -r -d '' source_note; do
+    [ "$(basename "$source_note")" = "README.md" ] && continue
+    title="$(basename "$source_note" .md)"
+    linked_from_stable="$(rg -F -l "[[$title" "$CARDS_DIR" "$MOCS_DIR" 2>/dev/null | head -1 || true)"
+    linked_from_provenance="$(rg -F -l "$source_note" "$INBOX_DIR" "$ARCHIVE_DIR" "$LOG_FILE" 2>/dev/null | head -1 || true)"
+    if [ -z "$linked_from_stable" ] && [ -z "$linked_from_provenance" ]; then
+      echo "  - unreferenced source: $source_note"
+      source_warnings=$((source_warnings + 1))
+    fi
+  done < <(find "$SOURCES_DIR" -type f -name "*.md" -print0 2>/dev/null)
+fi
+echo "  Warnings: $source_warnings"
+echo ""
+
+echo "## 9. Metadata Drift"
 drift=0
-empty_tags="$(rg -o '#[A-Za-z0-9_-]+/' --type md --no-filename . 2>/dev/null | sort -u || true)"
+empty_tags="$(rg -o '#[A-Za-z0-9_-]*/' --type md --no-filename . 2>/dev/null | sort -u || true)"
 while IFS= read -r tag; do
   [ -z "$tag" ] && continue
   echo "  - empty sub-tag: $tag"
   drift=$((drift + 1))
 done <<< "$empty_tags"
 
-if [ -d "$DOMAINS_DIR" ]; then
-  while IFS= read -r -d '' card; do
-    [ "$(basename "$card")" = "README.md" ] && continue
-    if ! head -n 1 "$card" | grep -qx -- '---'; then
-      echo "  - stable card missing frontmatter: $card"
+for note_dir in "$CARDS_DIR" "$MOCS_DIR" "$SOURCES_DIR"; do
+  [ -d "$note_dir" ] || continue
+  while IFS= read -r -d '' note; do
+    [ "$(basename "$note")" = "README.md" ] && continue
+    case "$note" in
+      "$INDEX_FILE"|"$LOG_FILE"|"$VAULT_MAP"|"$SCHEMA_FILE")
+        continue
+        ;;
+    esac
+    if ! has_frontmatter "$note"; then
+      echo "  - stable note missing frontmatter: $note"
+      drift=$((drift + 1))
+      continue
+    fi
+    if [ -z "$(frontmatter_value "$note" "kind")" ]; then
+      echo "  - stable note missing kind: $note"
       drift=$((drift + 1))
     fi
-  done < <(find "$DOMAINS_DIR" -path "*/Cards/*.md" -type f -print0 2>/dev/null)
-fi
+  done < <(find "$note_dir" -type f -name "*.md" -print0 2>/dev/null)
+done
 echo "  Count: $drift"
 echo ""
 
 echo "## Configured Paths"
 echo "  agents: $AGENTS_FILE"
 echo "  vault_map: $VAULT_MAP"
+echo "  schema: $SCHEMA_FILE"
+echo "  index: $INDEX_FILE"
 echo "  log: $LOG_FILE"
 echo "  views: $VIEWS_DIR"
 echo "  inbox: $INBOX_DIR"
 echo "  capture: $CAPTURE_DIR"
 echo "  ingest: $INGEST_DIR"
 echo "  writeback: $WRITEBACK_DIR"
-echo "  domains: $DOMAINS_DIR"
-echo "  shared: $SHARED_DIR"
+echo "  cards: $CARDS_DIR"
+echo "  sources: $SOURCES_DIR"
+echo "  mocs: $MOCS_DIR"
 echo "  archive: $ARCHIVE_DIR"
 echo ""
 

@@ -29,4 +29,4 @@ Use this lightweight router before choosing a LoreForge operation.
 - Locate wikis through `~/.config/loreforge/registry.toml` and `.loreforge/wiki.toml`.
 - `ingest` and `writeback` create staged packages.
 - `promote` is the stable-write transaction.
-- Recover after compaction from staged package `manifest.md`, `00_System/Wiki Log.md`, domain `+Wiki Index.md`, and the registry.
+- Recover after compaction from staged package `manifest.md`, `00_System/+Wiki Index.md`, `00_System/Wiki Log.md`, MOCs, and the registry.

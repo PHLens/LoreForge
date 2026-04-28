@@ -5,47 +5,95 @@ Generic structure for a LoreForge wiki instance.
 ## Top-Level Layout
 
 ```text
-00_System/       Rules, schema, task views, indexes
+00_System/       Rules, schema, task views, index, log
 10_Inbox/        Unsorted captures and staged packages
-20_Domains/      Domain-specific knowledge
-30_Shared/       Cross-domain knowledge
-40_Archive/      Retired material
-```
-
-## Domain Layout
-
-```text
-20_Domains/<Domain>/
-  <Domain> Map.md
-  +Wiki Index.md
-  Cards/
-  MOCs/
-  Sources/
+Cards/           Flat stable atomic knowledge
+Sources/         Source-grounded notes by source type
+MOCs/            Emergent semantic views
+Archive/         Closed packages and exceptional retired material
 ```
 
 ## Note Kinds
 
 | Kind | Location | Purpose |
 |---|---|---|
-| Source | `Sources/` | Source-grounded notes, as immutable as practical |
 | Card | `Cards/` | Atomic professional knowledge |
+| Source | `Sources/<Type>/` | Source-grounded notes and provenance |
 | MOC | `MOCs/` | Navigation and synthesis over mature clusters |
-| Map | `<Domain> Map.md` | Domain entry point |
-| Index | `+Wiki Index.md` | Compact agent-facing manifest |
-| Log | `00_System/Wiki Log.md` | Human-readable log of stable promotion transactions |
+| Index | `00_System/+Wiki Index.md` | Compact card inventory |
+| Log | `00_System/Wiki Log.md` | Human-readable log of meaningful wiki evolution |
 
-## Required Frontmatter
+## Card Frontmatter
 
 ```yaml
 ---
-aliases:
-tags:
-up: "[[Parent Note]]"
 status: stable
+created: YYYY-MM-DD
+kind: card
+aliases: []
+tags: []
+up: ""
 ---
 ```
 
-Use `status: staged` for drafts and `status: stable` for promoted notes.
+`kind` is structural only. Tags are freeform human and agent-maintained signals.
+
+## Source Frontmatter
+
+```yaml
+---
+status: stable
+created: YYYY-MM-DD
+kind: source
+source_type: paper
+source_system: zotero
+url: ""
+accessed: YYYY-MM-DD
+---
+```
+
+`source_type` determines placement under `Sources/<Type>/`. `source_system` records the import or capture system.
+
+## MOC Frontmatter
+
+```yaml
+---
+status: stable
+created: YYYY-MM-DD
+kind: moc
+aliases: []
+tags:
+  - map
+up: ""
+---
+```
+
+`map` is a recommended template default, not a lint-enforced taxonomy.
+
+## Source Types
+
+Common source type directories:
+
+| Directory | Use for |
+|---|---|
+| `Sources/Papers/` | Research papers |
+| `Sources/Articles/` | Web articles and essays |
+| `Sources/Docs/` | Documentation |
+| `Sources/Books/` | Books and chapters |
+| `Sources/Talks/` | Talks, videos, podcasts, and lectures |
+| `Sources/Repos/` | Repository or codebase notes |
+| `Sources/Datasets/` | Dataset descriptions |
+| `Sources/Local/` | Local files |
+| `Sources/Other/` | Sources that do not fit the standard set |
+
+## Wiki Index
+
+`00_System/+Wiki Index.md` is the minimum card retrieval contract.
+
+- Every stable card must appear in the index.
+- MOCs may be listed as convenience pointers, but are not required.
+- Sources are not listed by default.
+- Captures, staged packages, and archived packages must not be listed.
 
 ## Staged Package
 
@@ -54,8 +102,8 @@ Processed `ingest` and `writeback` work should stage as a package:
 ```text
 10_Inbox/<ingest|writeback>/<YYYY-MM-DD>-<short-slug>/
   manifest.md
-  Sources/
   Cards/
+  Sources/
   MOCs/
   Deltas/
 ```
@@ -67,40 +115,18 @@ Minimum `manifest.md`:
 type: <ingest|writeback>
 source_type: <source type>
 status: staged
-domain: <Domain or Shared>
 created: YYYY-MM-DD
 provenance:
   - <source path/url/conversation>
 candidate_notes:
-  - path: Cards/<candidate-card>.md
-    kind: card
+  - Cards/<candidate-card>.md
 updates:
-  - path: +Wiki Index.md
-    kind: index_delta
+  - 00_System/+Wiki Index.md
 promotion_reason: <why this should become stable wiki knowledge>
 ---
 ```
 
-One package may contain multiple candidate notes when they came from the same source or conversation.
-
-## Source Types
-
-Common source types:
-
-| Source type | Use for |
-|---|---|
-| `url` | Web article or online document |
-| `paper` | Research paper |
-| `docs` | Documentation |
-| `local_file` | Local file |
-| `capture` | Previously captured inbox note |
-| `research_synthesis` | Ingest result with added research |
-| `conversation_synthesis` | Durable synthesis produced in conversation |
-| `query_result` | Answer synthesized from existing wiki notes |
-| `source_grounded_answer` | Answer synthesized from cited sources |
-| `decision_rationale` | Reusable trade-off or decision rationale |
-| `concept_connection` | Relation discovered between existing concepts |
-| `human_correction` | User corrected or clarified professional knowledge |
+`candidate_notes` and `updates` are package-relative path lists. Do not use `domain`, `path:`, or `kind:` objects in the manifest.
 
 ## Promotion Boundary
 
@@ -108,12 +134,13 @@ Stable notes enter the wiki through `promote`.
 
 Promotion updates should happen in one transaction:
 
-1. create or move stable notes
-2. update the target domain `+Wiki Index.md`
-3. archive consumed staging material
-4. append one entry to `00_System/Wiki Log.md`
+1. create or move reviewed staged notes into stable locations
+2. update `00_System/+Wiki Index.md` for promoted cards
+3. optionally update MOCs
+4. move consumed staging material to `Archive/promoted/` or `Archive/rejected/`
+5. append one entry to `00_System/Wiki Log.md`
 
-Do not index captures or staged packages.
+Do not index captures, staged packages, sources, or archived packages in `00_System/+Wiki Index.md`.
 
 ## Wiki Log
 
@@ -128,9 +155,9 @@ Log meaningful wiki evolution events:
 - promoted staged ingest material
 - promoted writeback packages
 - approved stable note edits made during promotion
-- index updates caused by promotion
-- substantive staged ingest package created
-- substantive staged writeback package created
+- card index updates caused by promotion
+- substantive staged ingest package creation
+- substantive staged writeback package creation
 - lint pass with meaningful findings
 
 Do not log ordinary query, ordinary capture, incomplete staged drafts, read-only lint with no meaningful findings, or git sync.

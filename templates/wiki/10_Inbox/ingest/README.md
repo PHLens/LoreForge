@@ -11,19 +11,15 @@ Each package directory should include `manifest.md`.
 type: ingest
 source_type: docs
 status: staged
-domain: Example
 created: 2026-04-28
 provenance:
   - https://example.com/source-doc
 candidate_notes:
-  - path: Sources/example-source.md
-    kind: source
-  - path: Cards/example-concept.md
-    kind: card
+  - Sources/Docs/example-source.md
+  - Cards/example-concept.md
 updates:
-  - path: +Wiki Index.md
-    kind: index_delta
-promotion_reason: The source defines a reusable concept that should be queryable from the Example domain.
+  - 00_System/+Wiki Index.md
+promotion_reason: The source defines a reusable concept that should be queryable from stable Cards.
 ---
 # Package: Example Source
 
@@ -31,7 +27,7 @@ promotion_reason: The source defines a reusable concept that should be queryable
 Short summary of the source and candidate knowledge.
 
 ## Promotion Plan
-- create: Sources/example-source.md
+- create: Sources/Docs/example-source.md
 - create: Cards/example-concept.md
-- update: +Wiki Index.md
+- update: 00_System/+Wiki Index.md
 ```

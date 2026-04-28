@@ -77,27 +77,29 @@ The generic wiki template uses:
 ```text
 AGENTS.md
 00_System/
+  +Wiki Index.md
   Vault Map.md
   Schema.md
   Wiki Log.md
   Views/
     default.md
-    domain-query.md
-    source-ingest.md
-    wiki-maintenance.md
+    query.md
+    ingest.md
+    writeback.md
+    promote.md
+    maintenance.md
 10_Inbox/
   capture/
   ingest/
   writeback/
-20_Domains/
-  Example/
-    Example Map.md
-    +Wiki Index.md
-    Cards/
-    MOCs/
-    Sources/
-30_Shared/
-40_Archive/
+Cards/
+Sources/
+  Papers/
+  Articles/
+  Docs/
+MOCs/
+  Scope/
+Archive/
 ```
 
 The important idea is task-oriented views, not agent-specific views. Any session that loads the wiki rules can follow the same process.
@@ -108,7 +110,7 @@ Keep the initial workflow simple:
 
 | Operation | Purpose |
 |---|---|
-| Query | Use domain maps and compact indexes before broad search |
+| Query | Use the card index, Atlas/MOCs, and stable notes before broad search |
 | Capture | Quick alias for `ingest mode=capture` |
 | Ingest | Capture or process external source material into staged packages |
 | Writeback | Stage reusable conversation/query synthesis as candidate notes |
@@ -121,7 +123,7 @@ Automation should grow from repeated usage pain, not be designed up front.
 
 These operations are framework core concepts, implemented under `skills/`. Adapter-specific path conventions should be documented under `adapters/`.
 
-`capture` remains a convenient command, but its behavior is `ingest mode=capture`. Processed `ingest` and `writeback` outputs are staged packages with a `manifest.md`; `promote` is the stable-write transaction that can promote one or more candidate notes, update the domain index, archive consumed staging material, and append the wiki log.
+`capture` remains a convenient command, but its behavior is `ingest mode=capture`. Processed `ingest` and `writeback` outputs are staged packages with a `manifest.md`; `promote` is the stable-write transaction that can promote one or more candidate notes, update `00_System/+Wiki Index.md` for stable cards, optionally update MOCs, move consumed staging material to `Archive/`, and append the wiki log.
 
 ## Plugin Distribution
 
@@ -160,8 +162,7 @@ Agents should use the local clone for search and editing. GitHub is for persiste
 The current `~/wiki` structure already has useful ideas:
 
 - `00_System/Vault Map.md`
-- domain maps
-- per-domain `+Wiki Index.md`
+- compact indexes
 - agent/task views
 
 LoreForge should generalize those ideas into a reusable framework. `~/wiki` can remain a concrete wiki instance or source of design feedback.

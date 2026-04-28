@@ -7,15 +7,15 @@ Use this view when no more specific task view applies.
 - `AGENTS.md`
 - `00_System/Vault Map.md`
 - `00_System/Schema.md`
+- `00_System/+Wiki Index.md`
 
 ## Search Order
 
-1. Domain map
-2. Domain `+Wiki Index.md`
-3. Domain `Cards/`
-4. Domain `MOCs/`
-5. Domain `Sources/`
-6. `30_Shared/`
+1. `00_System/+Wiki Index.md` for stable card candidates.
+2. `MOCs/Scope/+Atlas.md`, if present, to preselect semantic views.
+3. Relevant `MOCs/` for synthesis.
+4. `Cards/` by title, aliases, and content.
+5. `Sources/` only when provenance matters.
 
 ## Writeback Rule
 

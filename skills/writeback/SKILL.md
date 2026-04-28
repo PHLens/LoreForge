@@ -67,7 +67,7 @@ Use more specific types when applicable:
 | Comparison / trade-off analysis | High | Stage comparison card, MOC delta, or both |
 | Discovered new connection between concepts | High | Stage link delta or relation card |
 | Concept explanation with lasting value | Medium | Stage concept card |
-| Professional method or reusable procedure | High | Stage shared method or domain card |
+| Professional method or reusable procedure | High | Stage method card |
 | Source-grounded summary | Medium | Stage source note |
 | Simple lookup / one-off debug | Low | Skip |
 
@@ -77,29 +77,29 @@ Resolve paths from `<wiki>/.loreforge/wiki.toml`; use these fallbacks if absent:
 
 - inbox: `10_Inbox`
 - writeback: `10_Inbox/writeback`
-- domains: `20_Domains`
-- shared: `30_Shared`
+- cards: `Cards`
+- sources: `Sources`
+- mocs: `MOCs`
 
 | Content type | Stable destination after approval | Initial staging |
 |---|---|---|
-| New link, See also, source reference | Existing domain card | `<writeback>/` |
-| Comparison / contrast | `<domains>/<Domain>/Cards/` | `<writeback>/` |
-| New concept | `<domains>/<Domain>/Cards/` | `<writeback>/` |
-| Topic synthesis | `<domains>/<Domain>/MOCs/` or index delta | `<writeback>/` |
-| Source-grounded summary | `<domains>/<Domain>/Sources/` | `<writeback>/` |
-| Cross-domain method | `<shared>/Methods/` | `<writeback>/` |
+| New link, See also, source reference | Existing card or MOC | `<writeback>/` |
+| Comparison / contrast | `<cards>/` | `<writeback>/` |
+| New concept or method | `<cards>/` | `<writeback>/` |
+| Topic synthesis | `<mocs>/` or index/MOC delta | `<writeback>/` |
+| Source-grounded summary | `<sources>/<Type>/` | `<writeback>/` |
 
 ## Flow
 
 1. Deliver the answer first.
 2. Locate the target wiki through registry, user path, or current wiki root.
-3. Read `AGENTS.md`, the vault map, task view, domain map, and relevant index sections.
+3. Read `AGENTS.md`, vault map, task view, card index, and relevant cards/MOCs.
 4. Evaluate whether the answer contains reusable professional knowledge.
 5. If low value, skip or say no durable writeback is needed.
 6. If useful, create a staged package under `<writeback>/<YYYY-MM-DD>-<short-slug>/`.
-7. Include target domain, stable destinations, proposed new files, proposed edits, and source/provenance.
+7. Include stable destinations, proposed new files, proposed edits, and source/provenance.
 8. If the user approves stable writeback, hand off to `promote`.
-9. Do not update stable cards or indexes directly from `writeback`.
+9. Do not update stable cards, MOCs, sources, or indexes directly from `writeback`.
 10. Append a wiki log entry only when a substantive staged package is created.
 
 ## Staged Package Contract
@@ -125,19 +125,12 @@ type: writeback
 source_type: conversation_synthesis
 status: staged
 created: YYYY-MM-DD
-domain: <Domain>
 provenance:
   - conversation
 candidate_notes:
-  - path: Cards/<candidate-card>.md
-    kind: card
-  - path: Sources/<candidate-source>.md
-    kind: source
+  - Cards/<candidate-card>.md
 updates:
-  - path: Cards/<existing-card>.md
-    kind: note_delta
-  - path: +Wiki Index.md
-    kind: index_delta
+  - 00_System/+Wiki Index.md
 promotion_reason: <why this belongs in the stable wiki>
 ---
 # Writeback Package: <Title>
@@ -163,7 +156,7 @@ promotion_reason: <why this belongs in the stable wiki>
 For substantive writeback packages, append one wiki log entry:
 
 ```markdown
-## YYYY-MM-DD | stage | writeback | <Domain or unknown>
+## YYYY-MM-DD | stage | writeback | <package-slug>
 
 - package:
   - `<writeback>/<YYYY-MM-DD>-<short-slug>/`
@@ -183,26 +176,28 @@ This skill must not:
 - store agent-local experience in the wiki
 - save full transcripts
 - commit or push git changes
-- rewrite indexes for unrelated topics
+- rewrite unrelated indexes or MOCs
 
 It may append a concise wiki log entry for a substantive staged writeback package.
 
-## Comparison card format
+## Comparison Card Format
 
 ```markdown
 ---
-aliases:
-tags:
-  - concept
-  - concept/comparison
-domain: <Domain>
 status: staged
 created: YYYY-MM-DD
-up: "[[Parent Topic]]"
+kind: card
+aliases: []
+tags:
+  - comparison
+up: ""
 ---
+
 X:: [[Concept A]]
 X:: [[Concept B]]
+
 # A vs B
+
 ## Summary
 <One-line verdict>
 

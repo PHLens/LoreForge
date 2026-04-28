@@ -33,7 +33,7 @@ name = "cs"
 path = "/path/to/cs-wiki"
 remote = "git@github.com:OWNER/cs-wiki.git"
 description = "Computer science, GPU, ML systems, PyTorch"
-default_view = "domain-query"
+default_view = "query"
 ```
 
 The registry is not a knowledge store. Do not put notes, findings, summaries, or agent memory in it.
@@ -68,18 +68,28 @@ description = "Computer science wiki"
 agents_file = "AGENTS.md"
 vault_map = "00_System/Vault Map.md"
 schema_file = "00_System/Schema.md"
+index_file = "00_System/+Wiki Index.md"
 log_file = "00_System/Wiki Log.md"
 views_dir = "00_System/Views"
-default_view = "domain-query"
+default_view = "query"
+
+[views]
+default = "00_System/Views/default.md"
+query = "00_System/Views/query.md"
+ingest = "00_System/Views/ingest.md"
+writeback = "00_System/Views/writeback.md"
+promote = "00_System/Views/promote.md"
+maintenance = "00_System/Views/maintenance.md"
 
 [paths]
 inbox = "10_Inbox"
 capture = "10_Inbox/capture"
 ingest = "10_Inbox/ingest"
 writeback = "10_Inbox/writeback"
-domains = "20_Domains"
-shared = "30_Shared"
-archive = "40_Archive"
+cards = "Cards"
+sources = "Sources"
+mocs = "MOCs"
+archive = "Archive"
 ```
 
 ## Discovery Flow
