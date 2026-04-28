@@ -1,27 +1,39 @@
-# Schema
+# Native Profile Schema
 
-LoreForge wiki instances use a type-first structure.
+This document describes LoreForge's optional native repository profile and native retrieval contract.
 
-## Layers
+Generic bindings do not need this structure. A generic binding only needs a registry entry, runtime state, configured read roots, and configured writeback targets. Use `search` for generic retrieval and `writeback` for generic writes.
+
+Native bindings add a high-structure profile for `query`, `promote`, and `lint native`. The native profile gives agents predictable indexes, views, note kinds, provenance conventions, and promotion logs.
+
+## Native Layers
 
 | Layer | Purpose |
 |---|---|
 | `cards` | Compiled atomic knowledge |
 | `sources` | Source-grounded notes and provenance |
 | `mocs` | Navigation and synthesis views |
-| `system` | Schema, task views, card index, promotion log, policies |
-| `inbox` | Captures and staged packages |
+| `system` | Schema, task views, card index, promotion log, and policies |
+| `inbox` | Native staging area for reviewed package material |
 | `archive` | Closed packages and exceptional retired material |
 
-## Default Template
+These layers are native-profile conventions, not requirements for all bindings.
 
-Use `templates/wiki/` as the generic starting point for a new wiki instance.
+## Native Starter Template
 
-Concrete wiki repos may customize this template in their own repository through `AGENTS.md` and `.loreforge/wiki.toml`.
+Use `templates/wiki/` only when creating a native starter repository.
 
-## Default Layout
+The template name is historical. It remains the current native starter until a separate migration renames it.
+
+Existing repositories can be bound in generic mode without copying this template. Repositories should adopt the native profile only when they need structured native query, promotion, and lint behavior.
+
+## Native Layout
+
+The native starter uses:
 
 ```text
+.loreforge/
+  wiki.toml
 00_System/
   +Wiki Index.md
   Vault Map.md
@@ -29,7 +41,6 @@ Concrete wiki repos may customize this template in their own repository through 
   Wiki Log.md
   Views/
 10_Inbox/
-  capture/
   ingest/
   writeback/
 Cards/
@@ -38,45 +49,63 @@ MOCs/
 Archive/
 ```
 
-Directories describe note kind, not domain ownership. MOCs are emergent semantic views over cards and sources.
+Directories describe note kind, not domain ownership. MOCs are emergent semantic views over cards and sources. Generic bindings may use any repository layout configured through registry targets and read roots.
 
 ## Discovery Files
 
-LoreForge uses two discovery layers:
+LoreForge uses a machine-local registry for all bindings and optional native metadata for native targets:
 
 | File | Scope | Purpose |
 |---|---|---|
-| `~/.config/loreforge/registry.toml` | machine-local | Lists wiki instances, local paths, remotes, and defaults |
-| `<wiki>/.loreforge/wiki.toml` | wiki-local | Describes the wiki schema, entry files, task views, and path conventions |
+| `~/.config/loreforge/registry.toml` | machine-local | Lists bindings, target repos, runtime state dirs, read roots, targets, modes, remotes, and defaults |
+| `<target_repo>/.loreforge/wiki.toml` | native target only | Describes native entry files, task views, indexes, logs, and path conventions |
 
-Agents should never guess wiki paths when a registry is available.
+Agents should never guess target paths when a registry is available.
 
-## Wiki Index
+## Native Retrieval Contract
 
-`00_System/+Wiki Index.md` is the operational card index.
+Native `query` relies on:
 
-- stable Cards must appear in the index
+- registry binding resolution with `mode = "native"`
+- native metadata when present
+- `00_System/Views/query.md` or an equivalent configured query view
+- `00_System/Vault Map.md` or an equivalent map file
+- `00_System/+Wiki Index.md` for stable cards
+- `Cards/`, `Sources/`, and `MOCs/`
+- source provenance and stable note metadata
+
+This contract is why generic bindings use `search` instead of `query`.
+
+## Native Index
+
+`00_System/+Wiki Index.md` is the native operational card index.
+
+- stable native cards should appear in the index
 - MOCs may be listed as convenience pointers, but are not required
-- Sources are discovered through references and provenance, not the card index
-- captures, staged packages, and archived packages are never indexed
+- sources are discovered through references and provenance, not the card index
+- staged and archived package material is not indexed as stable knowledge
 
-## Stable Promotion
+This index convention applies to native repos only.
 
-Stable wiki writes should go through the `promote` skill.
+## Native Promotion
 
-Promotion is the transaction that:
+Stable native writes should go through the `promote` skill.
 
-1. creates or moves reviewed staged notes into stable locations
+Promotion is the native transaction that:
+
+1. creates or moves reviewed staged notes into stable native locations
 2. updates `00_System/+Wiki Index.md` for promoted cards
 3. optionally updates MOCs
 4. moves consumed staging material to `Archive/promoted/` or `Archive/rejected/`
 5. appends one entry to `00_System/Wiki Log.md`
 
-Processed `ingest` and `writeback` outputs should use a staged package with `manifest.md`. A package can contain multiple candidate notes when they came from the same source or conversation.
+Generic bindings use `writeback` as their stable write operation. Generic writeback validates configured targets and paths but does not require native indexes, logs, MOCs, or promotion semantics.
 
-## Manifest Contract
+## Native Manifest Convention
 
-Minimum manifest:
+Core runtime packages use `manifest.toml` in `state_dir` and are checked by protocol lint. Native repos may additionally use Markdown package manifests when material is staged inside the native layout.
+
+Minimum native manifest:
 
 ```yaml
 ---
@@ -90,13 +119,13 @@ candidate_notes:
   - Cards/<candidate-card>.md
 updates:
   - 00_System/+Wiki Index.md
-promotion_reason: <why this should become stable wiki knowledge>
+promotion_reason: <why this should become stable native knowledge>
 ---
 ```
 
-`candidate_notes` and `updates` are simple package-relative path lists. Do not use a `domain` field or `path`/`kind` objects in the manifest.
+`candidate_notes` and `updates` are simple package-relative path lists. Do not use a `domain` field or `path`/`kind` objects in the native manifest.
 
-## Note Metadata
+## Native Note Metadata
 
 Cards use:
 
@@ -139,8 +168,10 @@ up: ""
 ---
 ```
 
-`kind` is structural for agents and tooling. Tags remain freeform.
+`kind` is structural for agents and native tooling. Tags remain freeform.
 
-## Wiki Log
+## Native Log
 
-The wiki log is broader than promotion history: it may record substantive staged package creation and lint passes with meaningful findings, but should not record ordinary queries, ordinary captures, read-only lint with no meaningful findings, or sync operations.
+`00_System/Wiki Log.md` is broader than promotion history. It may record substantive native package creation and lint passes with meaningful findings, but should not record ordinary queries, read-only lint with no meaningful findings, or sync operations.
+
+This log convention applies to native repos only.

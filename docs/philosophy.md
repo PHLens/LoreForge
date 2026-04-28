@@ -1,10 +1,10 @@
 # Philosophy
 
-LoreForge is a framework for LLM-wiki style professional knowledge bases.
+LoreForge is a framework for LLM-assisted professional knowledge workflows over user-owned repositories.
 
-It is not agent memory and not a full agent runtime.
+It is not agent memory, not a full agent runtime, and not a mandate that every repository adopt a native LoreForge layout.
 
-The goal is to reduce repeated raw search and summarization by compiling useful source material into durable, queryable, human-readable knowledge.
+The goal is to reduce repeated raw search and summarization by compiling useful source material into durable, queryable, human-readable knowledge where the user already keeps that knowledge.
 
 ## Separation
 
@@ -15,23 +15,33 @@ pamem
   current task state
   agent-local experience
 
-LoreForge wiki instance
-  professional knowledge
-  source-grounded notes
-  concepts
-  maps and indexes
+LoreForge runtime state
+  staged packages
+  source extracts and optional snapshots
+  reports, caches, locks, and temporary files
+  operation metadata
+
+User target repositories
+  durable professional knowledge
+  notes, docs, source-grounded summaries, and examples
+  optional native LoreForge profile
+  Git history and remotes owned by the user
 
 LoreForge framework repo
   plugin metadata
-  templates
-  schema
-  task views
-  skills
+  setup helpers
+  generic workflow conventions
+  optional native starter template
+  skills, tests, and documentation
 ```
+
+LoreForge core is a workflow layer over user-owned repositories. It binds a target repo to runtime state, stages ingest and writeback work outside the target repo, and applies durable writes only through explicit validated operations.
+
+Native repos are optional. They provide a higher-structure profile for `query`, `promote`, and `lint native` through indexes, views, cards, sources, MOCs, provenance conventions, and logs.
 
 ## First Principle
 
-The wiki should make both humans and agents smarter without forcing either to scan raw sources every time.
+Shared knowledge should make both humans and agents smarter without forcing either to scan raw sources every time.
 
 ## What LoreForge Is Not
 
@@ -49,7 +59,7 @@ Do not expand LoreForge into:
 
 Those belong in systems such as `pamem`, Hermes, OpenClaw, Slock, or the host agent runtime.
 
-LoreForge should stay focused on shared professional knowledge that humans and multiple agents can read, query, review, and maintain.
+LoreForge should stay focused on workflow boundaries for shared professional knowledge: where durable content lives, where temporary workflow state lives, and how agents safely move from source material to reviewed repository updates.
 
 ## Relationship To Agent Memory
 
@@ -62,10 +72,10 @@ Hermes / pamem
   agent learns procedures and preferences
 
 LoreForge
-  shared knowledge compounds
+  shared knowledge compounds in user repositories
   professional concepts become reusable
   source summaries become queryable
-  stable notes remain human-readable
+  staged work remains reviewable
 ```
 
 The boundary is intentional:
@@ -75,78 +85,87 @@ The boundary is intentional:
 | User preference | `pamem` or host agent memory |
 | Agent operating experience | `pamem` or host agent memory |
 | Current task state | session, project files, or `pamem` |
-| Reusable professional concept | LoreForge wiki |
-| Source-grounded summary | LoreForge wiki |
-| Cross-agent knowledge package | LoreForge staged package |
-| Stable reviewed knowledge | LoreForge stable notes |
+| Runtime package, extract, report, cache, or lock | LoreForge runtime state |
+| Reusable professional concept | user target repository |
+| Source-grounded summary | user target repository |
+| Cross-agent knowledge package awaiting review | LoreForge runtime state |
+| Stable reviewed knowledge | user target repository |
 
-## Difference From Other LLM-Wikis
+## Difference From Other LLM-Wiki Systems
 
-Many LLM-wiki implementations are all-in-one agent skills: read schema, ingest sources, update pages, update index, append log, and lint.
+Many LLM-wiki implementations are all-in-one skills: read a schema, ingest sources, update pages, update indexes, append logs, and lint one repository shape.
 
-That is useful for a single autonomous agent, but it has weak boundaries when humans and multiple agents share the same knowledge base.
+That is useful for a single autonomous agent, but it has weak boundaries when humans and multiple agents share repositories with different layouts.
 
-LoreForge's defensible difference is not "another llm-wiki." It is a reviewable, agent-agnostic knowledge protocol.
+LoreForge's defensible difference is a binding-centric, reviewable, agent-agnostic knowledge workflow.
 
 Key differences:
 
-1. **Staged package before stable write**
+1. **Target repo plus runtime state**
 
    ```text
-   ingest/writeback -> manifest package -> promote -> stable notes + index + log
+   target_repo + state_dir + configured targets
    ```
 
-   Agents do not directly turn every answer or source into stable wiki content.
+   Durable content and workflow artifacts are separated by default.
 
-2. **Manifest as handoff protocol**
+2. **Staged package before stable write**
 
-   A staged package records source type, provenance, candidate notes, proposed updates, and promotion reason. One agent can stage, another can review or promote, and a human can inspect the package.
+   ```text
+   ingest/writeback package -> validation -> writeback or native promote
+   ```
 
-3. **Human-readable first**
+   Agents do not directly turn every answer or source into stable repository content.
 
-   The wiki is not just prompt fuel. Cards, source notes, MOCs, indexes, and logs should be useful to a human reader.
+3. **Manifest as handoff protocol**
 
-4. **Agent-agnostic operation**
+   A staged package records provenance, candidates, output plans, and write intent. One agent can stage, another can review, and a human can inspect the package.
 
-   LoreForge should be usable from Codex, Claude, Hermes, OpenClaw-connected agents, Slock-style collaborative agents, or plain Git/Obsidian workflows.
+4. **Human-readable first**
 
-5. **Stable index discipline**
+   Target repositories should remain useful to human readers, whether they are generic Markdown repos or native LoreForge repos.
 
-   Indexes only point at stable knowledge. Captures and staged packages stay out of discovery indexes until promotion.
+5. **Agent-agnostic operation**
 
-6. **Shared knowledge, not private experience**
+   LoreForge should be usable from Codex, Claude, Hermes, OpenClaw-connected agents, Slock-style collaborative agents, or plain Git/Markdown workflows.
 
-   Agent-local experience stays outside the shared wiki. This prevents the professional knowledge base from becoming a memory dump.
+6. **Native structure only where it earns its cost**
+
+   Native indexes, views, MOCs, and promotion logs are valuable for structured retrieval, but generic bindings should not pay that schema cost.
+
+7. **Shared knowledge, not private experience**
+
+   Agent-local experience stays outside shared repositories. This prevents professional knowledge bases from becoming memory dumps.
 
 ## What To Learn From Hermes
 
-Hermes is closer to a lifelong agent runtime than a shared knowledge substrate, but several ideas are worth adapting carefully.
+Hermes is closer to a lifelong agent runtime than a shared knowledge workflow layer, but several ideas are worth adapting carefully.
 
 Borrow:
 
-- **Session orientation**: before operating on a wiki, read schema, maps, compact indexes, and recent meaningful log entries.
-- **Memory/skill split**: keep facts, preferences, procedures, and durable knowledge in separate stores.
+- **Session orientation**: before operating on a binding, resolve the registry entry, target repo, runtime state, recent package manifests, and relevant target context.
+- **Memory/knowledge split**: keep facts, preferences, procedures, runtime packages, and durable knowledge in separate stores.
 - **Source immutability**: preserve source provenance and avoid rewriting source-grounded notes casually.
-- **Session search as recovery**: use file-based staged package manifests and logs so agents can recover work after compaction or session changes.
+- **Session search as recovery**: use file-based manifests, reports, indexes, and logs so agents can recover work after compaction or session changes.
 - **Profile isolation lesson**: do not let agent-local experience leak into shared professional knowledge.
 - **Quality signals**: consider `confidence`, `contested`, `superseded_by`, or contradiction markers for mature notes.
 - **Source drift detection**: later, record source URL, access date, and optional hash/version to detect changed external sources.
-- **Log hygiene**: keep log useful as an evolution timeline, with rotation/archive if it grows too large.
+- **Log hygiene**: keep native logs useful as an evolution timeline, with rotation or archive if they grow too large.
 - **Skill evolution discipline**: update skills from repeated real usage pain, not from speculative design.
 
 Do not borrow:
 
-- autonomous memory growth into the shared wiki
+- autonomous memory growth into target repositories
 - agent profile state
 - gateway/chat UI responsibilities
 - runtime orchestration
 - unrestricted self-modifying skills
 
-LoreForge can be used by Hermes-hosted agents, but LoreForge should remain the shared knowledge layer rather than becoming a Hermes replacement.
+LoreForge can be used by Hermes-hosted agents, but LoreForge should remain the shared knowledge workflow layer rather than becoming a Hermes replacement.
 
 ## Design Trade-Off
 
-LoreForge is slower than a fully autonomous all-in-one wiki skill.
+LoreForge is slower than a fully autonomous all-in-one knowledge skill.
 
 That is acceptable. The extra friction buys:
 
@@ -154,64 +173,66 @@ That is acceptable. The extra friction buys:
 - recoverability after context compaction
 - cross-agent handoff
 - clearer human inspection
-- lower risk of index/log pollution
-- cleaner separation between shared knowledge and agent memory
+- lower risk of repository pollution
+- cleaner separation between shared knowledge, runtime state, and agent memory
 
-For small personal experiments, a lighter llm-wiki may be enough. LoreForge is for knowledge bases that should survive multiple agents, multiple sessions, and human review.
+For small personal experiments, a lighter workflow may be enough. LoreForge is for knowledge bases that should survive multiple agents, multiple sessions, varied repository layouts, and human review.
 
 ## Roadmap
 
-### Phase 1: Protocol Stability
+### Phase 1: Binding Protocol Stability
 
-- tighten staged package `manifest.md`
-- define required and optional manifest fields
-- clarify `source_type`, `kind`, `status`, and provenance vocabulary
+- tighten staged package `manifest.toml`
+- define required and optional package fields
+- clarify source, output, target, status, and provenance vocabulary
 - add examples for ingest and writeback packages
-- make `promote` behavior deterministic enough for different agents to follow
+- make writeback validation deterministic enough for different agents to follow
 
-### Phase 2: Wiki Structure
+### Phase 2: Native Profile
 
-- finalize type-first directory structure
-- define source note, card, MOC, and card index conventions
-- clarify how `Cards/`, `Sources/`, `MOCs/`, and `Archive/` interact
-- define naming rules and duplicate handling
-- improve task views for query, ingest, writeback, promotion, and maintenance
+- keep the native starter as an optional high-structure profile
+- define source note, card, MOC, and card index conventions for native repos
+- clarify how `Cards/`, `Sources/`, `MOCs/`, and `Archive/` interact in native repos
+- define naming rules and duplicate handling for native notes
+- improve native task views for query, ingest, writeback, promotion, and maintenance
 
 Next discussion focus:
 
-- refine exact `Sources/`, `Cards/`, `MOCs/`, and `+Wiki Index.md` responsibilities from real use
-- define how staged package candidates map to stable notes
-- define minimum frontmatter and naming rules for stable notes
+- refine exact native `Sources/`, `Cards/`, `MOCs/`, and `+Wiki Index.md` responsibilities from real use
+- define how staged package candidates map to stable native notes
+- define minimum frontmatter and naming rules for native stable notes
 - decide how source provenance should be represented without making notes noisy
 
 ### Phase 3: Quality Gates
 
-- expand lint checks for package manifests, broken provenance, stale index entries, duplicate cards, and orphaned stable notes
-- add promotion checklist rules
+- expand protocol lint for package manifests, target mismatches, path traversal, writeback conflicts, and state directory health
+- expand native lint for package manifests, broken provenance, stale index entries, duplicate cards, and orphaned stable notes
+- add promotion checklist rules for native repos
 - add examples of acceptable and unacceptable writeback
 - consider confidence, contested, superseded, and contradiction markers for mature notes
 - consider source drift checks using access dates, source versions, or hashes
-- define log rotation or archival strategy
+- define native log rotation or archival strategy
 
 ### Phase 4: Tooling
 
 - add small scripts only where deterministic behavior matters
 - generate package skeletons for ingest and writeback
 - validate manifest files
-- summarize promotion plans
+- summarize writeback and promotion plans
 - avoid large automation until repeated usage proves the need
 
 ### Phase 5: Integration
 
 - maintain Codex and Claude plugin metadata
-- document concrete wiki-repo bootstrap conventions
-- document how Hermes/OpenClaw/Slock-hosted agents can use LoreForge as a shared knowledge substrate
-- support GitHub-backed wiki repos through local-first sync
+- document binding setup for existing repositories
+- document native starter bootstrap conventions
+- document how Hermes/OpenClaw/Slock-hosted agents can use LoreForge as a shared knowledge workflow layer
+- support Git-backed target repos through local-first sync
 
 ### Phase 6: Real-World Evaluation
 
-- run LoreForge against a real personal/professional wiki
+- run LoreForge against real personal and professional repositories
 - measure whether query cost and repeated summarization decrease
 - collect failure cases where agents stage low-value knowledge
-- compare usage against Hermes-style all-in-one llm-wiki workflows
+- compare generic binding usage against native profile usage
 - refine package, index, and promotion rules from actual use

@@ -1,13 +1,14 @@
 # LoreForge
 
-LoreForge is a framework for building LLM-wiki style professional knowledge bases.
+LoreForge is a framework for binding LLM-assisted knowledge workflows to user-owned repositories.
 
 It is inspired by [Karpathy's LLM Wiki](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f), but its scope is narrower and more practical:
 
 - compile reusable professional knowledge from sources and queries
 - make that knowledge readable by humans and agents
 - reduce repeated raw search and re-summarization
-- keep agent-local experience out of the shared wiki
+- keep agent-local experience out of shared repositories
+- keep workflow staging outside the user's durable content by default
 
 ## Core Boundary
 
@@ -15,24 +16,32 @@ It is inspired by [Karpathy's LLM Wiki](https://gist.github.com/karpathy/442a6bf
 pamem
   agent-local memory
   preferences
-  task state
+  current task state
   agent-local experience
 
-LoreForge wiki instance
-  professional knowledge
-  concepts
-  source notes
-  maps and indexes
+LoreForge runtime state
+  staged ingest and writeback packages
+  source extracts and optional snapshots
+  reports, caches, locks, and temporary files
+  run metadata
+
+User target repositories
+  durable professional knowledge
+  notes, docs, source notes, and examples
+  optional native LoreForge structure
+  user-owned Git history and remotes
 
 LoreForge framework repo
   plugin metadata
-  templates
-  schema
-  task views
-  skills
+  setup helper scripts
+  generic conventions and docs
+  optional native starter template
+  skills and tests
 ```
 
-LoreForge is not an agent memory store. It is a framework and plugin distribution used to create and operate separate wiki instances.
+LoreForge core is a workflow layer over user-owned repositories. It is not an agent memory store, not the authoritative content repository, and not a requirement that every target repo follow a single native shape.
+
+Stable professional knowledge belongs in the target repository selected by a binding. Runtime packages and generated working files belong in LoreForge runtime state. Agent-local experience, preferences, and task state belong in `pamem`.
 
 ## Repository Form
 
@@ -43,133 +52,109 @@ LoreForge/
 ├── .codex-plugin/plugin.json  # Codex plugin metadata
 ├── .claude-plugin/            # Claude plugin metadata
 ├── .claude/CLAUDE.md          # Claude always-on LoreForge router
-├── AGENTS.md                 # Rules for agents editing this framework repo
+├── AGENTS.md                  # Rules for agents editing this framework repo
 ├── README.md
-├── docs/                     # Philosophy, schema, install guidance
-├── templates/config/          # Local registry templates
-├── templates/wiki/           # Generic LoreForge wiki instance template
-└── skills/                   # Core LoreForge operations
+├── docs/                      # Philosophy, schema, install, and config guidance
+├── scripts/                   # Deterministic helper scripts
+├── templates/config/          # Local binding registry templates
+├── templates/wiki/            # Optional native starter template
+├── tests/                     # Focused shell regressions
+└── skills/                    # LoreForge operation skills
 ```
 
-Actual knowledge should live in a separate wiki repository or vault created from `templates/wiki/`.
-The generated repo is plain Markdown plus `.loreforge/wiki.toml`; no separate compatibility layer is required.
+Actual knowledge lives in user target repositories. A target repo can be an existing Markdown or documentation repo with its own layout, or it can opt into LoreForge's native profile for structured query and promotion.
 
-Agents discover those wiki instances through a machine-local registry:
+Agents discover target repositories through the machine-local binding registry:
 
 ```text
 ~/.config/loreforge/registry.toml
 ```
 
-Each wiki instance also carries self-description in:
+A binding records the user-owned `target_repo`, LoreForge-managed `state_dir`, searchable `read_roots`, writeback targets, and mode. See [docs/config.md](docs/config.md) for the registry format.
+
+## Operations
+
+| Operation | Layer | Purpose |
+|---|---|---|
+| Setup | Core | Bind an existing target repo or create an optional native starter, initialize runtime state, and update the registry |
+| Ingest | Core | Read source material and stage a package in runtime state without writing durable repo content |
+| Writeback | Core | Validate and apply staged outputs to configured target paths |
+| Search | Core | Run lightweight filesystem and Markdown search over configured read roots |
+| Lint protocol | Core | Check registry resolution, runtime state, package manifests, targets, and writeback safety |
+| Query | Native | Answer from native indexes, views, cards, sources, MOCs, and provenance conventions |
+| Promote | Native | Move reviewed native staged material into stable native notes, indexes, logs, and archives |
+| Lint native | Native | Check native structure, index health, provenance health, and promotion rules |
+| Register | Support | Maintain registry entries directly when low-level edits are needed |
+| Sync | Support | Pull, inspect, commit, or push a bound target repo through Git |
+
+Core means setup, ingest, writeback, search, and protocol lint. These operations work for generic and native bindings and do not require `Cards`, `Sources`, `MOCs`, native indexes, or native views.
+
+Native means query, promote, and native lint. These operations require `mode = "native"` and a native retrieval contract.
+
+`register` is intentionally lower level than `setup`: use `setup` for normal binding creation and adoption, and `register` only when directly maintaining the registry. `sync` operates on the target repo's Git state.
+
+## Binding Modes
+
+Generic bindings are the default adoption path for existing repositories. Generic setup creates or updates:
+
+- the local registry entry
+- the LoreForge runtime state directory
+- configured read roots and writeback targets
+
+Generic setup does not require target-local LoreForge metadata and does not reshape the target repository.
+
+Native bindings are optional. A native target repo follows LoreForge's structured profile for higher-capability retrieval and promotion. The current starter template lives at:
 
 ```text
-<wiki>/.loreforge/wiki.toml
+templates/wiki/
 ```
 
-See [docs/config.md](docs/config.md) for registration and discovery.
+The template name is historical; it is now the native starter profile, not the default shape for every LoreForge binding.
 
-## Wiki Instance Shape
+## Native Starter Generation
 
-The generic wiki template uses:
+Create a native starter only when the target should use the high-structure profile for query, promote, and native lint:
 
-```text
-AGENTS.md
-00_System/
-  +Wiki Index.md
-  Vault Map.md
-  Schema.md
-  Wiki Log.md
-  Views/
-    default.md
-    query.md
-    ingest.md
-    writeback.md
-    promote.md
-    maintenance.md
-10_Inbox/
-  capture/
-  ingest/
-  writeback/
-Cards/
-Sources/
-  Papers/
-  Articles/
-  Docs/
-MOCs/
-  Scope/
-Archive/
+```bash
+bash scripts/setup-binding.sh cs /path/to/cs-native \
+  --mode native \
+  --init-native-template \
+  --target "cards=Cards:Native cards" \
+  --target "sources=Sources:Native source notes" \
+  --default-target cards
 ```
 
-The important idea is task-oriented views, not agent-specific views. Any session that loads the wiki rules can follow the same process.
+Bind an existing repository without the native starter when the user's current layout should remain authoritative:
 
-## First Operations
-
-Keep the initial workflow simple:
-
-| Operation | Purpose |
-|---|---|
-| Query | Use the card index, Atlas/MOCs, and stable notes before broad search |
-| Capture | Quick alias for `ingest mode=capture` |
-| Ingest | Capture or process external source material into staged packages |
-| Writeback | Stage reusable conversation/query synthesis as candidate notes |
-| Promote | Batch-promote reviewed staged packages into stable notes, archive staging, update indexes, and log |
-| Lint | Run read-only structural health checks |
-| Register | Register local wiki paths and remotes |
-| Sync | Keep local wiki clones aligned with Git remotes |
-
-Automation should grow from repeated usage pain, not be designed up front.
-
-These operations are framework core concepts, implemented under `skills/`. Any repo-specific path conventions should be documented in the concrete wiki repo itself, usually in `AGENTS.md` and `.loreforge/wiki.toml`.
-
-`capture` remains a convenient command, but its behavior is `ingest mode=capture`. Processed `ingest` and `writeback` outputs are staged packages with a `manifest.md`; `promote` is the stable-write transaction that can promote one or more candidate notes, update `00_System/+Wiki Index.md` for stable cards, optionally update MOCs, move consumed staging material to `Archive/`, and append the wiki log.
-
-## Plugin Distribution
-
-LoreForge can be installed as a Codex or Claude plugin.
-
-The plugin layer is intentionally thin:
-
-- expose the operation skills in `skills/`
-- provide router instructions for when to use each skill
-- keep actual knowledge in separate wiki instances
-- recover after context compaction from registry, package manifests, indexes, and log files
-
-Plugin metadata lives in:
-
-```text
-.codex-plugin/plugin.json
-.claude-plugin/plugin.json
-.claude-plugin/marketplace.json
-.claude/CLAUDE.md
+```bash
+bash scripts/setup-binding.sh notes /path/to/notes \
+  --target "notes=docs:General notes" \
+  --target "sources=references:Source notes" \
+  --default-target notes
 ```
 
-## GitHub-Backed Wikis
+See [docs/install.md](docs/install.md) for setup flows.
 
-LoreForge supports wiki instances backed by GitHub repositories.
+## GitHub-Backed Targets
+
+LoreForge supports target repositories backed by GitHub or another Git remote.
 
 The intended mode is local-first:
 
 ```text
-GitHub remote -> local clone -> local query/search/edit -> git sync
+Git remote -> local clone -> local search/read/write -> git sync
 ```
 
 Agents should use the local clone for search and editing. GitHub is for persistence and cross-machine synchronization, not per-query retrieval.
 
 ## Relationship To Existing `~/wiki`
 
-The current `~/wiki` structure already has useful ideas:
+An existing `~/wiki` can be bound as either:
 
-- `00_System/Vault Map.md`
-- compact indexes
-- agent/task views
+- a generic target, preserving its current layout and using search/writeback over configured paths
+- a native target, if it already follows or intentionally adopts the native profile
 
-LoreForge should generalize those ideas into a reusable framework. `~/wiki` can remain a concrete wiki instance or source of design feedback.
-
-## Wiki Repo Generation
-
-Create a wiki repo by copying `templates/wiki/` into a new git repository. The resulting repo is client-agnostic Markdown.
-
-If a wiki repo needs special paths or views, record them in that repo's `AGENTS.md` and `.loreforge/wiki.toml`.
+LoreForge should generalize useful patterns from existing knowledge repos without making every repository adopt those paths.
 
 ## License
 
