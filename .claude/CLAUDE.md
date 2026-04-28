@@ -1,31 +1,27 @@
 # LoreForge Router
 
-LoreForge is a framework for shared LLM-wiki knowledge bases.
-
-Use LoreForge when the user asks about a configured wiki, shared professional knowledge, source ingestion, durable writeback, stable promotion, wiki linting, local wiki registration, or Git-backed wiki sync.
+LoreForge is a framework for binding-centric knowledge workflows.
 
 ## Route Tasks
 
 | User intent | Use |
 |---|---|
-| Answer from existing wiki knowledge | `query` |
-| Save a source, URL, or note quickly | `ingest mode=capture` or `capture` |
-| Process an article, paper, docs, file, or captured note | `ingest mode=process` |
-| Research and then stage source-derived knowledge | `ingest mode=research` |
-| Save reusable conversation or query synthesis | `writeback` |
-| Move staged package content into stable wiki notes | `promote` |
-| Check wiki structure and package health | `lint` |
-| Register or update a local wiki path | `register` |
-| Pull, inspect, commit, or push a wiki clone | `sync` |
+| Create or update LoreForge bindings and runtime state | `setup` |
+| Process source material into staged runtime packages | `ingest` |
+| Write staged package outputs into configured target paths | `writeback` |
+| Search configured read roots in generic or native bindings | `search` |
+| Run protocol lint by default and native lint for native bindings | `lint` |
+| Low-level binding registry maintenance | `register` |
+| Sync target repositories with Git remotes | `sync` |
+| Native-only structured retrieval | `query` |
+| Native-only stable promotion | `promote` |
 
 ## Boundaries
 
-- LoreForge wiki stores professional shared knowledge.
-- Agent-local experience, preferences, current task state, and workflow memories belong in `pamem`, not the shared wiki.
-- Use local registry `~/.config/loreforge/registry.toml` and wiki metadata `.loreforge/wiki.toml` instead of guessing paths.
-- `query` is read-first.
-- `ingest` and `writeback` create staged packages.
-- `promote` is the stable-write transaction for notes, domain index, staging archive, and promotion log.
-- GitHub remotes are persistence and sync backends, not per-query retrieval backends.
-
-When context was compacted, recover workflow state from staged package `manifest.md`, `00_System/Wiki Log.md`, domain `+Wiki Index.md`, and the registry.
+- Shared professional knowledge belongs in user-owned target repositories.
+- Runtime packages, extracts, reports, caches, and locks belong in LoreForge runtime state.
+- Agent-local experience, preferences, current task state, and workflow memories belong in `pamem`.
+- Locate bindings through `~/.config/loreforge/registry.toml`.
+- Generic bindings support setup, ingest, writeback, search, and protocol lint.
+- Native bindings additionally support query, promote, and native lint.
+- Recover after compaction from the selected binding, runtime package manifests, and target repo context.

@@ -1,7 +1,7 @@
 {
   "name": "loreforge",
   "version": "0.1.0",
-  "description": "LoreForge provides skills, templates, and routing rules for operating LLM-wiki style shared professional knowledge bases.",
+  "description": "LoreForge provides skills, templates, and routing rules for binding-centric workflows over user-owned repositories.",
   "author": {
     "name": "PHLens",
     "url": "https://github.com/PHLens"
@@ -19,8 +19,8 @@
   "skills": "./skills/",
   "interface": {
     "displayName": "LoreForge",
-    "shortDescription": "Operate shared LLM-wiki knowledge bases.",
-    "longDescription": "LoreForge helps agents query, capture, ingest, write back, promote, lint, register, and sync shared professional wiki knowledge while keeping agent-local experience in memory systems such as pamem.",
+    "shortDescription": "Operate binding-centric LoreForge workflows.",
+    "longDescription": "LoreForge provides binding-centric workflows for setup, ingest, writeback, search, lint, and native query/promote while keeping agent-local experience in pamem.",
     "developerName": "PHLens",
     "category": "Productivity",
     "capabilities": [
@@ -30,9 +30,10 @@
     ],
     "websiteURL": "https://github.com/PHLens/LoreForge",
     "defaultPrompt": [
-      "Query my LoreForge wiki before searching.",
-      "Capture this source into LoreForge.",
-      "Write back this reusable answer."
+      "Set up a binding before working in a new target repo.",
+      "Search configured read roots before ingest or writeback.",
+      "Use protocol lint to check binding state and package health.",
+      "Use native query and promote only on mode=native bindings."
     ],
     "brandColor": "#2563EB"
   }

@@ -1,6 +1,6 @@
 ---
 name: loreforge-router
-description: Route LoreForge, llm-wiki, wiki knowledge base, shared professional knowledge, query, capture, ingest, writeback, promote, lint, register, or sync requests to the correct LoreForge skill.
+description: Route setup, ingest, search, writeback, lint, query, promote, register, or sync requests to the correct LoreForge skill for binding-centric workflows.
 user-invocable: true
 ---
 
@@ -12,21 +12,23 @@ Use this lightweight router before choosing a LoreForge operation.
 
 | Intent | Skill |
 |---|---|
-| Answer from existing wiki knowledge | `query` |
-| Save a source, URL, or note quickly | `ingest mode=capture` or `capture` |
-| Process an article, paper, docs, file, or captured note | `ingest mode=process` |
-| Research and then stage source-derived knowledge | `ingest mode=research` |
-| Save reusable conversation or query synthesis | `writeback` |
-| Move staged package content into stable wiki notes | `promote` |
-| Check wiki structure and package health | `lint` |
-| Register or update a local wiki path | `register` |
-| Pull, inspect, commit, or push a wiki clone | `sync` |
+| Create, install, adopt, or register a binding | `setup` |
+| Ingest a URL, file, article, paper, docs page, repo note, or user-provided source | `ingest` |
+| Search a configured target repo read root | `search` |
+| Write staged package outputs into configured target paths | `writeback` |
+| Answer from native LoreForge knowledge using indexes, views, cards, sources, and MOCs | `query` |
+| Promote native staged material into native cards, sources, MOCs, indexes, logs, and archive | `promote` |
+| Check binding runtime state and package health | `lint protocol` |
+| Check native repo structure and index/provenance health | `lint native` |
+| Low-level binding registry update | `register` |
+| Pull, inspect, commit, or push a target repo | `sync` |
 
 ## Boundaries
 
-- Shared professional knowledge belongs in a LoreForge wiki.
+- Shared professional knowledge belongs in user-owned target repositories.
+- Runtime packages, extracts, reports, caches, and locks belong in LoreForge runtime state.
 - Agent-local experience, preferences, task state, and workflow memories belong in `pamem`.
-- Locate wikis through `~/.config/loreforge/registry.toml` and `.loreforge/wiki.toml`.
-- `ingest` and `writeback` create staged packages.
-- `promote` is the stable-write transaction.
-- Recover after compaction from staged package `manifest.md`, `00_System/+Wiki Index.md`, `00_System/Wiki Log.md`, MOCs, and the registry.
+- Locate bindings through `~/.config/loreforge/registry.toml`.
+- Generic bindings support setup, ingest, writeback, search, and protocol lint.
+- Native bindings additionally support query, promote, and native lint.
+- Recover after compaction from the selected binding, runtime package manifests, and target repo context.
