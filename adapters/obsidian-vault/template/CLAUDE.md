@@ -21,20 +21,21 @@ All agents operating on this vault MUST follow these rules.
 
 ## Two-Tier Autonomy
 
-- **Auto** (no confirmation): metadata/backlink/index updates, lint reports, new staged notes in `Sources/agents/`, +Wiki Log entries, additive-only ripple updates (add `X::` links, See also, source refs, short fact paragraphs <3 lines)
-- **Confirm**: semantic edits (rewriting/rephrasing existing content), structural changes, note moves, deletions, promotion from `Sources/agents/` to final locations
-- **Principle**: additive-only changes that don't alter existing text → auto; changes that modify or remove existing text → confirm
+- **Auto** (no confirmation): read-only query, lint reports, quick captures, and staged packages under the configured inbox.
+- **Confirm**: promotion to stable notes, index updates, semantic edits, structural changes, note moves, deletions, and schema/view changes.
+- **Principle**: staging is low-risk; stable wiki changes require an explicit approved promotion plan.
 
 ## Staging
 
-- All new notes stage in `Sources/agents/` first
+- New ingest/writeback candidates stage as packages under `10_Inbox/ingest/` or `10_Inbox/writeback/`.
+- Legacy vaults may still contain `Sources/agents/`; treat it as an older staging area and migrate touched material into staged packages before promotion.
 - Wait for user confirmation before moving to final locations (`Cards/`, `MOCs/`, `Spaces/`)
 - Do not touch final locations until user confirms
 
 ## +Wiki Index & Log
 
-- `MOCs/Scope/+Wiki Index.md` — agent-facing manifest. Update after every ingest/writeback. One line per entry: `[[Note]] — <summary> [category]`
-- `MOCs/Scope/+Wiki Log.md` — append-only operation log. Append after every ingest, query writeback, or lint.
+- `MOCs/Scope/+Wiki Index.md` — agent-facing manifest of stable knowledge only. Update during approved promotion, not during ordinary staging.
+- `MOCs/Scope/+Wiki Log.md` — append-only operation log for substantive staged packages and approved promotions.
   - Format: `## [YYYY-MM-DD] ingest|query|lint | <title>`
   - Body: `- source:`, `- created:`, `- updated:`, `- touched: N cards`
   - Do NOT edit historical entries
@@ -61,5 +62,5 @@ All agents operating on this vault MUST follow these rules.
 
 ## Claude-Specific
 
-- Writeback: Stop hook triggers writeback evaluation when `MOCs/Scope/+Wiki Index.md` exists
+- Writeback: a stop hook may propose a staged writeback package when durable shared knowledge is detected; it must not update stable notes, indexes, or logs directly.
 - Skills path: install from repository root `skills/`; Obsidian vault template lives in `adapters/obsidian-vault/template/`

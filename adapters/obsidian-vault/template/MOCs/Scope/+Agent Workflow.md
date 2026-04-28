@@ -102,18 +102,18 @@ Location: `MOCs/`
 
 Location: `MOCs/Scope/+Wiki Index.md`
 
-After every ingest/writeback:
-- Add new entries: `[[Note]] — <one-line summary> [category]`
-- Update existing entries if summaries changed
-- Remove entries for deleted/moved notes
+Update the index only during approved promotion:
+- Add stable entries: `[[Note]] — <one-line summary> [category]`
+- Update existing stable entries if the approved promotion changes retrieval text
+- Remove entries only when an approved promotion or maintenance plan moves/deletes stable notes
 
 ## 6. +Wiki Log Append
 
 Location: `MOCs/Scope/+Wiki Log.md`
 
-After every ingest, query writeback, or lint:
+Append logs for substantive staged packages and approved promotions:
 ```markdown
-## [YYYY-MM-DD] ingest|query|lint | <title>
+## [YYYY-MM-DD] stage|promote|lint | <title>
 - source: <what was processed>
 - created: <new notes>
 - updated: <modified notes>
@@ -125,9 +125,9 @@ After every ingest, query writeback, or lint:
 When a synthesized answer has lasting value:
 1. Deliver answer first — do not delay for writeback evaluation
 2. Evaluate: comparison/analysis → high; concept explanation → medium; simple lookup → skip
-3. Auto-tier: add X:: links, See also, source refs directly
-4. Confirm-tier: propose new card or MOC update → user confirms → stage in `Sources/agents/` → user confirms promotion
-5. After any writeback: update +Wiki Index and append to +Wiki Log
+3. Stage a writeback package under `10_Inbox/writeback/`
+4. Include candidate notes, proposed deltas, provenance, and promotion rationale in `manifest.md`
+5. Use `promote` for stable notes, index updates, staging archive, and promotion log entries after approval
 
 ## Comparison Card Format
 

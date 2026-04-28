@@ -91,6 +91,111 @@ markdown_without_fenced_code() {
   done < <(find . -name "*.md" -type f -print0 2>/dev/null)
 }
 
+frontmatter_text() {
+  local file="$1"
+  awk '
+    NR == 1 && $0 == "---" { in_frontmatter = 1; next }
+    in_frontmatter && $0 == "---" { exit }
+    in_frontmatter { print }
+  ' "$file"
+}
+
+manifest_field() {
+  local file="$1"
+  local key="$2"
+  frontmatter_text "$file" | awk -v key="$key" '
+    $0 ~ "^[[:space:]]*" key ":[[:space:]]*" {
+      sub(/^[^:]*:[[:space:]]*/, "", $0)
+      gsub(/^[[:space:]]*"|"[[:space:]]*$/, "", $0)
+      print
+      exit
+    }
+  '
+}
+
+manifest_section() {
+  local file="$1"
+  local section="$2"
+  frontmatter_text "$file" | awk -v section="$section" '
+    $0 ~ "^[[:space:]]*" section ":[[:space:]]*$" { in_section = 1; next }
+    in_section && $0 ~ "^[A-Za-z0-9_-]+:[[:space:]]*" { exit }
+    in_section { print }
+  '
+}
+
+validate_manifest() {
+  local manifest="$1"
+  local expected_type="$2"
+  local issues=0
+
+  if ! head -n 1 "$manifest" | grep -qx -- '---'; then
+    echo "  - invalid manifest: $manifest missing frontmatter"
+    MANIFEST_ISSUES=1
+    return
+  fi
+
+  local type
+  local status
+  local value
+  for field in type source_type status domain created promotion_reason; do
+    value="$(manifest_field "$manifest" "$field")"
+    if [ -z "$value" ]; then
+      echo "  - invalid manifest: $manifest missing or empty $field"
+      issues=$((issues + 1))
+    fi
+  done
+
+  type="$(manifest_field "$manifest" "type")"
+  if [ -n "$type" ] && [ "$type" != "ingest" ] && [ "$type" != "writeback" ]; then
+    echo "  - invalid manifest: $manifest type must be ingest or writeback"
+    issues=$((issues + 1))
+  fi
+  if [ -n "$expected_type" ] && [ -n "$type" ] && [ "$type" != "$expected_type" ]; then
+    echo "  - invalid manifest: $manifest type $type does not match $expected_type package root"
+    issues=$((issues + 1))
+  fi
+
+  status="$(manifest_field "$manifest" "status")"
+  if [ -n "$status" ] && [ "$status" != "staged" ]; then
+    echo "  - invalid manifest: $manifest status must be staged"
+    issues=$((issues + 1))
+  fi
+
+  for section in provenance candidate_notes updates; do
+    if ! manifest_section "$manifest" "$section" | grep -q '^[[:space:]]*-'; then
+      echo "  - invalid manifest: $manifest $section must include at least one item"
+      issues=$((issues + 1))
+    fi
+  done
+
+  local candidate_notes
+  local updates
+  candidate_notes="$(manifest_section "$manifest" "candidate_notes")"
+  updates="$(manifest_section "$manifest" "updates")"
+  if [ -n "$candidate_notes" ]; then
+    if ! printf '%s\n' "$candidate_notes" | grep -q 'path:'; then
+      echo "  - invalid manifest: $manifest candidate_notes entries need path"
+      issues=$((issues + 1))
+    fi
+    if ! printf '%s\n' "$candidate_notes" | grep -q 'kind:'; then
+      echo "  - invalid manifest: $manifest candidate_notes entries need kind"
+      issues=$((issues + 1))
+    fi
+  fi
+  if [ -n "$updates" ]; then
+    if ! printf '%s\n' "$updates" | grep -q 'path:'; then
+      echo "  - invalid manifest: $manifest updates entries need path"
+      issues=$((issues + 1))
+    fi
+    if ! printf '%s\n' "$updates" | grep -q 'kind:'; then
+      echo "  - invalid manifest: $manifest updates entries need kind"
+      issues=$((issues + 1))
+    fi
+  fi
+
+  MANIFEST_ISSUES="$issues"
+}
+
 AGENTS_FILE="$(toml_get "" "agents_file" "AGENTS.md")"
 VAULT_MAP="$(toml_get "" "vault_map" "00_System/Vault Map.md")"
 SCHEMA_FILE="$(toml_get "" "schema_file" "00_System/Schema.md")"
@@ -181,6 +286,7 @@ echo "## 4. Duplicate/Near-Duplicate Titles"
 dupes=0
 duplicate_groups="$(
   find . -name "*.md" -type f ! -name "README.md" ! -name "+Wiki Index.md" -printf "%f\t%p\n" 2>/dev/null \
+    | awk -F '\t' '$1 != "manifest.md" { print }' \
     | awk -F '\t' '
       {
         title=$1
@@ -218,9 +324,16 @@ if [ -d "$INBOX_DIR" ]; then
   for package_root in "$INGEST_DIR" "$WRITEBACK_DIR"; do
     if [ -d "$package_root" ]; then
       while IFS= read -r -d '' package_dir; do
+        expected_type="writeback"
+        if [ "$package_root" = "$INGEST_DIR" ]; then
+          expected_type="ingest"
+        fi
         if [ ! -f "$package_dir/manifest.md" ]; then
           echo "  - staged package missing manifest: $package_dir"
           package_issues=$((package_issues + 1))
+        else
+          validate_manifest "$package_dir/manifest.md" "$expected_type"
+          package_issues=$((package_issues + MANIFEST_ISSUES))
         fi
       done < <(find "$package_root" -mindepth 1 -maxdepth 1 -type d -print0 2>/dev/null)
     fi

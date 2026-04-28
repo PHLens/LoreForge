@@ -52,7 +52,7 @@ Optional:
 Example:
 
 ```text
-register wiki name=cs path=/home/phlens/wiki remote=git@github.com:PHLens/cs-wiki.git default_view=domain-query
+register wiki name=cs path=/path/to/cs-wiki remote=git@github.com:OWNER/cs-wiki.git default_view=domain-query
 ```
 
 ## Registry Entry
@@ -60,8 +60,8 @@ register wiki name=cs path=/home/phlens/wiki remote=git@github.com:PHLens/cs-wik
 ```toml
 [[wikis]]
 name = "cs"
-path = "/home/phlens/wiki"
-remote = "git@github.com:PHLens/cs-wiki.git"
+path = "/path/to/cs-wiki"
+remote = "git@github.com:OWNER/cs-wiki.git"
 description = "Computer science, GPU, ML systems, PyTorch"
 default_view = "domain-query"
 ```

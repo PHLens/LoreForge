@@ -30,7 +30,7 @@ If no path is given, run against the current directory.
 2. **Domain health** - each domain should have a domain map and `+Wiki Index.md`.
 3. **Unresolved links** - `[[link]]` targets that do not exist as files, excluding common attachments.
 4. **Duplicate or near-duplicate titles** - case/spacing variants across Markdown files.
-5. **Staged material** - captured or staged notes still under the configured inbox, plus ingest/writeback packages missing `manifest.md`.
+5. **Staged material** - captured or staged notes still under the configured inbox, plus ingest/writeback packages with missing or invalid `manifest.md`.
 6. **Card discoverability** - cards with no inbound link, no domain index entry, and no `up:` field.
 7. **Metadata drift** - empty tags, missing frontmatter on stable cards, and common malformed fields.
 

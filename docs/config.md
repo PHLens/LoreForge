@@ -30,8 +30,8 @@ default = "cs"
 
 [[wikis]]
 name = "cs"
-path = "/home/phlens/wiki"
-remote = "git@github.com:PHLens/cs-wiki.git"
+path = "/path/to/cs-wiki"
+remote = "git@github.com:OWNER/cs-wiki.git"
 description = "Computer science, GPU, ML systems, PyTorch"
 default_view = "domain-query"
 ```

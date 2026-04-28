@@ -15,11 +15,12 @@ Structural guide for agents operating on this vault. For workflow steps, see [[+
 |-----------|---------|-------------|
 | `Cards/` | Atomic concept notes | Stage first, confirm to promote |
 | `MOCs/` | Maps of Content | Stage first, confirm to promote |
-| `MOCs/Scope/` | Agent-facing indexes | Auto-update |
+| `MOCs/Scope/` | Agent-facing indexes and logs | Update during approved promotion |
 | `Sources/Article/` | Article source notes | Write-once, additive only |
 | `Sources/Papers/` | Paper notes | Write-once, additive only |
 | `Sources/Cubox/` | Cubox sync content | Write-once, additive only |
-| `Sources/agents/` | Staging area for agent drafts | Auto-create |
+| `10_Inbox/ingest/` | Staged source packages | Auto-create packages |
+| `10_Inbox/writeback/` | Staged conversation/query packages | Auto-create packages |
 | `Spaces/` | GTD, research, work | Stage first, confirm to promote |
 | `Inbox/` | Quick capture | Auto-create |
 | `Extras/Media/Img/` | Images and figures | Auto-save |
@@ -29,8 +30,8 @@ Structural guide for agents operating on this vault. For workflow steps, see [[+
 
 | File | Purpose | Update Rule |
 |------|---------|------------|
-| `MOCs/Scope/+Wiki Index.md` | Agent-facing compact manifest | Auto-update after ingest/writeback |
-| `MOCs/Scope/+Wiki Log.md` | Append-only operation log | Auto-append after ingest/query/lint |
+| `MOCs/Scope/+Wiki Index.md` | Agent-facing compact manifest of stable notes | Update during approved promotion |
+| `MOCs/Scope/+Wiki Log.md` | Append-only operation log | Append for substantive staging and approved promotion |
 | `MOCs/Scope/+Atlas.md` | User dashboard | Do NOT modify |
 | `Cards/+ Index of Cards.md` | Dataview BOAT/Evergreen index | Do NOT modify |
 
@@ -80,11 +81,11 @@ Check items:
 2. Missing `up` field (informational)
 3. Unresolved `[[link]]` targets
 4. Duplicate/near-duplicate titles
-5. Stale staged drafts in `Sources/agents/`
+5. Staged packages in `10_Inbox/ingest/` or `10_Inbox/writeback/`, including missing or invalid manifests
 6. MOC stale references (entries pointing to missing cards)
 7. Metadata drift (inconsistent tags, empty sub-tags, missing frontmatter)
 
-Output: structured report in chat. No file writes. Append entry to +Wiki Log after lint.
+Output: structured report in chat. No file writes. Log lint only when it has meaningful findings and the user approves.
 
 ## Technical Findings
 
