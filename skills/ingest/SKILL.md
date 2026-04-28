@@ -1,165 +1,97 @@
 ---
 name: ingest
-description: Use for LoreForge source intake: capture URLs/notes, process articles/papers/docs/files/captured notes, or research and stage source-derived wiki candidate packages.
+description: Use when reading source material, extracting useful content, and staging a LoreForge runtime package without writing the target repository by default.
 user-invocable: true
 ---
 
-# Ingest
+# Ingest Source
 
-Ingest source material into a LoreForge wiki instance.
+Ingest reads source material and creates a staged runtime package. It does not write the target repo by default.
 
-`ingest` handles external sources. It has a quick capture mode and heavier processing modes.
-
-## Trigger
-
-`ingest`, `capture`, `process note(s)`, `处理笔记`
-
-Modes:
-
-| Mode | Use when | Output |
-|---|---|---|
-| `capture` | Material may be useful but structure/value is unclear | short note under `<capture>/` |
-| `process` | Source is ready to turn into wiki candidates | staged package under `<ingest>/` |
-| `research` | Source needs additional research before staging | staged package under `<ingest>/` |
-
-Acceptable inputs:
-
-- inbox note created by `capture`
-- source note
-- local file
-- URL or article
-- paper, docs, transcript, issue, PR, repository, or dataset description
-- user-provided source material
+Use `ingest` for URLs, local files, articles, papers, docs pages, repository notes, transcripts, datasets, or user-provided source material that may become durable knowledge after review.
 
 ## Workflow
 
-1. Locate the target wiki through `~/.config/loreforge/registry.toml`, a user-provided path, or the current directory if it contains `.loreforge/wiki.toml`.
-2. Read `<wiki>/.loreforge/wiki.toml` and resolve configured paths. Fallbacks:
-   - inbox: `10_Inbox`
-   - capture: `10_Inbox/capture`
-   - ingest: `10_Inbox/ingest`
-   - cards: `Cards`
-   - sources: `Sources`
-   - mocs: `MOCs`
-3. Read the wiki `AGENTS.md`, vault map, ingest view, card index, and relevant MOCs or cards.
-4. If mode is `capture`, save a short capture note and stop.
-5. If mode is `process` or `research`, read the source material or captured inbox note to understand content and provenance.
-6. If content is incomplete and mode is `research`, use an appropriate research skill or web search.
-7. Check existing Cards, MOCs, and Sources before creating new notes.
-8. Create a staged package with source notes, candidate cards, optional MOC drafts, and deltas.
-9. Add framework-required metadata and tags.
-10. Propose related links, index additions, and promotion destinations.
-11. Append a wiki log entry only when a substantive staged package is created.
-12. Hand off approved stable writes to `promote`; do not update stable notes or indexes directly from `ingest`.
+1. Resolve the binding from `~/.config/loreforge/registry.toml`.
+2. Read `target_repo`, `state_dir`, `read_roots`, `targets`, and `default_target`.
+3. Confirm the source is allowed to be read and fits inside configured repository boundaries when it is local target-repo content.
+4. Fetch or read the source.
+5. Extract useful text, source metadata, title, author, URL or path, access time, and any relevant provenance.
+6. Create a package under `<state_dir>/packages/ingest/<id>/`.
+7. Store source references and extracted text under `<state_dir>/packages/ingest/<id>/source/`.
+8. Generate candidate files under `<state_dir>/packages/ingest/<id>/candidates/`.
+9. Generate patch files under `<state_dir>/packages/ingest/<id>/patches/` when an update is more appropriate than a new file.
+10. Write `manifest.toml` with `[[sources]]` and `[[outputs]]`.
+11. Leave the package with `status = "staged"`.
+12. Hand off to `writeback` for target repo writes.
 
-## Staging
+## Package Layout
 
-- Capture notes go to `<capture>/<YYYY-MM-DD>-<short-slug>.md`.
-- Processed material stages as a package under `<ingest>/<YYYY-MM-DD>-<short-slug>/`.
-- Use subfolders under the staging root when helpful:
-  - `Sources/<Type>/`
-  - `Cards/`
-  - `MOCs/`
-  - `Deltas/`
-  - `manifest.md`
-- Stable promotion destinations:
-  - source summaries: `<sources>/<Type>/`
-  - concept cards: `<cards>/`
-  - topic maps: `<mocs>/`
-- If a wiki repo defines custom index or log paths, follow its `.loreforge/wiki.toml` after resolving the wiki.
-- Wait for user confirmation before moving staged notes to stable locations.
-- Use `promote` for stable moves, index updates, MOC updates, archive moves, and promotion log entries.
+Recommended generic layout:
 
-## Staged Package Contract
-
-Every processed ingest package must include `manifest.md`.
-
-Minimum manifest:
-
-```markdown
----
-type: ingest
-source_type: <article|paper|docs|book|talk|repo|dataset|local|capture|research_synthesis|user_material>
-status: staged
-created: YYYY-MM-DD
-provenance:
-  - <source url/path/note>
-candidate_notes:
-  - Sources/Docs/<source-note>.md
-  - Cards/<concept-card>.md
-updates:
-  - 00_System/+Wiki Index.md
-promotion_reason: <why this should become stable wiki knowledge>
----
-# Package: <Title>
-
-## Summary
-<What was ingested>
-
-## Promotion Plan
-- create: <candidate note path>
-- update: <candidate delta path>
+```text
+<state_dir>/packages/ingest/<id>/
+  manifest.toml
+  source/
+    ref.toml
+    extract.md
+    original.*
+  candidates/
+    <candidate>.md
+  patches/
+    0001-<change>.patch
 ```
 
-`promote` consumes this package. It may promote multiple candidate notes from one package.
+`source/original.*` is optional. Store full source snapshots only when the user asks or the binding policy requires them. Source references and extracts are workflow evidence, not durable repository content.
 
-If the package contains card candidates, `updates` must include the configured card index, usually `00_System/+Wiki Index.md`. MOC updates are optional. Source-only packages do not need an index update.
+## Manifest Contract
 
-## Stage Log Entry
+Every ingest package must include `manifest.toml`.
 
-For substantive `process` or `research` packages, append one wiki log entry:
+Minimum generic manifest:
 
-```markdown
-## YYYY-MM-DD | stage | ingest | <package-slug>
+```toml
+type = "ingest"
+status = "staged"
+binding = "<binding>"
+created_at = "<ISO-8601 timestamp>"
 
-- package:
-  - `<ingest>/<YYYY-MM-DD>-<short-slug>/`
-- source_type:
-  - `<source type>`
-- candidate_notes:
-  - `Cards/<candidate-card>.md`
-- reason:
-  - <why this package may deserve promotion>
+[[sources]]
+type = "url"
+ref = "<source ref>"
+snapshot = "extract"
+
+[[outputs]]
+kind = "file"
+target = "<configured target>"
+path = "<relative output path>"
+candidate = "candidates/<file>.md"
+mode = "create"
 ```
 
-Do not log ordinary captures.
+`[[sources]]` entries describe where the material came from. Use `type` values such as `url`, `file`, `repo`, `paper`, `docs`, `dataset`, `conversation`, or `user_material`.
 
-## Hard Boundary
+`[[outputs]]` entries describe proposed writes. Each output must use a configured target name. `path` is relative to that target path, not to the repository root. `candidate` and `patch` paths are package-relative.
+
+Use `mode = "create"` for new files and `mode = "update"` for patch-based updates. Writeback validates conflicts and path safety before anything reaches the target repository.
+
+## Candidate Guidance
+
+Candidates should be small, source-grounded, and ready for review. Prefer one durable concept, summary, or update per candidate file. Keep source attribution in the candidate when it will matter after writeback.
+
+For generic bindings, do not assume native directories such as `Cards`, `Sources`, or `MOCs`. Choose output targets from the binding configuration.
+
+For native bindings, ingest may generate candidates that match native conventions, but the package is still staged in runtime state and remains unwritten until a write workflow is explicitly chosen.
+
+## Boundary
 
 This skill must not:
 
-- store agent-local experience in the wiki
+- write files into `target_repo` by default
+- create repository structure for generic bindings
+- silently update native indexes, logs, or views
+- store agent-local experience, preferences, or task state
 - save full chat transcripts
-- silently edit stable cards
 - commit or push git changes
-- use raw web search when existing wiki knowledge is sufficient
 
-It may append a concise wiki log entry for a substantive staged ingest package. It must not log ordinary captures.
-
-## Concept Card Template
-
-```markdown
----
-status: staged
-created: YYYY-MM-DD
-kind: card
-aliases:
-  - Alternative names
-tags:
-  - concept
-up: ""
----
-
-X:: [[Related Concept]]
-
-# <Concept>
-
-## Why It Matters
-<Motivation or reusable context>
-
-## Definition
-<Definition and details>
-
-## References
-- [[Source Note]]
-```
+It may store source references, extracts, candidates, patches, reports, and package metadata under `state_dir`.

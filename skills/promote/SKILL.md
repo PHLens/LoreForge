@@ -1,14 +1,14 @@
 ---
 name: promote
-description: Use when approved LoreForge staged packages should become stable wiki notes; supports batch promotion, card index updates, optional MOC updates, staging archive, and wiki log entries.
+description: Use when approved native LoreForge staged packages should become stable native cards, sources, MOCs, indexes, logs, and archive entries.
 user-invocable: true
 ---
 
-# Promote
+# Promote Native Package
 
-Promote staged material into stable LoreForge wiki knowledge.
+Promote is native-only. Generic bindings use `writeback` as their stable write operation.
 
-This is the transaction boundary for stable wiki writes. `ingest` and `writeback` prepare staged material; `promote` performs the reviewed stable update.
+Promote is the transaction boundary for native stable writes. It applies reviewed staged material to native cards, sources, MOCs, indexes, logs, and archives after an explicit user-approved plan.
 
 ## Trigger
 
@@ -18,49 +18,52 @@ This is the transaction boundary for stable wiki writes. `ingest` and `writeback
 
 Acceptable inputs:
 
-- staged ingest folder under `<ingest>/`
-- staged writeback folder under `<writeback>/`
-- specific staged source/card/MOC files
-- a user-approved promotion plan
+- staged native ingest folder
+- staged native writeback folder
+- specific staged source, card, or MOC files
+- a user-approved native promotion plan
 
 Prefer a staged package with `manifest.md`. A package may contain multiple candidate notes and deltas.
 
 ## Discovery
 
-1. Locate the target wiki through `~/.config/loreforge/registry.toml`, a user-provided path, or the current directory if it contains `.loreforge/wiki.toml`.
-2. Read `<wiki>/.loreforge/wiki.toml` and resolve configured paths. Fallbacks:
-   - inbox: `10_Inbox`
-   - ingest: `10_Inbox/ingest`
-   - writeback: `10_Inbox/writeback`
+1. Resolve the selected binding through `~/.config/loreforge/registry.toml`.
+2. Require `mode = "native"` or a `[bindings.native]` section.
+3. Read `target_repo` and native configuration.
+4. Read `<target_repo>/.loreforge/wiki.toml` when present.
+5. Resolve configured native paths. Fallbacks:
+   - ingest staging: `10_Inbox/ingest`
+   - writeback staging: `10_Inbox/writeback`
    - cards: `Cards`
    - sources: `Sources`
    - mocs: `MOCs`
    - archive: `Archive`
    - index_file: `00_System/+Wiki Index.md`
    - log_file: `00_System/Wiki Log.md`
-3. Read the wiki `AGENTS.md`, vault map, promotion view, card index, relevant stable notes, and package manifest.
+6. Read the target repo `AGENTS.md`, vault map, promotion view, card index, relevant stable notes, and package manifest.
 
 ## Hard Boundary
 
 This skill must not:
 
+- run on generic bindings
 - promote without an explicit user-approved plan
 - create stable notes from raw unsummarized source material
-- store agent-local experience in the wiki
+- store agent-local experience in the repository
 - save full chat transcripts
 - delete or rewrite unrelated stable notes
 - commit or push git changes
 
 It may:
 
-- create stable notes from reviewed staged notes
-- move staged files to stable destinations
+- create stable native notes from reviewed staged notes
+- move staged files to stable native destinations
 - archive consumed staging folders after successful promotion
 - apply small approved deltas to existing stable notes
-- update `00_System/+Wiki Index.md` or configured card index for promoted cards
+- update the configured card index for promoted cards
 - optionally update MOCs
-- append one entry to the wiki log
-- suggest running `lint` after promotion
+- append one entry to the native log
+- suggest running `lint native` after promotion
 
 ## Batch Semantics
 
@@ -91,19 +94,19 @@ Do not batch unrelated topics just because they were staged near the same time.
    - card index entries to add or adjust
    - optional MOC updates
    - consumed staging folder to archive
-   - wiki log entry to append
-7. Show the plan and ask for confirmation before changing stable areas.
+   - native log entry to append
+7. Show the plan and ask for confirmation before changing stable native areas.
 8. Apply the approved plan.
 9. Set promoted notes to `status: stable` and add or update promotion metadata when needed.
 10. Update the configured card index for promoted cards.
 11. Apply approved MOC deltas if present.
 12. Move consumed staging material to `<archive>/promoted/<YYYY-MM-DD>-<short-slug>/`, or mark it `status: promoted` if moving would break local references.
-13. Append the wiki log entry.
+13. Append the native log entry.
 14. Report created, updated, archived, skipped, and follow-up lint suggestions.
 
 ## Manifest Contract
 
-`promote` expects this minimum manifest shape from `ingest` and `writeback`:
+`promote` expects this minimum native manifest shape:
 
 ```markdown
 ---
@@ -117,7 +120,7 @@ candidate_notes:
   - Cards/<candidate-card>.md
 updates:
   - 00_System/+Wiki Index.md
-promotion_reason: <why this should become stable wiki knowledge>
+promotion_reason: <why this should become stable native knowledge>
 ---
 # Package: <Title>
 ```
@@ -146,13 +149,13 @@ Default index:
 
 Rules:
 
-- Add stable cards only. Do not index captures or staged packages.
+- Add stable cards only. Do not index staged packages.
 - Do not require MOCs or Sources to appear in the card index.
 - Prefer small additive edits over rewriting the whole index.
 - Keep entries compact enough for agents to scan quickly.
 - Preserve human-written organization unless the user approves a restructure.
 - Avoid duplicate entries. If a card already exists, update the existing entry.
-- Include enough retrieval signal: title, one-line meaning, aliases or key relations when useful.
+- Include enough retrieval signal: title, one-line meaning, aliases, or key relations when useful.
 
 Recommended entry shape:
 
@@ -168,7 +171,7 @@ Use local section names if the index already has them. If the index is empty, st
 
 ## Log Logic
 
-Append one entry to the wiki log for each approved promotion transaction.
+Append one entry to the native log for each approved promotion transaction.
 
 Default log file:
 
@@ -176,7 +179,7 @@ Default log file:
 00_System/Wiki Log.md
 ```
 
-Use `log_file` from `.loreforge/wiki.toml` if present.
+Use `log_file` from native config if present.
 
 Write logs for:
 
@@ -189,9 +192,9 @@ Write logs for:
 Do not write logs for:
 
 - query
-- capture
+- search
 - incomplete staged drafts
-- staged package creation already logged by `ingest` or `writeback`
+- staged package creation already logged before promotion
 - read-only lint
 - git sync
 
@@ -211,7 +214,7 @@ Log entry format:
 - skipped:
   - `<item>` - <reason>
 - reason:
-  - <why this became stable wiki knowledge>
+  - <why this became stable native knowledge>
 ```
 
 The log is a human-readable changelog, not a full audit trail. Git history remains the exact diff record.

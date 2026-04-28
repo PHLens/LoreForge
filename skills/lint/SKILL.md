@@ -1,44 +1,69 @@
 ---
 name: lint
-description: Use for LoreForge wiki health checks, structure validation, unresolved links, missing package manifests, card index drift, metadata drift, and read-only lint reports.
+description: Use for LoreForge protocol lint on bindings and runtime packages, or explicit native lint on native repository structure.
 user-invocable: true
 ---
 
-# Lint Wiki
+# Lint Binding
 
-Read-only structural health check. No files are modified.
+Read-only health checks. No files are modified.
+
+Protocol lint is the default for all bindings. Native lint is explicit and applies only to native bindings.
 
 ## Trigger
 
-`lint wiki`, `lint`, `健康检查`
+`lint`, `lint protocol`, `lint native`, `健康检查`
 
 ## Discovery
 
-If the user names a wiki, resolve it through `~/.config/loreforge/registry.toml`. If no wiki is named, use the current directory when it contains `.loreforge/wiki.toml`; otherwise use the registry default.
+For protocol lint, resolve the binding through `~/.config/loreforge/registry.toml`. If no binding is named, use the registry `default`.
+
+For native lint, run against the selected binding's `target_repo` or an explicit target repository path.
 
 ## Execution
 
+Protocol lint is the default:
+
 ```bash
-bash <skill-path>/lint/scripts/lint-wiki.sh [wiki_path]
+bash <skill-path>/lint/scripts/lint-protocol.sh [--registry <path>] [binding]
 ```
 
-If no path is given, run against the current directory.
+Native lint is explicit:
 
-## Check Items
+```bash
+bash <skill-path>/lint/scripts/lint-native.sh <target_repo>
+```
 
-1. **Discovery health** - required files such as `.loreforge/wiki.toml`, `AGENTS.md`, vault map, wiki log, and configured view files.
-2. **Type-first structure** - required paths such as `00_System/+Wiki Index.md`, `Cards/`, `Sources/`, `MOCs/`, and `Archive/`.
-3. **Unresolved links** - `[[link]]` targets that do not exist as files, excluding common attachments.
-4. **Duplicate or near-duplicate titles** - case/spacing variants across Markdown files.
-5. **Staged material** - captured or staged notes still under the configured inbox, plus ingest/writeback packages with missing or invalid `manifest.md`.
-6. **Flat Cards** - stable cards should live directly under `Cards/`, not in nested subdirectories.
-7. **Card discoverability** - classify cards as integrated, index-only, unindexed, or orphaned.
-8. **Source reference health** - stable sources should be referenced by Cards/MOCs or traceable through package/log provenance.
-9. **Metadata drift** - missing frontmatter, missing `kind`, malformed fields, and syntax-level tag issues.
+## Protocol Check Items
+
+Protocol lint checks:
+
+- registry syntax and binding resolution
+- target repository existence
+- runtime state readability and writability
+- configured target path existence or creatability
+- read root validity
+- staged package manifest validity
+- output target validity
+- path traversal prevention
+- writeback conflict detectability
+- lock, cache, and report directory health
+
+Protocol lint does not require native repository structure.
+
+## Native Check Items
+
+Native lint runs only for native bindings. It checks:
+
+- native index, log, and views
+- native template structure
+- card, source, and MOC conventions
+- provenance and index drift
+- native package promotion rules
 
 ## Output
 
-Structured report in chat: counts + examples per check item. No file writes.
+Return a structured report in chat: counts plus examples per check item. No file writes.
 
 ## Boundary
 

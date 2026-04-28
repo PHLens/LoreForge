@@ -1,214 +1,87 @@
 ---
 name: writeback
-description: Use when conversation, query answer, comparison, decision rationale, human correction, or concept connection may become durable shared LoreForge wiki knowledge.
+description: Use when applying staged LoreForge package outputs to configured target repository paths after validation and user approval.
 user-invocable: true
 ---
 
-# Writeback
+# Writeback Package
 
-After delivering a substantive synthesized answer, evaluate whether it should be filed back into the wiki.
+Writeback is the only generic workflow that writes to the target repository.
 
-Writeback handles conversation-derived knowledge. The default output is a staged package, not a silent edit to stable knowledge.
+Writeback consumes staged runtime packages, validates their declared outputs, previews the diff, and applies approved creates or updates inside configured targets only.
 
-## Trigger
+## Inputs
 
-Use when the user asks to save, file, record, write back, or preserve a synthesized answer.
+Acceptable inputs:
 
-The agent may also propose writeback after a reusable answer, but should not interrupt every conversation.
+- staged ingest package under `<state_dir>/packages/ingest/<id>/`
+- staged writeback package under `<state_dir>/packages/writeback/<id>/`
+- explicit `manifest.toml` path
+- user-approved output subset from a staged package
 
-Skip:
+Packages must declare outputs in `manifest.toml` with `[[outputs]]` entries.
 
-- simple factual lookups
-- one-off troubleshooting
-- greetings and confirmations
-- current task state
-- agent-local experience, preferences, or workflow memories
+## Validation
 
-## What Counts As Writeback Knowledge
+Before writing, verify:
 
-Write back only shared professional knowledge:
+- package `binding` matches the selected binding
+- every `target` exists in the binding config
+- every output path remains inside the configured target path
+- `mode = "create"` does not overwrite an existing file
+- `mode = "update"` has a patch file and applies cleanly
+- diffs are shown before any write
 
-- reusable concept explanation
-- comparison, trade-off, or decision framework
-- durable connection between existing concepts
-- synthesis across multiple sources or prior notes
-- reusable method, checklist, or pattern
-- source-grounded clarification produced during the conversation
+Also verify that candidate and patch paths remain inside the package directory and that the selected binding resolves to the expected `target_repo` and `state_dir`.
 
-Do not write shared wiki notes for:
+## Workflow
 
-- agent-local operating experience
-- user preferences
-- temporary project state
-- full transcripts
-- one-off debugging details
+1. Resolve the selected binding from `~/.config/loreforge/registry.toml`.
+2. Read `target_repo`, `state_dir`, configured `targets`, and `default_target`.
+3. Read the staged package `manifest.toml`.
+4. Validate the package binding, status, sources, outputs, candidate files, and patch files.
+5. Resolve each output target as `<target_repo>/<configured target path>/<output path>`.
+6. Reject any path that escapes the configured target path or target repository.
+7. Detect create conflicts and update applicability.
+8. Build a write plan listing creates, updates, skips, and package status changes.
+9. Show the write plan and diff preview.
+10. Ask for explicit user approval before writing.
+11. Apply only the approved outputs.
+12. Mark the package as written or move it under `<state_dir>/packages/archive/` after success.
+13. Report written, updated, skipped, archived, and any follow-up lint recommendation.
 
-Agent-local experience belongs in `pamem`, not LoreForge.
+## Output Contract
 
-## Source Types
+Generic output examples:
 
-Use `source_type: conversation_synthesis` when the knowledge came primarily from reasoning during the conversation.
+```toml
+[[outputs]]
+kind = "file"
+target = "notes"
+path = "topic/example.md"
+candidate = "candidates/example.md"
+mode = "create"
 
-Use more specific types when applicable:
-
-| Source type | Meaning |
-|---|---|
-| `conversation_synthesis` | Durable synthesis produced in this conversation |
-| `query_result` | Answer synthesized from existing wiki notes |
-| `source_grounded_answer` | Answer synthesized from cited external or wiki sources |
-| `decision_rationale` | Reusable rationale or trade-off decision |
-| `concept_connection` | Newly discovered relation between existing concepts |
-| `human_correction` | User corrected or clarified professional knowledge |
-
-## Evaluation
-
-| Answer type | Value | Action |
-|---|---|---|
-| Comparison / trade-off analysis | High | Stage comparison card, MOC delta, or both |
-| Discovered new connection between concepts | High | Stage link delta or relation card |
-| Concept explanation with lasting value | Medium | Stage concept card |
-| Professional method or reusable procedure | High | Stage method card |
-| Source-grounded summary | Medium | Stage source note |
-| Simple lookup / one-off debug | Low | Skip |
-
-## Routing
-
-Resolve paths from `<wiki>/.loreforge/wiki.toml`; use these fallbacks if absent:
-
-- inbox: `10_Inbox`
-- writeback: `10_Inbox/writeback`
-- cards: `Cards`
-- sources: `Sources`
-- mocs: `MOCs`
-
-| Content type | Stable destination after approval | Initial staging |
-|---|---|---|
-| New link, See also, source reference | Existing card or MOC | `<writeback>/` |
-| Comparison / contrast | `<cards>/` | `<writeback>/` |
-| New concept or method | `<cards>/` | `<writeback>/` |
-| Topic synthesis | `<mocs>/` or index/MOC delta | `<writeback>/` |
-| Source-grounded summary | `<sources>/<Type>/` | `<writeback>/` |
-
-## Flow
-
-1. Deliver the answer first.
-2. Locate the target wiki through registry, user path, or current wiki root.
-3. Read `AGENTS.md`, vault map, task view, card index, and relevant cards/MOCs.
-4. Evaluate whether the answer contains reusable professional knowledge.
-5. If low value, skip or say no durable writeback is needed.
-6. If useful, create a staged package under `<writeback>/<YYYY-MM-DD>-<short-slug>/`.
-7. Include stable destinations, proposed new files, proposed edits, and source/provenance.
-8. If the user approves stable writeback, hand off to `promote`.
-9. Do not update stable cards, MOCs, sources, or indexes directly from `writeback`.
-10. Append a wiki log entry only when a substantive staged package is created.
-
-## Staged Package Contract
-
-A single conversation can produce multiple candidate notes. Put them in one package when they came from the same answer or discussion thread.
-
-Recommended layout:
-
-```text
-<writeback>/<YYYY-MM-DD>-<short-slug>/
-  manifest.md
-  Cards/
-  Sources/
-  MOCs/
-  Deltas/
+[[outputs]]
+kind = "patch"
+target = "sources"
+path = "article-index.md"
+patch = "patches/0001-article-index.patch"
+mode = "update"
 ```
 
-Minimum `manifest.md`:
+`target` must name a configured binding target. `path` is relative to that target. `candidate` and `patch` are relative to the package directory.
 
-```markdown
----
-type: writeback
-source_type: conversation_synthesis
-status: staged
-created: YYYY-MM-DD
-provenance:
-  - conversation
-candidate_notes:
-  - Cards/<candidate-card>.md
-updates:
-  - 00_System/+Wiki Index.md
-promotion_reason: <why this belongs in the stable wiki>
----
-# Writeback Package: <Title>
+## Boundary
 
-## Candidate Knowledge
-<Short durable synthesis>
-
-## Proposed Changes
-- create: <path>
-- update: <path> with <small delta>
-
-## Rationale
-<Why this belongs in the wiki>
-
-## Provenance
-- <conversation/source/card>
-```
-
-`promote` consumes this package and may promote multiple candidate notes in one batch.
-
-## Stage Log Entry
-
-For substantive writeback packages, append one wiki log entry:
-
-```markdown
-## YYYY-MM-DD | stage | writeback | <package-slug>
-
-- package:
-  - `<writeback>/<YYYY-MM-DD>-<short-slug>/`
-- source_type:
-  - `<source type>`
-- candidate_notes:
-  - `Cards/<candidate-card>.md`
-- reason:
-  - <why this package may deserve promotion>
-```
-
-## Hard Boundary
+Writeback must not modify paths outside configured targets. It must not update native indexes or logs unless the binding is native and the user explicitly routes through `promote`.
 
 This skill must not:
 
-- silently edit stable wiki knowledge
-- store agent-local experience in the wiki
-- save full transcripts
+- write unvalidated package outputs
+- invent target paths that are not configured in the binding
+- write runtime extracts or package metadata into the target repository
+- store agent-local memory or task state
 - commit or push git changes
-- rewrite unrelated indexes or MOCs
 
-It may append a concise wiki log entry for a substantive staged writeback package.
-
-## Comparison Card Format
-
-```markdown
----
-status: staged
-created: YYYY-MM-DD
-kind: card
-aliases: []
-tags:
-  - comparison
-up: ""
----
-
-X:: [[Concept A]]
-X:: [[Concept B]]
-
-# A vs B
-
-## Summary
-<One-line verdict>
-
-| Dimension | A | B |
-|---|---|---|
-| ... | ... | ... |
-
-## When to use A
-## When to use B
-## Trade-offs
-
-## References
-- [[Source Note]]
-```
+It may update runtime package status after successful writes.

@@ -1,43 +1,27 @@
 ---
 name: query
-description: Use when answering from a configured LoreForge or llm-wiki knowledge base; query the card index, Atlas/MOCs, cards, and sources before broad web search.
+description: Use for native-only LoreForge structured retrieval from indexes, views, cards, sources, MOCs, and provenance conventions.
 user-invocable: true
 ---
 
-# Query LoreForge Wiki
+# Query Native LoreForge
 
-Answer questions from a LoreForge wiki instance without starting from raw web search.
+Query is native-only by default. Generic bindings should use `search`.
+
+Use `query` only when the selected binding has `mode = "native"` and a native retrieval contract. Native query answers from configured indexes, views, cards, sources, MOCs, and provenance conventions before considering broader search.
 
 ## Purpose
 
-Use compiled wiki knowledge first:
+Use native repository structure first:
 
-1. Locate the wiki instance.
-2. Load the correct task view.
-3. Read the vault map.
-4. Read `00_System/+Wiki Index.md`.
-5. Use Atlas and MOCs to preselect semantic views when helpful.
-6. Search Cards by title, aliases, and content.
-7. Search Sources only when provenance matters.
-8. Use raw web search only when the wiki is missing or stale.
-
-## Hard Boundary
-
-This skill is read-first.
-
-It must not:
-
-- write new notes by default
-- save full transcripts
-- store agent-local experience in the wiki
-- modify `pamem`
-- commit or push git changes
-
-It may:
-
-- propose captures or staged notes when durable gaps are found
-- recommend running `capture`, `ingest`, or `writeback`
-- report that the wiki appears stale or missing
+1. Resolve a native binding.
+2. Load the configured native query view.
+3. Read the native vault map or equivalent map file.
+4. Read the configured card index.
+5. Use Atlas and MOCs to select semantic context when present.
+6. Search cards by title, aliases, and content.
+7. Search sources when evidence, freshness, or provenance matters.
+8. Answer with native repository grounding.
 
 ## Discovery
 
@@ -47,83 +31,70 @@ Default registry path:
 ~/.config/loreforge/registry.toml
 ```
 
-Registry template:
+1. Read the binding registry.
+2. Resolve the named binding, or the registry `default` if no binding is named.
+3. Require `mode = "native"` or a `[bindings.native]` section.
+4. Read `target_repo`.
+5. Read native config from `[bindings.native]` and, when present, `<target_repo>/.loreforge/wiki.toml`.
+6. If the target repo is missing but a remote is configured, ask before cloning or route to `sync`.
 
-```text
-templates/config/registry.toml
-```
-
-Wiki instance metadata:
-
-```text
-<wiki>/.loreforge/wiki.toml
-```
-
-If the user names a wiki, use that registry entry.
-
-If no wiki is named, use the registry `default`.
-
-If the local path does not exist but `remote` is configured, ask before cloning.
-
-If the path exists, operate on the local clone.
+Generic bindings do not have structured query semantics. Use `search` over configured `read_roots` for generic repositories.
 
 ## Query Workflow
 
-1. Read `~/.config/loreforge/registry.toml`.
-2. Resolve the target wiki by name or default.
-3. Enter the wiki local path.
-4. Read `.loreforge/wiki.toml` if present.
-5. Read the wiki `AGENTS.md`.
-6. Read `00_System/Vault Map.md`.
-7. Select the query view from config, falling back to `00_System/Views/query.md`.
-8. Read `00_System/+Wiki Index.md` or configured `index_file`.
-9. Read `MOCs/Scope/+Atlas.md` if present.
-10. Use Atlas and MOCs to preselect likely semantic views when helpful.
-11. Search `Cards/` by title, aliases, and content.
-12. Read relevant `MOCs/` for synthesis and context.
-13. Search `Sources/` only when evidence, freshness, or provenance matters.
-14. Answer with wiki-grounded synthesis.
-15. If the wiki lacks durable knowledge, propose a capture or staged note; do not write by default.
+1. Enter `target_repo`.
+2. Read the target repo `AGENTS.md` when present.
+3. Read the native vault map, falling back to `00_System/Vault Map.md`.
+4. Select the query view from native config, falling back to `00_System/Views/query.md`.
+5. Read the configured index, falling back to `00_System/+Wiki Index.md`.
+6. Read `MOCs/Scope/+Atlas.md` if present.
+7. Use Atlas and MOCs to preselect likely semantic views when helpful.
+8. Search `Cards/` by title, aliases, and content.
+9. Read relevant `MOCs/` for synthesis and context.
+10. Search `Sources/` only when evidence, freshness, or provenance matters.
+11. Answer with native-grounded synthesis.
+12. If durable knowledge is missing, recommend `ingest` or `writeback`; do not write by default.
 
-## Search Order
+## Native Search Order
 
-Use this order inside a generic wiki instance:
+Use configured native paths when present. Default order:
 
 ```text
 00_System/Vault Map.md
 00_System/Views/query.md
 00_System/+Wiki Index.md
-MOCs/Scope/+Atlas.md, if present
+MOCs/Scope/+Atlas.md
 MOCs/
 Cards/
 Sources/
 ```
 
-For any wiki with custom paths, follow the wiki's `.loreforge/wiki.toml`.
+## Hard Boundary
 
-## GitHub Remote Support
+This skill is read-first.
 
-GitHub is a persistence and sync backend, not the query backend.
+It must not:
 
-Preferred mode:
+- operate as structured query on generic bindings
+- write new notes by default
+- save full transcripts
+- store agent-local experience in the repository
+- modify `pamem`
+- commit or push git changes
 
-```text
-remote GitHub repo -> local clone -> local query/search
-```
+It may:
 
-Do not query GitHub for every answer.
-
-If a wiki has a `remote` but no local clone, ask before cloning.
-
-If a local clone exists, use local files. Report dirty git state when relevant, but do not commit or push from this skill.
+- recommend `search` for generic bindings
+- recommend `ingest` or `writeback` when durable gaps are found
+- report that native indexes or source provenance appear stale
 
 ## Output
 
 When answering, include:
 
-- which wiki was used
-- which view was used
+- which native binding was used
+- which native view was used
 - important cards, MOCs, or source notes consulted
-- any detected gap that should be captured or ingested later
+- any detected gap that should be ingested or written back later
 
 Keep the answer concise unless the user asks for detailed synthesis.
