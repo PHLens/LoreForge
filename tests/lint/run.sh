@@ -232,6 +232,45 @@ assert_contains "protocol lint traversal fixture" "$bad_output" 'output path esc
 assert_contains "protocol lint traversal fixture" "$bad_output" '^  Package issues: 1$'
 pass "protocol lint detects path traversal"
 
+missing_read_root="$TMP_DIR/protocol-missing-read-root"
+missing_read_root_registry="$(make_protocol_binding "$missing_read_root")"
+sed -i 's|read_roots = \["\."\]|read_roots = ["missing"]|' "$missing_read_root_registry"
+missing_read_root_output="$(bash "$LINT_PROTOCOL" --registry "$missing_read_root_registry" notes)"
+assert_contains "protocol lint missing read root fixture" "$missing_read_root_output" 'read_root is not a directory'
+assert_contains "protocol lint missing read root fixture" "$missing_read_root_output" '^  Binding issues: 1$'
+pass "protocol lint detects missing read roots"
+
+file_target_root="$TMP_DIR/protocol-file-target"
+file_target_registry="$(make_protocol_binding "$file_target_root")"
+rm -rf "$file_target_root/repo/docs"
+printf 'not a directory\n' > "$file_target_root/repo/docs"
+file_target_output="$(bash "$LINT_PROTOCOL" --registry "$file_target_registry" notes)"
+assert_contains "protocol lint file target fixture" "$file_target_output" 'target path exists but is not a directory'
+assert_contains "protocol lint file target fixture" "$file_target_output" '^  Binding issues: 1$'
+pass "protocol lint detects unusable target paths"
+
+bad_patch_root="$TMP_DIR/protocol-bad-patch"
+bad_patch_registry="$(make_protocol_binding "$bad_patch_root")"
+bad_patch_package="$bad_patch_root/state/notes/packages/writeback/2026-04-28-bad-patch"
+mkdir -p "$bad_patch_package/patches"
+write_file "$bad_patch_package/manifest.toml" \
+  'type = "writeback"' \
+  'status = "staged"' \
+  'binding = "notes"' \
+  'created_at = "2026-04-28T12:15:00+08:00"' \
+  '' \
+  '[[outputs]]' \
+  'kind = "patch"' \
+  'target = "notes"' \
+  'path = "existing.md"' \
+  'patch = "patches/bad.patch"' \
+  'mode = "update"'
+write_file "$bad_patch_package/patches/bad.patch" 'this is not a patch'
+bad_patch_output="$(bash "$LINT_PROTOCOL" --registry "$bad_patch_registry" notes)"
+assert_contains "protocol lint bad patch fixture" "$bad_patch_output" 'update patch does not apply cleanly'
+assert_contains "protocol lint bad patch fixture" "$bad_patch_output" '^  Package issues: 1$'
+pass "protocol lint validates update patches"
+
 template_output="$(bash "$LINT_NATIVE" "$ROOT/templates/wiki")"
 assert_no_findings "templates/wiki" "$template_output"
 pass "templates/wiki is clean"

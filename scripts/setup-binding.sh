@@ -439,6 +439,220 @@ filter_registry() {
   ' "$source" > "$dest"
 }
 
+parse_existing_binding() {
+  local registry="$1"
+  local wanted="$2"
+
+  awk -v wanted="$wanted" '
+    function trim(value) {
+      gsub(/^[[:space:]]+|[[:space:]]+$/, "", value)
+      return value
+    }
+
+    function unquote(value) {
+      value = trim(value)
+      if (value ~ /^".*"$/) {
+        sub(/^"/, "", value)
+        sub(/"$/, "", value)
+        gsub(/\\"/, "\"", value)
+        gsub(/\\\\/, "\\", value)
+      }
+      return value
+    }
+
+    function key_name(line) {
+      sub(/[[:space:]]*=.*/, "", line)
+      return trim(line)
+    }
+
+    function value_after_equals(line) {
+      sub(/^[^=]*=[[:space:]]*/, "", line)
+      return trim(line)
+    }
+
+    function emit_read_roots(value, body, parts, count, idx, item) {
+      body = trim(value)
+      sub(/^\[/, "", body)
+      sub(/\]$/, "", body)
+      count = split(body, parts, ",")
+      for (idx = 1; idx <= count; idx++) {
+        item = unquote(parts[idx])
+        if (item != "") {
+          printf "read_root\tread_root\t%s\n", item
+        }
+      }
+    }
+
+    function flush_target() {
+      if (selected && target_name != "" && target_path != "") {
+        printf "target\t%s\t%s\t%s\n", target_name, target_path, target_description
+      }
+      target_name = ""
+      target_path = ""
+      target_description = ""
+    }
+
+    /^[[:space:]]*#/ || /^[[:space:]]*$/ { next }
+
+    /^[[:space:]]*\[\[bindings\]\][[:space:]]*$/ {
+      flush_target()
+      in_binding = 1
+      selected = 0
+      section = "binding"
+      next
+    }
+
+    in_binding && /^[[:space:]]*\[bindings\.targets\.[A-Za-z0-9_-]+\][[:space:]]*$/ {
+      flush_target()
+      section = "target"
+      target_name = $0
+      sub(/^[[:space:]]*\[bindings\.targets\./, "", target_name)
+      sub(/\][[:space:]]*$/, "", target_name)
+      next
+    }
+
+    in_binding && /^[[:space:]]*\[bindings\.[^]]+\][[:space:]]*$/ {
+      flush_target()
+      section = "other"
+      next
+    }
+
+    /^[[:space:]]*\[/ {
+      flush_target()
+      in_binding = 0
+      selected = 0
+      section = ""
+      next
+    }
+
+    in_binding && /^[[:space:]]*[A-Za-z0-9_-]+[[:space:]]*=/ {
+      key = key_name($0)
+      value = value_after_equals($0)
+
+      if (section == "binding") {
+        value = unquote(value)
+        if (key == "name") {
+          if (value == wanted) {
+            selected = 1
+            printf "found\tfound\t1\n"
+          } else {
+            selected = 0
+          }
+          next
+        }
+
+        if (selected) {
+          if (key == "read_roots") {
+            emit_read_roots(value)
+          } else {
+            printf "field\t%s\t%s\n", key, value
+          }
+        }
+        next
+      }
+
+      if (selected && section == "target") {
+        value = unquote(value)
+        if (key == "path") {
+          target_path = value
+        } else if (key == "description") {
+          target_description = value
+        }
+      }
+    }
+
+    END {
+      flush_target()
+    }
+  ' "$registry"
+}
+
+load_existing_binding() {
+  local record_type
+  local key
+  local value
+  local extra
+
+  existing_binding_found=0
+  existing_mode=""
+  existing_remote=""
+  existing_description=""
+  existing_state_dir=""
+  existing_default_target=""
+  existing_read_roots=()
+  existing_target_names=()
+  existing_target_paths=()
+  existing_target_descriptions=()
+
+  [ -f "$REGISTRY" ] || return 1
+
+  while IFS=$'\t' read -r record_type key value extra; do
+    [ -n "$record_type" ] || continue
+    case "$record_type" in
+      found)
+        existing_binding_found=1
+        ;;
+      field)
+        case "$key" in
+          mode)
+            existing_mode="$value"
+            ;;
+          remote)
+            existing_remote="$value"
+            ;;
+          description)
+            existing_description="$value"
+            ;;
+          state_dir)
+            existing_state_dir="$value"
+            ;;
+          default_target)
+            existing_default_target="$value"
+            ;;
+        esac
+        ;;
+      read_root)
+        existing_read_roots+=("$value")
+        ;;
+      target)
+        existing_target_names+=("$key")
+        existing_target_paths+=("$value")
+        existing_target_descriptions+=("${extra:-}")
+        ;;
+    esac
+  done < <(parse_existing_binding "$REGISTRY" "$NAME")
+
+  [ "$existing_binding_found" -eq 1 ]
+}
+
+merge_existing_binding() {
+  [ "$existing_binding_found" -eq 1 ] || return 0
+
+  if [ "$MODE_SET" -eq 0 ] && [ -n "$existing_mode" ]; then
+    MODE="$existing_mode"
+  fi
+  if [ "$DESCRIPTION_SET" -eq 0 ]; then
+    DESCRIPTION="$existing_description"
+  fi
+  if [ "$REMOTE_SET" -eq 0 ]; then
+    REMOTE="$existing_remote"
+  fi
+  if [ "$STATE_DIR_SET" -eq 0 ] && [ -n "$existing_state_dir" ]; then
+    STATE_DIR_INPUT="$existing_state_dir"
+  fi
+  if [ "$DEFAULT_TARGET_SET" -eq 0 ] && [ -n "$existing_default_target" ]; then
+    DEFAULT_TARGET_NAME="$existing_default_target"
+  fi
+  if [ "$READ_ROOTS_SET" -eq 0 ] && [ "${#existing_read_roots[@]}" -gt 0 ]; then
+    read_roots=("${existing_read_roots[@]}")
+  fi
+  if [ "$TARGETS_SET" -eq 0 ] && [ "${#existing_target_names[@]}" -gt 0 ]; then
+    target_names=("${existing_target_names[@]}")
+    target_paths=("${existing_target_paths[@]}")
+    target_descriptions=("${existing_target_descriptions[@]}")
+  fi
+}
+
 emit_default() {
   local source="$1"
   local dest="$2"
@@ -523,16 +737,32 @@ MODE="$DEFAULT_MODE"
 MODE_SET=0
 INIT_NATIVE_TEMPLATE=0
 DESCRIPTION=""
+DESCRIPTION_SET=0
 REMOTE=""
+REMOTE_SET=0
 STATE_DIR_INPUT=""
+STATE_DIR_SET=0
 REGISTRY_INPUT="$DEFAULT_REGISTRY"
 DEFAULT_TARGET_NAME="$DEFAULT_TARGET"
+DEFAULT_TARGET_SET=0
 NO_DEFAULT=0
 NO_GIT=0
+READ_ROOTS_SET=0
+TARGETS_SET=0
 read_roots=()
 target_names=()
 target_paths=()
 target_descriptions=()
+existing_binding_found=0
+existing_mode=""
+existing_remote=""
+existing_description=""
+existing_state_dir=""
+existing_default_target=""
+existing_read_roots=()
+existing_target_names=()
+existing_target_paths=()
+existing_target_descriptions=()
 
 while [ "$#" -gt 0 ]; do
   case "$1" in
@@ -549,16 +779,19 @@ while [ "$#" -gt 0 ]; do
     --description)
       need_value "$1" "${2:-}"
       DESCRIPTION="$2"
+      DESCRIPTION_SET=1
       shift 2
       ;;
     --remote)
       need_value "$1" "${2:-}"
       REMOTE="$2"
+      REMOTE_SET=1
       shift 2
       ;;
     --state-dir)
       need_value "$1" "${2:-}"
       STATE_DIR_INPUT="$2"
+      STATE_DIR_SET=1
       shift 2
       ;;
     --registry)
@@ -570,16 +803,19 @@ while [ "$#" -gt 0 ]; do
       need_value "$1" "${2:-}"
       reject_newline "--read-root" "$2"
       read_roots+=("$2")
+      READ_ROOTS_SET=1
       shift 2
       ;;
     --target)
       need_value "$1" "${2:-}"
       add_target_spec "$2"
+      TARGETS_SET=1
       shift 2
       ;;
     --default-target)
       need_value "$1" "${2:-}"
       DEFAULT_TARGET_NAME="$2"
+      DEFAULT_TARGET_SET=1
       shift 2
       ;;
     --no-default)
@@ -609,6 +845,10 @@ reject_newline "default target" "$DEFAULT_TARGET_NAME"
 if ! [[ "$NAME" =~ $NAME_REGEX ]]; then
   die "name must match $NAME_REGEX: $NAME"
 fi
+
+REGISTRY="$(absolute_path "$REGISTRY_INPUT")"
+load_existing_binding || true
+merge_existing_binding
 
 case "$MODE" in
   generic|native)
@@ -648,7 +888,6 @@ fi
 
 TARGET_REPO="$(absolute_path "$TARGET_REPO_INPUT")"
 STATE_DIR="$(absolute_path "$STATE_DIR_INPUT")"
-REGISTRY="$(absolute_path "$REGISTRY_INPUT")"
 
 if [ "$MODE" = "generic" ]; then
   if [ -e "$TARGET_REPO" ] && [ ! -d "$TARGET_REPO" ]; then

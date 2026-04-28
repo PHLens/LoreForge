@@ -72,6 +72,27 @@ path_inside_root() {
   [ "$path" = "$root" ] || [[ "$path" == "$root/"* ]]
 }
 
+path_is_creatable_dir() {
+  local root="$1"
+  local path="$2"
+  local probe
+
+  if [ -e "$path" ]; then
+    [ -d "$path" ] && [ -w "$path" ]
+    return
+  fi
+
+  probe="$(dirname "$path")"
+  while [ ! -e "$probe" ]; do
+    if [ "$probe" = "$root" ] || [ "$probe" = "/" ]; then
+      break
+    fi
+    probe="$(dirname "$probe")"
+  done
+
+  [ -d "$probe" ] && [ -w "$probe" ]
+}
+
 registry_default() {
   local registry="$1"
 
@@ -141,7 +162,7 @@ parse_registry() {
       for (idx = 1; idx <= count; idx++) {
         item = unquote(parts[idx])
         if (item != "") {
-          printf "read_root\t\t%s\n", item
+          printf "read_root\tread_root\t%s\n", item
         }
       }
     }
@@ -415,6 +436,12 @@ validate_manifest() {
   fi
 
   for index in "${output_indices[@]}"; do
+    target_path=""
+    target_base=""
+    output_abs=""
+    candidate_abs=""
+    patch_abs=""
+
     if [ -z "${output_kind[$index]:-}" ]; then
       package_issue "invalid manifest: $manifest output $index missing or empty kind"
     fi
@@ -441,13 +468,15 @@ validate_manifest() {
     if [ -n "${output_target[$index]:-}" ]; then
       if ! target_path="$(target_path_for "${output_target[$index]}")"; then
         package_issue "invalid manifest: $manifest output $index target not configured: ${output_target[$index]}"
-      elif [ -n "${output_path[$index]:-}" ]; then
+      else
         target_base="$(resolve_from_base "$target_repo_abs" "$target_path")"
-        output_abs="$(resolve_from_base "$target_base" "${output_path[$index]}")"
-        if ! path_inside_root "$target_base" "$output_abs"; then
-          package_issue "invalid manifest: $manifest output path escapes target: ${output_path[$index]}"
-        elif [ "${output_mode[$index]:-}" = "create" ] && [ -e "$output_abs" ]; then
-          package_issue "invalid manifest: $manifest create output already exists: ${output_path[$index]}"
+        if [ -n "${output_path[$index]:-}" ]; then
+          output_abs="$(resolve_from_base "$target_base" "${output_path[$index]}")"
+          if ! path_inside_root "$target_base" "$output_abs"; then
+            package_issue "invalid manifest: $manifest output path escapes target: ${output_path[$index]}"
+          elif [ "${output_mode[$index]:-}" = "create" ] && [ -e "$output_abs" ]; then
+            package_issue "invalid manifest: $manifest create output already exists: ${output_path[$index]}"
+          fi
         fi
       fi
     fi
@@ -467,6 +496,18 @@ validate_manifest() {
         package_issue "invalid manifest: $manifest patch path escapes package: ${output_patch[$index]}"
       elif [ ! -f "$patch_abs" ]; then
         package_issue "invalid manifest: $manifest patch file missing: ${output_patch[$index]}"
+      elif [ "${output_mode[$index]:-}" = "update" ]; then
+        if [ -z "$target_base" ]; then
+          package_issue "invalid manifest: $manifest cannot validate update patch without a configured target: ${output_patch[$index]}"
+        elif [ ! -d "$target_base" ]; then
+          package_issue "invalid manifest: $manifest cannot validate update patch because target path is not a directory: ${output_target[$index]:-}"
+        elif command -v git >/dev/null 2>&1; then
+          if ! git -C "$target_base" apply --check -- "$patch_abs" >/dev/null 2>&1; then
+            package_issue "invalid manifest: $manifest update patch does not apply cleanly: ${output_patch[$index]}"
+          fi
+        else
+          package_issue "invalid manifest: $manifest cannot validate update patch without git: ${output_patch[$index]}"
+        fi
       fi
     fi
   done
@@ -574,6 +615,8 @@ else
     binding_issue "missing state_dir for binding: $binding_name"
   elif [ ! -d "$state_dir_abs" ]; then
     binding_issue "state_dir is not a directory: $state_dir"
+  elif [ ! -r "$state_dir_abs" ] || [ ! -w "$state_dir_abs" ]; then
+    binding_issue "state_dir is not readable and writable: $state_dir"
   fi
 
   if [ -n "$target_repo_abs" ]; then
@@ -581,6 +624,8 @@ else
       read_root_abs="$(resolve_from_base "$target_repo_abs" "$read_root")"
       if ! path_inside_root "$target_repo_abs" "$read_root_abs"; then
         binding_issue "read_root escapes target_repo: $read_root"
+      elif [ ! -d "$read_root_abs" ]; then
+        binding_issue "read_root is not a directory: $read_root"
       fi
     done
 
@@ -588,6 +633,10 @@ else
       target_abs="$(resolve_from_base "$target_repo_abs" "$target_path")"
       if ! path_inside_root "$target_repo_abs" "$target_abs"; then
         binding_issue "target path escapes target_repo: $target_path"
+      elif [ -e "$target_abs" ] && [ ! -d "$target_abs" ]; then
+        binding_issue "target path exists but is not a directory: $target_path"
+      elif ! path_is_creatable_dir "$target_repo_abs" "$target_abs"; then
+        binding_issue "target path is not writable or creatable: $target_path"
       fi
     done
   fi

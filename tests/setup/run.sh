@@ -66,6 +66,8 @@ assert_file_contains "$registry" '^name = "notes"$'
 assert_file_contains "$registry" "^target_repo = \"$generic_repo\"$"
 assert_file_contains "$registry" "^state_dir = \"$state\"$"
 assert_file_contains "$registry" '^mode = "generic"$'
+assert_file_contains "$registry" '^remote = "git@example.com:demo/notes.git"$'
+assert_file_contains "$registry" '^description = "General notes binding"$'
 assert_file_contains "$registry" '^default_target = "notes"$'
 assert_file_contains "$registry" '^read_roots = \["\."\]$'
 assert_file_contains "$registry" '^\[bindings.targets.notes\]$'
@@ -75,6 +77,19 @@ assert_file_contains "$registry" '^path = "references"$'
 
 bash "$LINT_PROTOCOL" --registry "$registry" notes >/dev/null
 pass "generic binding creates runtime state and passes protocol lint"
+
+bash "$SETUP" notes "$generic_repo" \
+  --registry "$registry" >/dev/null
+
+assert_file_contains "$registry" "^state_dir = \"$state\"$"
+assert_file_contains "$registry" '^remote = "git@example.com:demo/notes.git"$'
+assert_file_contains "$registry" '^description = "General notes binding"$'
+assert_file_contains "$registry" '^default_target = "notes"$'
+assert_file_contains "$registry" '^\[bindings.targets.sources\]$'
+assert_file_contains "$registry" '^path = "references"$'
+
+bash "$LINT_PROTOCOL" --registry "$registry" notes >/dev/null
+pass "repeat setup preserves existing binding fields"
 
 native_repo="$TMP_DIR/native-repo"
 native_state="$TMP_DIR/state/cs"
