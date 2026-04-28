@@ -261,7 +261,6 @@ write_native_config() {
     printf 'maintenance = "00_System/Views/maintenance.md"\n\n'
     printf '[paths]\n'
     printf 'inbox = "10_Inbox"\n'
-    printf 'capture = "10_Inbox/capture"\n'
     printf 'ingest = "10_Inbox/ingest"\n'
     printf 'writeback = "10_Inbox/writeback"\n'
     printf 'cards = "Cards"\n'

@@ -17,8 +17,7 @@ This file lists stable knowledge areas, activity areas, system files, and retrie
 
 | Area | Path | Description |
 |---|---|---|
-| Inbox | `10_Inbox/` | Captures and staged packages |
-| Capture | `10_Inbox/capture/` | Quick unprocessed captures |
+| Inbox | `10_Inbox/` | Staged ingest and writeback packages |
 | Staged Ingest | `10_Inbox/ingest/` | Packages from external source processing |
 | Staged Writeback | `10_Inbox/writeback/` | Packages from conversation or query synthesis |
 | Archive | `Archive/` | Closed packages and exceptional retired material |

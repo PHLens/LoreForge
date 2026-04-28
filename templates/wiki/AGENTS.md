@@ -20,7 +20,6 @@ It is not agent-local memory. Agent-local experience, preferences, and current t
 
 Allowed without confirmation:
 
-- New captures under `10_Inbox/capture/`
 - New staged packages under `10_Inbox/ingest/` or `10_Inbox/writeback/`
 - Wiki log entries for substantive staged package creation
 - Read-only reports
@@ -43,7 +42,6 @@ Stable promotion should update stable notes, update `00_System/+Wiki Index.md` f
 | Source summary | `Sources/<Type>/` |
 | Topic map or semantic view | `MOCs/` |
 | Vault-level view | `MOCs/Scope/` |
-| Uncertain capture | `10_Inbox/capture/` |
 | Staged package | `10_Inbox/ingest/` or `10_Inbox/writeback/` |
 | Closed package | `Archive/promoted/` or `Archive/rejected/` |
 | Agent local experience | `pamem`, not this wiki |

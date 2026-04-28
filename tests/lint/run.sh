@@ -110,7 +110,6 @@ make_default_wiki() {
   mkdir -p \
     "$wiki/.loreforge" \
     "$wiki/00_System/Views" \
-    "$wiki/10_Inbox/capture" \
     "$wiki/10_Inbox/ingest" \
     "$wiki/10_Inbox/writeback" \
     "$wiki/Cards" \
@@ -140,7 +139,6 @@ make_default_wiki() {
     '' \
     '[paths]' \
     'inbox = "10_Inbox"' \
-    'capture = "10_Inbox/capture"' \
     'ingest = "10_Inbox/ingest"' \
     'writeback = "10_Inbox/writeback"' \
     'cards = "Cards"' \
@@ -164,7 +162,6 @@ make_custom_path_wiki() {
   mkdir -p \
     "$wiki/.loreforge" \
     "$wiki/System/Views" \
-    "$wiki/Work/Inbox/capture" \
     "$wiki/Work/Inbox/ingest" \
     "$wiki/Work/Inbox/writeback" \
     "$wiki/Knowledge/Cards" \
@@ -194,7 +191,6 @@ make_custom_path_wiki() {
     '' \
     '[paths]' \
     'inbox = "Work/Inbox"' \
-    'capture = "Work/Inbox/capture"' \
     'ingest = "Work/Inbox/ingest"' \
     'writeback = "Work/Inbox/writeback"' \
     'cards = "Knowledge/Cards"' \

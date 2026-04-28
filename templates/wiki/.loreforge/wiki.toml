@@ -25,7 +25,6 @@ maintenance = "00_System/Views/maintenance.md"
 
 [paths]
 inbox = "10_Inbox"
-capture = "10_Inbox/capture"
 ingest = "10_Inbox/ingest"
 writeback = "10_Inbox/writeback"
 cards = "Cards"

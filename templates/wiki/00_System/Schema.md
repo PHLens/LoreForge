@@ -6,7 +6,7 @@ Generic structure for a LoreForge wiki instance.
 
 ```text
 00_System/       Rules, schema, task views, index, log
-10_Inbox/        Unsorted captures and staged packages
+10_Inbox/        Staged ingest and writeback packages
 Cards/           Flat stable atomic knowledge
 Sources/         Source-grounded notes by source type
 MOCs/            Emergent semantic views
@@ -52,7 +52,7 @@ accessed: YYYY-MM-DD
 ---
 ```
 
-`source_type` determines placement under `Sources/<Type>/`. `source_system` records the import or capture system.
+`source_type` determines placement under `Sources/<Type>/`. `source_system` records the import or generation system.
 
 ## MOC Frontmatter
 
@@ -93,7 +93,7 @@ Common source type directories:
 - Every stable card must appear in the index.
 - MOCs may be listed as convenience pointers, but are not required.
 - Sources are not listed by default.
-- Captures, staged packages, and archived packages must not be listed.
+- Staged packages and archived packages must not be listed.
 
 ## Staged Package
 
@@ -140,7 +140,7 @@ Promotion updates should happen in one transaction:
 4. move consumed staging material to `Archive/promoted/` or `Archive/rejected/`
 5. append one entry to `00_System/Wiki Log.md`
 
-Do not index captures, staged packages, sources, or archived packages in `00_System/+Wiki Index.md`.
+Do not index staged packages, sources, or archived packages in `00_System/+Wiki Index.md`.
 
 ## Wiki Log
 
@@ -160,4 +160,4 @@ Log meaningful wiki evolution events:
 - substantive staged writeback package creation
 - lint pass with meaningful findings
 
-Do not log ordinary query, ordinary capture, incomplete staged drafts, read-only lint with no meaningful findings, or git sync.
+Do not log ordinary query, incomplete staged drafts, read-only lint with no meaningful findings, or git sync.

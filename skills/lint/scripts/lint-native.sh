@@ -274,7 +274,6 @@ INDEX_FILE="$(toml_get "" "index_file" "00_System/+Wiki Index.md")"
 LOG_FILE="$(toml_get "" "log_file" "00_System/Wiki Log.md")"
 VIEWS_DIR="$(toml_get "" "views_dir" "00_System/Views")"
 INBOX_DIR="$(toml_get "paths" "inbox" "10_Inbox")"
-CAPTURE_DIR="$(toml_get "paths" "capture" "${INBOX_DIR}/capture")"
 INGEST_DIR="$(toml_get "paths" "ingest" "${INBOX_DIR}/ingest")"
 WRITEBACK_DIR="$(toml_get "paths" "writeback" "${INBOX_DIR}/writeback")"
 CARDS_DIR="$(toml_get "paths" "cards" "Cards")"
@@ -310,7 +309,7 @@ echo ""
 
 echo "## 2. Type-First Structure"
 structure_issues=0
-for required_dir in "$INBOX_DIR" "$CAPTURE_DIR" "$INGEST_DIR" "$WRITEBACK_DIR" "$CARDS_DIR" "$SOURCES_DIR" "$MOCS_DIR" "$ARCHIVE_DIR"; do
+for required_dir in "$INBOX_DIR" "$INGEST_DIR" "$WRITEBACK_DIR" "$CARDS_DIR" "$SOURCES_DIR" "$MOCS_DIR" "$ARCHIVE_DIR"; do
   if [ ! -d "$required_dir" ]; then
     echo "  - missing dir: $required_dir"
     structure_issues=$((structure_issues + 1))
@@ -530,7 +529,6 @@ echo "  index: $INDEX_FILE"
 echo "  log: $LOG_FILE"
 echo "  views: $VIEWS_DIR"
 echo "  inbox: $INBOX_DIR"
-echo "  capture: $CAPTURE_DIR"
 echo "  ingest: $INGEST_DIR"
 echo "  writeback: $WRITEBACK_DIR"
 echo "  cards: $CARDS_DIR"

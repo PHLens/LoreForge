@@ -19,7 +19,6 @@ Log:
 Do not log:
 
 - ordinary query
-- ordinary capture
 - incomplete staged drafts
 - read-only lint with no meaningful findings
 - git sync

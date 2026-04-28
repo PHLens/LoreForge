@@ -17,7 +17,6 @@ AGENTS.md
   Wiki Log.md
   Views/
 10_Inbox/
-  capture/
   ingest/
   writeback/
 Cards/
@@ -31,7 +30,7 @@ Archive/
 | Area | Purpose |
 |---|---|
 | `00_System/` | Agent-facing protocol, schema, task views, card index, and wiki log |
-| `10_Inbox/` | Captures and staged ingest/writeback packages |
+| `10_Inbox/` | Staged ingest/writeback packages |
 | `Cards/` | Flat stable atomic knowledge |
 | `Sources/` | Source-grounded notes organized by source type |
 | `MOCs/` | Emergent semantic views over cards and sources |
@@ -44,7 +43,7 @@ Archive/
 - Stable Cards should appear in the index.
 - MOCs are semantic views and do not need to appear in the index.
 - Sources are discovered through Card/MOC references, package provenance, and source metadata.
-- Captures, staged packages, and archived packages should not appear in the index.
+- Staged packages and archived packages should not appear in the index.
 
 Query should generally read:
 
@@ -63,10 +62,10 @@ Sources/, only when provenance matters
 Stable wiki changes go through promotion:
 
 ```text
-capture -> ingest/writeback package -> promote -> stable notes + card index + wiki log + archive
+ingest/writeback package -> promote -> stable notes + card index + wiki log + archive
 ```
 
-Processed `ingest` and `writeback` work should create staged packages under `10_Inbox/ingest/` or `10_Inbox/writeback/`. A promoted package moves to `Archive/promoted/`; a rejected package moves to `Archive/rejected/`.
+`ingest` and `writeback` work should create staged packages under `10_Inbox/ingest/` or `10_Inbox/writeback/`. A promoted package moves to `Archive/promoted/`; a rejected package moves to `Archive/rejected/`.
 
 ## Manifest Shape
 
