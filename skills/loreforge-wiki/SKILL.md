@@ -2,7 +2,7 @@
 name: loreforge-wiki
 description: Use for LoreForge domain wiki query, source ingest, durable updates, review, and Health Checks. One expert owns one domain.
 user-invocable: true
-version: 0.1.0
+version: 0.1.1
 metadata:
   origin: "Inspired by NousResearch Hermes LLM Wiki, MIT"
 ---
@@ -115,7 +115,8 @@ When the user asks to create or start a new domain:
 1. Determine wiki root and domain name (from $WIKI_PATH env var, or ask the user; default ~/wiki)
 2. Create `Domains/<domain>/` unless the user requested a single-domain root.
 3. Create the required files and directories above
-4. Ask for a concise domain description
+4. Ask for a concise domain description and the default language for extracted
+   Cards, Atlas pages, and Spaces.
 5. Write `SCHEMA.md` customized to the domain (see template below)
 6. Write `index.md` with sectioned header
 7. Write initial `log.md` with creation entry
@@ -130,6 +131,12 @@ Adapt to the user's domain. The schema constrains agent behavior and ensures con
 
 ## Domain
 [What this domain covers — e.g., "AI/ML research", "personal health", "startup intelligence"]
+
+## Language Policy
+- Source notes preserve the source language by default.
+- Extracted Cards, Atlas pages, and Spaces use this domain's configured default note language: `[language]`.
+- If this policy is missing, ask once before creating synthesized pages, then add it to `SCHEMA.md`.
+- Do not translate source material unless the user asks for translation or bilingual notes.
 
 ## Conventions
 - File names: lowercase, hyphens, no spaces (e.g., `transformer-architecture.md`)
@@ -242,7 +249,22 @@ Create or update a Source note when the source has durable domain value:
 Include key claims, evidence, provenance, limitations, relevance, and links to
 Cards, Atlas views, or Spaces.
 
-**Default policy:** reference first, attachment on demand.
+### Source Capture Policy
+
+- Preserve the source before synthesizing cards.
+- Text articles, blogs, docs, and pasted text: save source-language Markdown in
+  `Sources/articles/` or the right `Sources/` directory. Preserve structure,
+  links, metadata, and local image refs. Prefer complete transcription for
+  user-provided or clearly reusable material; for third-party copyrighted pages,
+  capture metadata, outline, short necessary excerpts, and grounded notes within
+  allowed quotation limits.
+- Article images/diagrams: download to `Extras/<source-slug>/`, link them from
+  the Source note, and create a manifest for multiple images.
+- PDFs: download the original PDF to `Extras/<source-slug>/`; create a
+  `Sources/papers/` or `Sources/docs/` summary note with metadata, key claims,
+  limitations, and a local PDF link. Extract full text only when needed or asked.
+- Language: Source notes stay in the source language. Synthesized Cards, Atlas
+  pages, and Spaces use the domain default note language from `SCHEMA.md`.
 
 ## Spaces
 Use `Spaces/` for durable non-Card objects and context notes:
@@ -312,6 +334,7 @@ a `Atlas/Scope/topic-map.md` that groups pages by theme for faster navigation.
 
 ## YYYY-MM-DD | create | Domain initialized
 - domain: <domain>
+- default_note_language: <language>
 - files: SCHEMA.md, index.md, log.md
 ```
 
@@ -325,9 +348,16 @@ a `Atlas/Scope/topic-map.md` that groups pages by theme for faster navigation.
 When the user provides a source (URL, file, paste), integrate it into the wiki:
 
 1. **Capture the source:**
-   - URL → use available web extraction tools to get markdown, save to `Sources/articles/`
-   - PDF → use available PDF extraction tools to get markdown, save to `Sources/papers/`
-   - Pasted text → save to appropriate `Sources/` subdirectory
+   - Determine source type and language first.
+   - Text URL/article/blog/docs → extract source-language Markdown, preserve
+     structure/links/metadata, save to `Sources/articles/` or the right
+     `Sources/` directory, and include capture limitations.
+   - Article images/diagrams → download to `Extras/<source-slug>/`, manifest
+     multiple files, and link local images from the Source note.
+   - PDF → download the original PDF to `Extras/<source-slug>/`; create a
+     `Sources/papers/` or `Sources/docs/` summary note with metadata, key claims,
+     limitations, and a local PDF link. Extract full text only when needed.
+   - Pasted text → save in the original language; prefer complete transcription.
    - Name the file descriptively: `Sources/articles/karpathy-llm-wiki-2026.md`
 
 2. **Discuss takeaways** with the user — what's interesting, what matters for
@@ -342,6 +372,9 @@ When the user provides a source (URL, file, paste), integrate it into the wiki:
      in SCHEMA.md (2+ source mentions, or central to one source)
    - **Existing pages:** Add new information, update facts, bump `updated` date.
      When new info contradicts existing content, follow the Update Policy.
+   - **Language:** Source notes stay in the source language. New Cards, Atlas
+     pages, and Spaces use the domain's configured default note language from
+     `SCHEMA.md`.
    - **Cross-reference:** Every new or updated page must link to at least 2 other
      pages via `[[wikilinks]]`. Check that existing pages link back.
    - **Tags:** Only use tags from the taxonomy in `SCHEMA.md`
@@ -355,12 +388,11 @@ When the user provides a source (URL, file, paste), integrate it into the wiki:
    - Add new pages to `index.md` under the correct section, alphabetically
    - Update the "Total pages" count and "Last updated" date in index header
    - Append to `log.md`: `## [YYYY-MM-DD] ingest | Source Title`
-   - List every file created or updated in the log entry
+   - List every Source, Card, Atlas, Space, image, PDF, manifest, and other file
+     created or updated in the log entry
 
-6. **Report what changed** — list every file created or updated to the user.
-
-A single source can trigger updates across 5-15 wiki pages. This is normal
-and desired — it's the compounding effect.
+6. **Report what changed** — list every file created or updated to the user,
+   including local image/PDF attachment paths.
 
 ### 2. Query
 
@@ -444,6 +476,10 @@ When content is fully superseded or the domain scope changes:
   Skipping this causes duplicates and missed cross-references.
 - **Always update index.md and log.md** — skipping this makes the wiki degrade. These are the
   navigational backbone.
+- **Don't drop source attachments** — article images, diagrams, PDFs, and other durable source
+  artifacts belong in `Extras/<source-slug>/` and should be linked from the Source note.
+- **Don't silently translate sources** — Source notes preserve the original language. Use the
+  domain default note language only for synthesized Cards, Atlas pages, and Spaces.
 - **Don't create pages for passing mentions** — follow the Page Thresholds in SCHEMA.md. A name
   appearing once in a footnote doesn't warrant an entity page.
 - **Don't create pages without cross-references** — isolated pages are invisible. Every page must
