@@ -26,10 +26,9 @@ LoreForge wiki instance
 
 LoreForge framework repo
   plugin metadata
-  templates
   schema
   skills
-  adapters
+  config examples
 ```
 
 LoreForge is not an agent memory store. It is a framework and plugin distribution used to create and operate separate wiki instances.
@@ -42,15 +41,10 @@ This repository contains the framework:
 LoreForge/
 ├── .codex-plugin/plugin.json  # Codex plugin metadata
 ├── .claude-plugin/            # Claude plugin metadata
-├── .claude/CLAUDE.md          # Claude always-on LoreForge guidance
-├── AGENTS.md                 # Rules for agents editing this framework repo
 ├── README.md
 ├── docs/                     # Philosophy, schema, install guidance
-├── templates/config/          # Local registry templates
-├── templates/wiki/           # Generic LoreForge wiki instance template
-├── skills/                   # LoreForge wiki skill
-└── adapters/
-    └── obsidian-vault/       # Obsidian-specific template and conventions
+├── templates/config/          # Optional local registry example
+└── skills/                   # LoreForge wiki skill
 ```
 
 Actual knowledge should live in a separate wiki repository or vault.
@@ -116,7 +110,6 @@ Plugin metadata lives in:
 .codex-plugin/plugin.json
 .claude-plugin/plugin.json
 .claude-plugin/marketplace.json
-.claude/CLAUDE.md
 ```
 
 ## GitHub-Backed Wikis
@@ -131,26 +124,11 @@ GitHub remote -> local clone -> local query/search/edit -> git synchronization
 
 Agents should use the local clone for search and editing. GitHub is for persistence and cross-machine synchronization, not per-query retrieval.
 
-## Relationship To Existing `~/wiki`
+## Existing Repos And Vaults
 
-The current `~/wiki` structure already has useful ideas:
-
-- `00_System/Vault Map.md`
-- domain maps
-- per-domain `+Wiki Index.md`
-- agent/task views
-
-LoreForge should generalize those ideas into a reusable framework. `~/wiki` can remain a concrete wiki instance or source of design feedback.
-
-## Obsidian Adapter
-
-The previous Obsidian-oriented draft now lives under:
-
-```text
-adapters/obsidian-vault/
-```
-
-Use it when the target wiki is an Obsidian vault that expects `MOCs/Scope/` conventions.
+Existing repos or vaults should be treated as sources. Use `loreforge-wiki` to
+ingest useful material into a native `Domains/<domain>/` wiki instead of keeping
+long-term alternate layouts.
 
 ## License
 

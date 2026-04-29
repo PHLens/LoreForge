@@ -39,40 +39,6 @@ description = "Computer science, GPU, ML systems, PyTorch"
 
 The registry is not a knowledge store. Do not put notes, findings, summaries, or agent memory in it.
 
-## Wiki-Local Metadata
-
-Path:
-
-```text
-<wiki>/.loreforge/wiki.toml
-```
-
-Purpose:
-
-- describes the wiki instance
-- declares entry files
-- records path conventions
-- optionally records Git defaults
-
-Template:
-
-```text
-templates/wiki/.loreforge/wiki.toml
-```
-
-Example:
-
-```toml
-schema_version = "0.1"
-name = "cs"
-description = "Computer science wiki"
-system_dir = "00_System"
-domains_dir = "Domains"
-
-[paths]
-domains = "Domains"
-```
-
 ## Discovery Flow
 
 1. Use the user-provided wiki/domain path, if given.
@@ -81,6 +47,9 @@ domains = "Domains"
 4. Otherwise fall back to `~/wiki`.
 5. Enter `Domains/<domain>/`.
 6. Orient on `SCHEMA.md`, `index.md`, recent `log.md`, and relevant pages.
+
+Wiki-local metadata files are optional. The active core workflow is defined by
+the selected domain's files, not by a copied template.
 
 ## GitHub Support
 

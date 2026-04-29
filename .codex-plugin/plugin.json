@@ -1,7 +1,7 @@
 {
   "name": "loreforge",
   "version": "0.1.0",
-  "description": "LoreForge provides skills and templates for operating LLM-wiki style expert-owned domain knowledge bases.",
+  "description": "LoreForge provides skills and conventions for operating LLM-wiki style expert-owned domain knowledge bases.",
   "author": {
     "name": "PHLens",
     "url": "https://github.com/PHLens"
