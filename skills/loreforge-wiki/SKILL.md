@@ -393,24 +393,28 @@ When asked to lint, audit, or run a health-check:
   ```
 
 2. **Broken wikilinks:** Find `[[links]]` that point to pages that don't exist.
-3. **Index completeness:** Every wiki page should appear in `index.md`. Compare
-   the `Cards/` against index entries.
-4. **Frontmatter validation:** Every wiki page must have all required fields
-   (title, created, updated, type, tags, sources). Tags must be in the taxonomy.
-5. **Stale content:** Pages whose `updated` date is >90 days older than the most
+3. **Domain boundary:** Surface wikilinks or path-shaped links that point outside
+   the selected domain unless the user explicitly asked for cross-domain work.
+4. **Index completeness:** Every active page under `Atlas/`, `Cards/`, and
+   `Sources/` should appear in `index.md`. Active `Spaces/` pages should appear
+   only when tagged `person`, `entity`, `tool`, or `project`. Do not require
+   `Spaces/_archive/` or transient workspace notes in the index.
+5. **Frontmatter validation:** Every wiki page must have all required fields
+   (title, created, updated, type, tags, status, sources). Tags must be in the taxonomy.
+6. **Stale content:** Pages whose `updated` date is >90 days older than the most
    recent source that mentions the same entities.
-6. **Contradictions:** Pages on the same topic with conflicting claims. Look for
+7. **Contradictions:** Pages on the same topic with conflicting claims. Look for
    pages that share tags/entities but state different facts. Surface all pages
    with `contested: true` or `contradictions:` frontmatter for user review.
-7. **Quality signals:** List pages with `confidence: low` and any page that cites
+8. **Quality signals:** List pages with `confidence: low` and any page that cites
    only a single source but has no confidence field set — these are candidates
    for either finding corroboration or demoting to `confidence: medium`.
-8. **Page size:** Flag pages over 200 lines — candidates for splitting.
-9. **Tag audit:** List all tags in use, flag any not in the `SCHEMA.md` taxonomy.
-10. **Log rotation:** If `log.md` exceeds 500 entries, rotate it.
-11. **Report findings** with specific file paths and suggested actions, grouped by
+9. **Page size:** Flag pages over 200 lines — candidates for splitting.
+10. **Tag audit:** List all tags in use, flag any not in the `SCHEMA.md` taxonomy.
+11. **Log rotation:** If `log.md` exceeds 500 entries, rotate it.
+12. **Report findings** with specific file paths and suggested actions, grouped by
    severity (broken links > orphans > source drift > contested pages > stale content > style issues).
-12. **Append to log.md:** `## [YYYY-MM-DD] lint | N issues found`
+13. **Append to log.md:** `## [YYYY-MM-DD] lint | N issues found`
 
 ## Working with the Wiki
 
