@@ -7,17 +7,13 @@ LoreForge has two parts:
 
 ## Create A Wiki Instance
 
-Create a wiki root and one domain:
+Create a wiki root:
 
 ```bash
 mkdir -p /path/to/my-wiki/00_System
-mkdir -p /path/to/my-wiki/Domains/my-domain/{Atlas,Cards,Sources,Spaces,Extras}
-touch /path/to/my-wiki/Domains/my-domain/SCHEMA.md
-touch /path/to/my-wiki/Domains/my-domain/index.md
-touch /path/to/my-wiki/Domains/my-domain/log.md
 ```
 
-You can also ask an agent with the `loreforge-wiki` skill to initialize the
+Then ask an agent with the `loreforge-wiki` skill to initialize the target
 domain. It should create:
 
 - `SCHEMA.md`
@@ -28,6 +24,9 @@ domain. It should create:
 - `Sources/`
 - `Spaces/`
 - `Extras/`
+
+Existing repos or vaults should be ingested as sources into a native LoreForge
+domain. Do not keep alternate layouts as long-term LoreForge structure.
 
 ## Use With pamem
 
@@ -74,7 +73,6 @@ Claude plugin metadata:
 ```text
 .claude-plugin/plugin.json
 .claude-plugin/marketplace.json
-.claude/CLAUDE.md
 ```
 
 The plugin contains framework guidance and skills only. Actual wiki knowledge

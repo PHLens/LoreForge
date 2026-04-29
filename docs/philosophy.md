@@ -23,9 +23,9 @@ LoreForge wiki instance
 
 LoreForge framework repo
   plugin metadata
-  templates
   schema
   skills
+  config examples
 ```
 
 ## First Principle
@@ -122,7 +122,7 @@ Do not borrow:
 ## Roadmap
 
 1. Stabilize the single-domain expert workflow.
-2. Simplify the native wiki template around `Domains/<domain>/`.
+2. Keep initialization authority in `loreforge-wiki`, not copied wiki templates.
 3. Add focused Health Check fixtures.
 4. Add migration support as source ingestion into native domains.
 5. Design router/subagent orchestration only after independent experts are stable.
