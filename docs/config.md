@@ -1,6 +1,8 @@
 # Configuration
 
-LoreForge uses two configuration layers.
+LoreForge can use explicit paths, environment variables, or local config files.
+The core `loreforge-wiki` skill should prefer a user-provided domain path, then
+`WIKI_PATH`, then `~/wiki`.
 
 ## Local Registry
 
@@ -15,7 +17,7 @@ Purpose:
 - machine-local discovery
 - maps wiki names to local paths
 - records optional Git remotes
-- defines default wiki and default views
+- defines a default wiki
 
 Template:
 
@@ -33,7 +35,6 @@ name = "cs"
 path = "/home/phlens/wiki"
 remote = "git@github.com:PHLens/cs-wiki.git"
 description = "Computer science, GPU, ML systems, PyTorch"
-default_view = "domain-query"
 ```
 
 The registry is not a knowledge store. Do not put notes, findings, summaries, or agent memory in it.
@@ -49,7 +50,7 @@ Path:
 Purpose:
 
 - describes the wiki instance
-- declares entry files and task views
+- declares entry files
 - records path conventions
 - optionally records Git defaults
 
@@ -65,31 +66,21 @@ Example:
 schema_version = "0.1"
 name = "cs"
 description = "Computer science wiki"
-agents_file = "AGENTS.md"
-vault_map = "00_System/Vault Map.md"
-schema_file = "00_System/Schema.md"
-log_file = "00_System/Wiki Log.md"
-views_dir = "00_System/Views"
-default_view = "domain-query"
+system_dir = "00_System"
+domains_dir = "Domains"
 
 [paths]
-inbox = "10_Inbox"
-capture = "10_Inbox/capture"
-ingest = "10_Inbox/ingest"
-writeback = "10_Inbox/writeback"
-domains = "20_Domains"
-shared = "30_Shared"
-archive = "40_Archive"
+domains = "Domains"
 ```
 
 ## Discovery Flow
 
-1. Agent reads `~/.config/loreforge/registry.toml`.
-2. Agent resolves the requested wiki name or registry default.
-3. Agent enters the local `path`.
-4. Agent reads `<wiki>/.loreforge/wiki.toml`.
-5. Agent reads the wiki `AGENTS.md`.
-6. Agent follows the selected task view.
+1. Use the user-provided wiki/domain path, if given.
+2. Otherwise use `WIKI_PATH` and the requested domain name.
+3. Otherwise read `~/.config/loreforge/registry.toml`, if available.
+4. Otherwise fall back to `~/wiki`.
+5. Enter `Domains/<domain>/`.
+6. Orient on `SCHEMA.md`, `index.md`, recent `log.md`, and relevant pages.
 
 ## GitHub Support
 
@@ -98,16 +89,18 @@ GitHub remotes are supported as persistence and sync backends.
 Preferred mode:
 
 ```text
-GitHub remote -> local clone -> local read/search/write -> git sync
+GitHub remote -> local clone -> local read/search/write -> git synchronization
 ```
 
 Agents should not query GitHub directly for every answer.
 
-Use the `sync` skill for conservative pull/status/commit/push workflows.
+Use normal git workflows for pull/status/commit/push until a smaller sync helper
+is justified.
 
 ## Registration
 
-Use the `register` skill to create or update registry entries.
+Create or update registry entries manually until a smaller domain-management
+helper is justified.
 
 First-time manual setup:
 

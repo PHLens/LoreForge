@@ -1,7 +1,7 @@
 {
   "name": "loreforge",
   "version": "0.1.0",
-  "description": "LoreForge provides skills, templates, and routing rules for operating LLM-wiki style shared professional knowledge bases.",
+  "description": "LoreForge provides skills and templates for operating LLM-wiki style expert-owned domain knowledge bases.",
   "author": {
     "name": "PHLens",
     "url": "https://github.com/PHLens"
@@ -20,7 +20,7 @@
   "interface": {
     "displayName": "LoreForge",
     "shortDescription": "Operate shared LLM-wiki knowledge bases.",
-    "longDescription": "LoreForge helps agents query, capture, ingest, write back, promote, lint, register, and sync shared professional wiki knowledge while keeping agent-local experience in memory systems such as pamem.",
+    "longDescription": "LoreForge helps agents maintain expert-owned LLM-wiki domains: query existing knowledge, ingest sources, update durable pages, review domain health, and keep agent-local experience in memory systems such as pamem.",
     "developerName": "PHLens",
     "category": "Productivity",
     "capabilities": [
@@ -31,8 +31,8 @@
     "websiteURL": "https://github.com/PHLens/LoreForge",
     "defaultPrompt": [
       "Query my LoreForge wiki before searching.",
-      "Capture this source into LoreForge.",
-      "Write back this reusable answer."
+      "Ingest this source into my LoreForge wiki.",
+      "Run a Health Check on this LoreForge domain."
     ],
     "brandColor": "#2563EB"
   }

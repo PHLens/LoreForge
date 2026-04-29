@@ -7,7 +7,7 @@
     {
       "name": "loreforge",
       "source": "./",
-      "description": "LoreForge provides skills, templates, and routing rules for operating LLM-wiki style shared professional knowledge bases.",
+      "description": "LoreForge provides skills and templates for operating LLM-wiki style expert-owned domain knowledge bases.",
       "version": "0.1.0"
     }
   ]

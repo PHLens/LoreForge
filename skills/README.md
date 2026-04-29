@@ -2,44 +2,37 @@
 
 Core LoreForge operations live here.
 
-These skills define framework-level workflows that any LoreForge wiki instance should support:
+LoreForge now exposes one core wiki skill:
 
 | Skill | Purpose |
 |---|---|
-| `loreforge-router` | Route LoreForge tasks to the correct operation skill |
-| `query` | Locate a configured wiki and answer using views, maps, and indexes before broad search |
-| `capture` | Thin alias for `ingest mode=capture` |
-| `ingest` | Capture or process external sources into staged packages |
-| `writeback` | Stage conversation/query synthesis as one or more candidate wiki notes |
-| `promote` | Batch-promote staged packages into stable notes, update indexes, archive staging, and append the wiki log |
-| `lint` | Run structural health checks |
-| `register` | Register wiki instances in local machine config |
-| `sync` | Synchronize a local wiki clone with its Git remote |
+| `loreforge-wiki` | Query, ingest sources, update durable pages, review, initialize domains, and run Health Checks for expert-owned LoreForge domains |
 
-Core skills should resolve paths from the local registry and wiki-local `.loreforge/wiki.toml` whenever possible. Obsidian-specific conventions belong under `adapters/obsidian-vault/`.
+The core skill follows the LLM Wiki pattern: one expert agent maintains one
+domain by orienting on `SCHEMA.md`, `index.md`, recent `log.md`, and relevant
+pages before writing.
 
-`loreforge-router` is intentionally small. It exists so installed plugin sessions can recover the correct operation after context compaction.
+Legacy staged workflow skills such as `capture`, `ingest`, `writeback`,
+`promote`, `query`, `lint`, `register`, and `sync` are intentionally removed
+from the active skill surface. Their responsibilities are either covered by
+`loreforge-wiki` or deferred until a smaller router, migration, domain-management,
+or sync workflow is justified.
 
-## Ingest Modes
+## Core Workflow
 
-`capture` is a low-friction command alias for `ingest mode=capture`. It saves potentially durable material to `<capture>/` without deciding final structure.
+Use `loreforge-wiki` when a user or agent needs to:
 
-`ingest mode=process` or `ingest mode=research` processes an inbox note, source note, file, or URL into a staged package after checking existing maps and indexes.
+- answer from an existing LoreForge domain
+- ingest a source into `Sources/` and update related pages
+- create or revise durable Cards, Atlas MOCs, or Spaces
+- initialize a new expert-owned domain
+- review or run a Health Check on a domain
 
-Processed packages use `manifest.md` and can contain multiple candidate notes.
+The skill writes directly after orientation and keeps the domain `index.md` and
+`log.md` current. Human review happens through logs, confidence fields,
+contradiction metadata, Health Checks, and git diffs.
 
-## Stable Promotion
+## Deferred Work
 
-Only `promote` should make reviewed material part of stable wiki knowledge.
-
-Pipeline:
-
-```text
-query -> answer
-ingest mode=capture -> inbox capture
-ingest/writeback -> staged package + package log
-promote -> stable notes + domain index + archive staging + promotion log
-sync -> git persistence
-```
-
-This keeps index updates tied to the stable-write transaction while still letting the wiki log record meaningful staging events.
+Router, migration, domain-management, and sync helpers should be added as small
+skills only after the single-domain expert workflow is stable.

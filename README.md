@@ -28,7 +28,6 @@ LoreForge framework repo
   plugin metadata
   templates
   schema
-  task views
   skills
   adapters
 ```
@@ -43,85 +42,61 @@ This repository contains the framework:
 LoreForge/
 ├── .codex-plugin/plugin.json  # Codex plugin metadata
 ├── .claude-plugin/            # Claude plugin metadata
-├── .claude/CLAUDE.md          # Claude always-on LoreForge router
+├── .claude/CLAUDE.md          # Claude always-on LoreForge guidance
 ├── AGENTS.md                 # Rules for agents editing this framework repo
 ├── README.md
 ├── docs/                     # Philosophy, schema, install guidance
 ├── templates/config/          # Local registry templates
 ├── templates/wiki/           # Generic LoreForge wiki instance template
-├── skills/                   # Core LoreForge operations
+├── skills/                   # LoreForge wiki skill
 └── adapters/
     └── obsidian-vault/       # Obsidian-specific template and conventions
 ```
 
-Actual knowledge should live in a separate wiki repository or vault created from `templates/wiki/`.
+Actual knowledge should live in a separate wiki repository or vault.
 
-Agents discover those wiki instances through a machine-local registry:
-
-```text
-~/.config/loreforge/registry.toml
-```
-
-Each wiki instance also carries self-description in:
-
-```text
-<wiki>/.loreforge/wiki.toml
-```
-
-See [docs/config.md](docs/config.md) for registration and discovery.
+Agents should use an explicit wiki path when available, or `WIKI_PATH` plus a
+domain name. If unset, the core skill falls back to `~/wiki`.
 
 ## Wiki Instance Shape
 
-The generic wiki template uses:
+The core wiki skill expects this shape:
 
 ```text
-AGENTS.md
+wiki/
 00_System/
-  Vault Map.md
-  Schema.md
-  Wiki Log.md
-  Views/
-    default.md
-    domain-query.md
-    source-ingest.md
-    wiki-maintenance.md
-10_Inbox/
-  capture/
-  ingest/
-  writeback/
-20_Domains/
-  Example/
-    Example Map.md
-    +Wiki Index.md
+  ...
+Domains/
+  <domain>/
+    SCHEMA.md
+    index.md
+    log.md
+    Atlas/
     Cards/
-    MOCs/
     Sources/
-30_Shared/
-40_Archive/
+    Spaces/
+    Extras/
 ```
 
-The important idea is task-oriented views, not agent-specific views. Any session that loads the wiki rules can follow the same process.
+Each domain is a self-contained LLM Wiki owned by one expert agent. The agent
+orients on `SCHEMA.md`, `index.md`, recent `log.md`, and relevant pages before
+querying, ingesting, updating, reviewing, or running a Health Check.
 
-## First Operations
+## Core Skill
 
-Keep the initial workflow simple:
+LoreForge currently exposes one core skill:
 
-| Operation | Purpose |
+| Skill | Purpose |
 |---|---|
-| Query | Use domain maps and compact indexes before broad search |
-| Capture | Quick alias for `ingest mode=capture` |
-| Ingest | Capture or process external source material into staged packages |
-| Writeback | Stage reusable conversation/query synthesis as candidate notes |
-| Promote | Batch-promote reviewed staged packages into stable notes, archive staging, update indexes, and log |
-| Lint | Run read-only structural health checks |
-| Register | Register local wiki paths and remotes |
-| Sync | Keep local wiki clones aligned with Git remotes |
+| `loreforge-wiki` | Query, ingest sources, update durable pages, initialize domains, review, and run Health Checks for expert-owned domains |
 
 Automation should grow from repeated usage pain, not be designed up front.
 
-These operations are framework core concepts, implemented under `skills/`. Adapter-specific path conventions should be documented under `adapters/`.
-
-`capture` remains a convenient command, but its behavior is `ingest mode=capture`. Processed `ingest` and `writeback` outputs are staged packages with a `manifest.md`; `promote` is the stable-write transaction that can promote one or more candidate notes, update the domain index, archive consumed staging material, and append the wiki log.
+The old staged workflow skills (`capture`, `ingest`, `writeback`, `promote`,
+`query`, `lint`, `register`, and `sync`) are no longer part of the active skill
+surface. Routine expert maintenance happens directly inside the selected domain
+after orientation, with human review through logs, confidence markers,
+contradiction records, Health Checks, and git diffs.
 
 ## Plugin Distribution
 
@@ -129,10 +104,11 @@ LoreForge can be installed as a Codex or Claude plugin.
 
 The plugin layer is intentionally thin:
 
-- expose the operation skills in `skills/`
-- provide router instructions for when to use each skill
+- expose the `loreforge-wiki` skill
+- provide boundary instructions for when to use LoreForge
 - keep actual knowledge in separate wiki instances
-- recover after context compaction from registry, package manifests, indexes, and log files
+- recover after context compaction from domain `SCHEMA.md`, `index.md`, `log.md`,
+  and relevant pages
 
 Plugin metadata lives in:
 
@@ -150,7 +126,7 @@ LoreForge supports wiki instances backed by GitHub repositories.
 The intended mode is local-first:
 
 ```text
-GitHub remote -> local clone -> local query/search/edit -> git sync
+GitHub remote -> local clone -> local query/search/edit -> git synchronization
 ```
 
 Agents should use the local clone for search and editing. GitHub is for persistence and cross-machine synchronization, not per-query retrieval.
