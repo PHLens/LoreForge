@@ -51,6 +51,19 @@ orientation. There is no staged promotion pipeline in the active core workflow.
 After substantive changes, update `index.md` when stable pages are created,
 archived, renamed, or materially changed, and append a concise `log.md` entry.
 
+## Source Capture
+
+Source notes preserve the source language by default. For text articles, blogs,
+docs, and pasted text, keep title, author/publisher, dates, canonical URL,
+headings, links, and local image references. Prefer complete transcription when
+the material is user-provided, local, permissively licensed, public domain, or
+otherwise appropriate to reuse in full. Otherwise keep a faithful structured
+source note and record only concrete capture limitations.
+
+Durable attachments belong under `Extras/<source-slug>/` and should be linked
+from the Source note. Source note metadata should point to wiki-local files, not
+temporary extractor outputs such as `/tmp/topic-research/...`.
+
 ## Boundaries
 
 - Do not store agent-local memory, preferences, task state, or chat transcripts

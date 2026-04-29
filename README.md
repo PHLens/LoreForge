@@ -44,7 +44,7 @@ LoreForge/
 ├── README.md
 ├── docs/                     # Philosophy, schema, install guidance
 ├── templates/config/          # Optional local registry example
-└── skills/                   # LoreForge wiki skill
+└── skills/                   # LoreForge wiki skill and helper skills
 ```
 
 Actual knowledge should live in a separate wiki repository or vault.
@@ -76,15 +76,25 @@ Each domain is a self-contained LLM Wiki owned by one expert agent. The agent
 orients on `SCHEMA.md`, `index.md`, recent `log.md`, and relevant pages before
 querying, ingesting, updating, reviewing, or running a Health Check.
 
-## Core Skill
+## Skills
 
-LoreForge currently exposes one core skill:
+LoreForge exposes one core wiki skill plus helper skills used during source
+capture and Obsidian-facing editing:
 
 | Skill | Purpose |
 |---|---|
 | `loreforge-wiki` | Query, ingest sources, update durable pages, initialize domains, review, and run Health Checks for expert-owned domains |
+| `topic-research` | Browser-backed web research, URL extraction, Zhihu detail expansion, WeChat probing, and source research packs |
+| `convert-to-markdown` | Convert local documents and exported pages to Markdown |
+| `defuddle` | Extract clean Markdown from standard web pages with the Defuddle CLI |
+| `obsidian-markdown` | Work with Obsidian-flavored Markdown syntax |
+| `obsidian-cli` | Optional automation against a running Obsidian app |
+| `json-canvas` | Create and edit JSON Canvas files |
+| `obsidian-bases` | Create and edit Obsidian Bases files |
 
-Automation should grow from repeated usage pain, not be designed up front.
+`loreforge-wiki` owns durable wiki writes. Helper skills produce capture input
+or Obsidian-specific artifacts; they should not replace the domain orientation,
+index, log, and Health Check workflow.
 
 The old staged workflow skills (`capture`, `ingest`, `writeback`, `promote`,
 `query`, `lint`, `register`, and `sync`) are no longer part of the active skill
@@ -92,13 +102,17 @@ surface. Routine expert maintenance happens directly inside the selected domain
 after orientation, with human review through logs, confidence markers,
 contradiction records, Health Checks, and git diffs.
 
+The previous Obsidian `wiki` adapter layout is not bundled. Existing Obsidian
+vaults can still be used as sources, and LoreForge wiki instances can still be
+opened in Obsidian as plain Markdown vaults.
+
 ## Plugin Distribution
 
 LoreForge can be installed as a Codex or Claude plugin.
 
 The plugin layer is intentionally thin:
 
-- expose the `loreforge-wiki` skill
+- expose the `loreforge-wiki` skill and bundled helper skills
 - provide boundary instructions for when to use LoreForge
 - keep actual knowledge in separate wiki instances
 - recover after context compaction from domain `SCHEMA.md`, `index.md`, `log.md`,

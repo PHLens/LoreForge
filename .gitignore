@@ -1,0 +1,11 @@
+# Skill runtime environments and caches
+skills/**/scripts/.venv/
+skills/**/scripts/**/__pycache__/
+tests/**/__pycache__/
+
+# Local browser/session state. These files may contain reusable cookies/tokens.
+skills/**/scripts/auth/*.json
+
+# Tool outputs should be written to the wiki or /tmp, not committed here.
+skills/**/scripts/output/
+skills/**/scripts/outputs/

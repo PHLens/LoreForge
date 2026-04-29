@@ -2,7 +2,7 @@
 name: loreforge-wiki
 description: Use for LoreForge domain wiki query, source ingest, durable updates, review, and Health Checks. One expert owns one domain.
 user-invocable: true
-version: 0.1.1
+version: 0.1.2
 metadata:
   origin: "Inspired by NousResearch Hermes LLM Wiki, MIT"
 ---
@@ -253,11 +253,14 @@ Cards, Atlas views, or Spaces.
 
 - Preserve the source before synthesizing cards.
 - Text articles, blogs, docs, and pasted text: save source-language Markdown in
-  `Sources/articles/` or the right `Sources/` directory. Preserve structure,
-  links, metadata, and local image refs. Prefer complete transcription for
-  user-provided or clearly reusable material; for third-party copyrighted pages,
-  capture metadata, outline, short necessary excerpts, and grounded notes within
-  allowed quotation limits.
+  `Sources/articles/` or the right `Sources/` directory. Preserve title,
+  author/publisher, dates, canonical URL, headings, links, and local image refs.
+  Prefer complete transcription when the material is user-provided, local,
+  permissively licensed, public domain, or otherwise appropriate to reuse in
+  full. For third-party web pages where full transcription is not appropriate,
+  keep a faithful structured source note with specific excerpts and grounded
+  notes; do not add generic boilerplate explaining that the note is not a full
+  transcription unless a concrete capture limitation matters.
 - Article images/diagrams: download to `Extras/<source-slug>/`, link them from
   the Source note, and create a manifest for multiple images.
 - PDFs: download the original PDF to `Extras/<source-slug>/`; create a
@@ -265,6 +268,21 @@ Cards, Atlas views, or Spaces.
   limitations, and a local PDF link. Extract full text only when needed or asked.
 - Language: Source notes stay in the source language. Synthesized Cards, Atlas
   pages, and Spaces use the domain default note language from `SCHEMA.md`.
+- Durable local paths in Source notes must point to wiki-local files, such as
+  the Source note itself and files under `Extras/`. Do not put transient
+  extractor paths such as `/tmp/topic-research/...` in Source note metadata; if
+  those paths are useful for debugging, record them in `log.md` only.
+
+### Built-In Capture Tools
+
+- For web topics, direct links, Zhihu, WeChat, and pages that need browser state,
+  use the bundled `topic-research` skill before writing Source notes.
+- For local documents or exported files, use `convert-to-markdown` when it can
+  preserve structure or extract images better than manual conversion.
+- For standard web pages where a lightweight extractor is enough, `defuddle`
+  can provide clean Markdown before ingest.
+- Auth/session files used by capture tools belong in the tool's local `auth/`
+  directory or another machine-local path and must not be committed.
 
 ## Spaces
 Use `Spaces/` for durable non-Card objects and context notes:
@@ -351,13 +369,17 @@ When the user provides a source (URL, file, paste), integrate it into the wiki:
    - Determine source type and language first.
    - Text URL/article/blog/docs → extract source-language Markdown, preserve
      structure/links/metadata, save to `Sources/articles/` or the right
-     `Sources/` directory, and include capture limitations.
+     `Sources/` directory. Prefer complete transcription when the material can
+     appropriately be stored in full; otherwise keep a faithful structured note
+     and record only concrete capture limitations.
    - Article images/diagrams → download to `Extras/<source-slug>/`, manifest
      multiple files, and link local images from the Source note.
    - PDF → download the original PDF to `Extras/<source-slug>/`; create a
      `Sources/papers/` or `Sources/docs/` summary note with metadata, key claims,
      limitations, and a local PDF link. Extract full text only when needed.
    - Pasted text → save in the original language; prefer complete transcription.
+   - Source note metadata → use wiki-local durable paths only. Do not cite
+     temporary extractor output directories as source artifacts inside the note.
    - Name the file descriptively: `Sources/articles/karpathy-llm-wiki-2026.md`
 
 2. **Discuss takeaways** with the user — what's interesting, what matters for
