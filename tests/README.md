@@ -4,7 +4,9 @@ Run the native domain verification fixture:
 
 ```bash
 python3 tests/validate_native_domain.py
+python3 tests/simulate_native_domain_operations.py
 ```
 
-The script checks the minimum single-expert LoreForge domain contract used by
-the `loreforge-wiki` skill.
+These scripts check the minimum single-expert LoreForge domain contract used by
+the `loreforge-wiki` skill and smoke-test query, ingest, and update boundaries
+on a temporary fixture copy.
