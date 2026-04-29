@@ -1,46 +1,61 @@
 # Schema
 
-LoreForge wiki instances follow a layered structure.
+LoreForge wiki instances use one shared wiki root with expert-owned domains.
 
-## Layers
+## Wiki Shape
 
-| Layer | Purpose |
+```text
+wiki/
+  00_System/
+  Domains/
+    <domain>/
+      SCHEMA.md
+      index.md
+      log.md
+      Atlas/
+      Cards/
+      Sources/
+      Spaces/
+      Extras/
+```
+
+`00_System/` is the wiki-level operating surface. Each `Domains/<domain>/` is a
+self-contained LLM Wiki maintained by one expert agent.
+
+## Domain Files
+
+| Path | Purpose |
 |---|---|
-| `sources` | Source-grounded notes and provenance |
-| `cards` | Compiled atomic knowledge |
-| `maps` | Navigation and synthesis |
-| `system` | Schema, task views, indexes, promotion log, policies |
+| `SCHEMA.md` | Domain boundary, conventions, taxonomy, and update rules |
+| `index.md` | Mechanical inventory with one-line page summaries |
+| `log.md` | Append-only chronological action log |
+| `Atlas/` | Maps of Content (MOCs), emergent thinking views |
+| `Cards/` | Durable concepts, methods, patterns, tradeoffs, comparisons |
+| `Sources/` | Mutable source-grounded Markdown notes |
+| `Spaces/` | Durable non-Card objects, contexts, and archive space |
+| `Extras/` | Non-Markdown attachments such as PDFs and images |
 
-## Default Template
+## Operating Rules
 
-Use `templates/wiki/` as the generic starting point for a new wiki instance.
+Agents should orient before writing:
 
-Adapter-specific templates may exist under `adapters/`.
+1. Read `SCHEMA.md`.
+2. Read `index.md`.
+3. Read recent `log.md` entries.
+4. Search existing pages for the topic.
+5. Read relevant `Atlas/`, `Cards/`, `Sources/`, and `Spaces/` pages.
 
-## Discovery Files
+Routine maintenance writes directly inside the selected domain after
+orientation. There is no staged promotion pipeline in the active core workflow.
 
-LoreForge uses two discovery layers:
+After substantive changes, update `index.md` when stable pages are created,
+archived, renamed, or materially changed, and append a concise `log.md` entry.
 
-| File | Scope | Purpose |
-|---|---|---|
-| `~/.config/loreforge/registry.toml` | machine-local | Lists wiki instances, local paths, remotes, and defaults |
-| `<wiki>/.loreforge/wiki.toml` | wiki-local | Describes the wiki schema, entry files, task views, and path conventions |
+## Boundaries
 
-Agents should never guess wiki paths when a registry is available.
-
-## Stable Promotion
-
-Stable wiki writes should go through the `promote` skill.
-
-Promotion is the transaction that:
-
-1. creates or moves reviewed staged notes into stable locations
-2. updates the target domain `+Wiki Index.md`
-3. archives consumed staging material
-4. appends one entry to `00_System/Wiki Log.md`
-
-Do not index captures or staged packages. Do not log ordinary queries, ordinary captures, read-only lint with no meaningful findings, or git sync.
-
-Processed `ingest` and `writeback` outputs should use a staged package with `manifest.md`. A package can contain multiple candidate notes when they came from the same source or conversation.
-
-The wiki log is broader than promotion history: it may record substantive staged package creation and lint passes with meaningful findings, but should not record ordinary queries, ordinary captures, or sync operations.
+- Do not store agent-local memory, preferences, task state, or chat transcripts
+  in the wiki.
+- Do not write across domains unless the user explicitly asks.
+- Do not index `Extras/` directly.
+- Do not index `Spaces/_archive/` or transient workspace notes.
+- Mark low-confidence and contested knowledge explicitly.

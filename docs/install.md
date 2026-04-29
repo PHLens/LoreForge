@@ -3,23 +3,31 @@
 LoreForge has two parts:
 
 1. Framework repo: this repository.
-2. Wiki instance: a separate repository or vault created from `templates/wiki/`.
+2. Wiki instance: a separate repository or vault maintained by the `loreforge-wiki` skill.
 
 ## Create A Wiki Instance
 
-Copy the generic template:
+Create a wiki root and one domain:
 
 ```bash
-mkdir -p /path/to/my-wiki
-cp -R templates/wiki/. /path/to/my-wiki/
+mkdir -p /path/to/my-wiki/00_System
+mkdir -p /path/to/my-wiki/Domains/my-domain/{Atlas,Cards,Sources,Spaces,Extras}
+touch /path/to/my-wiki/Domains/my-domain/SCHEMA.md
+touch /path/to/my-wiki/Domains/my-domain/index.md
+touch /path/to/my-wiki/Domains/my-domain/log.md
 ```
 
-Then edit:
+You can also ask an agent with the `loreforge-wiki` skill to initialize the
+domain. It should create:
 
-- `AGENTS.md`
-- `00_System/Vault Map.md`
-- `00_System/Views/`
-- `20_Domains/`
+- `SCHEMA.md`
+- `index.md`
+- `log.md`
+- `Atlas/`
+- `Cards/`
+- `Sources/`
+- `Spaces/`
+- `Extras/`
 
 ## Use With pamem
 
@@ -27,26 +35,15 @@ Store the wiki instance path in the agent workspace memory if useful.
 
 Do not store wiki knowledge in pamem.
 
-## Configure Local Discovery
+## Configure Location
 
-See `docs/config.md` for the full configuration model.
-
-Copy the registry template:
+Set `WIKI_PATH` when you want agents to find the wiki without guessing:
 
 ```bash
-mkdir -p ~/.config/loreforge
-cp templates/config/registry.toml ~/.config/loreforge/registry.toml
+export WIKI_PATH=/path/to/my-wiki
 ```
 
-Edit the registry so each wiki has:
-
-- `name`
-- `path`
-- `remote`
-- `description`
-- `default_view`
-
-Agents should use this registry to find local wiki clones instead of guessing paths.
+If unset, `loreforge-wiki` falls back to `~/wiki`.
 
 ## Install Core Skills
 
@@ -56,19 +53,11 @@ Core operation skills live in:
 skills/
 ```
 
-Current core skills:
+Current core skill:
 
-- `loreforge-router`
-- `query`
-- `capture`
-- `ingest`
-- `writeback`
-- `promote`
-- `lint`
-- `register`
-- `sync`
+- `loreforge-wiki`
 
-Install them into the target agent environment using that environment's skill installation mechanism.
+Install it into the target agent environment using that environment's skill installation mechanism.
 
 ## Install As Plugin
 
@@ -88,4 +77,5 @@ Claude plugin metadata:
 .claude/CLAUDE.md
 ```
 
-The plugin contains routing rules and skills only. Actual wiki knowledge stays in separate wiki instances registered through `~/.config/loreforge/registry.toml`.
+The plugin contains framework guidance and skills only. Actual wiki knowledge
+stays in separate wiki instances.
