@@ -1,0 +1,4 @@
+interface:
+  display_name: "Topic Research"
+  short_description: "主题调研、跨源取材与受限网页内容提取技能"
+  default_prompt: "Use $topic-research to gather at least 3 references for a topic, extract accessible source material, and prepare a research pack for synthesis."

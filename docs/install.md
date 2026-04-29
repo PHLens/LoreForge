@@ -46,17 +46,52 @@ If unset, `loreforge-wiki` falls back to `~/wiki`.
 
 ## Install Core Skills
 
-Core operation skills live in:
+Core and helper skills live in:
 
 ```text
 skills/
 ```
 
-Current core skill:
+Core skill:
 
 - `loreforge-wiki`
 
-Install it into the target agent environment using that environment's skill installation mechanism.
+Bundled helper skills:
+
+- `topic-research`
+- `convert-to-markdown`
+- `defuddle`
+- `obsidian-markdown`
+- `obsidian-cli`
+- `json-canvas`
+- `obsidian-bases`
+
+Install them into the target agent environment using that environment's skill installation mechanism.
+
+### Helper Runtime Setup
+
+`topic-research` and `convert-to-markdown` use `uv` inside their `scripts/`
+directories:
+
+```bash
+cd skills/topic-research/scripts
+uv sync
+./.venv/bin/python -m playwright install chromium
+
+cd ../../convert-to-markdown/scripts
+uv sync
+```
+
+`topic-research` may use local browser state files such as
+`skills/topic-research/scripts/auth/zhihu.json`. These files can contain cookies
+or tokens and are ignored by git. Copy or create them on each machine that needs
+authenticated access.
+
+`defuddle` requires the external CLI when used:
+
+```bash
+npm install -g defuddle
+```
 
 ## Install As Plugin
 
