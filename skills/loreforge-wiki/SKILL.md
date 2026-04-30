@@ -47,19 +47,59 @@ Those belong in the agent runtime or memory system, not in the shared wiki.
 
 ## Wiki Location
 
-**Location:** Set via WIKI_PATH environment variable (e.g. in ~/.loreforge/.env).
+Resolve the active wiki and domain before reading or writing.
 
-If unset, defaults to ~/wiki.
+**Wiki root discovery order:**
+
+1. Use the wiki/domain path named by the user.
+2. Otherwise use `WIKI_PATH`.
+3. Otherwise use `WIKI_NAME` to look up `~/.config/loreforge/registry.toml`.
+4. Otherwise use the registry's `default` wiki.
+5. Otherwise fall back to `~/wiki`; before writing there, tell the user.
+
+**Domain discovery order:**
+
+1. Use the domain named by the user.
+2. Otherwise use `DOMAIN_NAME`.
+3. Otherwise use the selected wiki's `default_domain` from the registry.
+4. Otherwise, if multiple domains exist, ask which domain to use before writing.
 
 ```bash
+WIKI_NAME="${WIKI_NAME:-}"
 WIKI="${WIKI_PATH:-$HOME/wiki}"
 DOMAIN_NAME="${DOMAIN_NAME:-<domain>}"
 DOMAIN="$WIKI/Domains/$DOMAIN_NAME"
 ```
 
-If multiple domains exist and no domain is named, ask which domain to use before writing.
+`~/.config/loreforge/registry.toml` is machine-local discovery config. It is not
+a knowledge store and should not contain notes, findings, summaries, or agent
+memory.
 
-The domains is just a directory of markdown files — open it in Obsidian, VS Code, or any editor. No database, no special tooling required.
+```toml
+default = "main"
+
+[[wikis]]
+name = "main"
+path = "/path/to/loreforge-wiki"
+description = "Personal LoreForge wiki"
+sync = "local"
+default_domain = "ai-research"
+remote = ""
+
+[[sources]]
+name = "old-obsidian"
+kind = "obsidian-vault"
+path = "/path/to/source-vault"
+default_target_wiki = "main"
+default_target_domain = "ai-research"
+```
+
+`[[wikis]]` entries are writable LoreForge wiki roots. `[[sources]]` entries are
+read-only source aliases for repeated imports from existing repos, vaults, or
+folders.
+
+The wiki is just a directory of Markdown files — open it in Obsidian, VS Code,
+or any editor. No database, no special tooling required.
 
 ## Architecture: Multi-Layer Wiki
 
@@ -108,19 +148,48 @@ Only after orientation should you ingest, query, or lint. This prevents:
 
 For large domains(100+ pages), also run a quick search for the topic at hand before creating anything new.
 
-## Initializing a New Domain
+## Initializing a New Wiki or Domain
 
-When the user asks to create or start a new domain:
+When the user asks to create or start a wiki or domain:
 
-1. Determine wiki root and domain name (from $WIKI_PATH env var, or ask the user; default ~/wiki)
-2. Create `Domains/<domain>/` unless the user requested a single-domain root.
-3. Create the required files and directories above
-4. Ask for a concise domain description and the default language for extracted
+1. Resolve the wiki root and domain name using the discovery order above.
+2. Create the wiki root if needed.
+3. Create `00_System/`, `00_System/index.md`, and `00_System/domains.md` if
+   missing.
+4. Create `Domains/<domain>/`.
+5. Create the required domain files and directories above.
+6. Ask for a concise domain description and the default language for extracted
    Cards, Atlas pages, and Spaces.
-5. Write `SCHEMA.md` customized to the domain (see template below)
-6. Write `index.md` with sectioned header
-7. Write initial `log.md` with creation entry
-8. Report the domain path and next useful actions.
+7. Write `SCHEMA.md` customized to the domain (see template below).
+8. Write `index.md` with sectioned header.
+9. Write initial `log.md` with creation entry.
+10. Add or update the domain row in `00_System/domains.md`.
+11. If the user is setting up a durable local wiki and the registry has no
+    matching `[[wikis]]` entry, offer to add one.
+12. Report the wiki path, domain path, and next useful actions.
+
+### 00_System Minimal Files
+
+Use `00_System/` for wiki-level orientation only. Domain behavior still lives in
+each domain's `SCHEMA.md`.
+
+`00_System/index.md`:
+
+```markdown
+# Wiki Index
+
+- Domains: [[domains]]
+```
+
+`00_System/domains.md`:
+
+```markdown
+# Domains
+
+| Domain | Purpose | Default Language | Expert | Status |
+|---|---|---|---|---|
+| <domain> | <purpose> | <language> | <expert name or role> | active |
+```
 
 ### SCHEMA.md Template
 
@@ -358,6 +427,33 @@ a `Atlas/Scope/topic-map.md` that groups pages by theme for faster navigation.
 
 **Rotate the log** — when log.md exceeds 500 entries, rename it `log-YYYY.md` and start fresh.
   The agent should check log size during lint.
+
+## Migrating Existing Repos or Vaults
+
+Treat existing repos, Obsidian vaults, folders, and exported notes as **sources**
+by default. Do not register them as writable LoreForge wiki roots unless the
+user explicitly asks to convert them in place.
+
+When migrating:
+
+1. Resolve the source:
+   - use the path named by the user, or
+   - use a `[[sources]]` alias from `~/.config/loreforge/registry.toml`.
+2. Resolve the target wiki and domain using the normal discovery order.
+3. If the target domain does not exist, initialize it first.
+4. Read from the source without changing it.
+5. Ingest durable material into the native domain structure:
+   - source-grounded notes into `Sources/`
+   - synthesized reusable concepts into `Cards/`
+   - emergent thinking views into `Atlas/`
+   - people, entities, tools, projects, systems, and contexts into `Spaces/`
+   - non-Markdown attachments into `Extras/`
+6. Record the migration in target `log.md`, including source alias or source
+   description, import scope, and files created or updated.
+
+Do not preserve an alternate long-term layout inside the LoreForge wiki. If the
+user asks to adopt an existing repo in place, state that this changes that repo's
+structure and get explicit confirmation before writing.
 
 ## Core Operations
 
