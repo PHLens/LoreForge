@@ -8,7 +8,7 @@ AI research methods and agent-maintained wiki design.
 - Every wiki page starts with YAML frontmatter.
 - Use `[[wikilinks]]` to link between pages.
 - Every active indexable page must appear in `index.md`.
-- Every substantive action must be appended to `log.md`.
+- Every substantive action must be inserted as the newest entry in `log.md`.
 
 ## Tag Taxonomy
 - wiki

@@ -8,6 +8,7 @@ from loreforge-wiki operations, and asserts that only the selected domain change
 from __future__ import annotations
 
 import hashlib
+import re
 import shutil
 import tempfile
 from pathlib import Path
@@ -16,6 +17,7 @@ from validate_native_domain import validate_domain
 
 
 TODAY = "2026-04-29"
+LOG_ENTRY_PATTERN = re.compile(r"\n## \d{4}-\d{2}-\d{2} \| ")
 
 
 def digest_tree(root: Path) -> dict[str, str]:
@@ -52,6 +54,23 @@ def assert_selected_domain_only(before: dict[str, str], after: dict[str, str], s
     leaks = sorted(path for path in changes if not path.startswith(allowed_prefix))
     if leaks:
         raise AssertionError(f"operation changed paths outside {allowed_prefix}: {leaks}")
+
+
+def insert_log_entry(domain: Path, entry: str) -> None:
+    path = domain / "log.md"
+    text = path.read_text()
+    normalized = entry.strip() + "\n\n"
+    match = LOG_ENTRY_PATTERN.search(text)
+    if match:
+        offset = match.start() + 1
+        path.write_text(text[:offset] + normalized + text[offset:])
+    else:
+        path.write_text(text.rstrip() + "\n\n" + normalized)
+
+
+def log_headings(domain: Path) -> list[str]:
+    text = (domain / "log.md").read_text()
+    return re.findall(r"^## .+$", text, flags=re.MULTILINE)
 
 
 def simulate_query(domain: Path) -> str:
@@ -123,13 +142,15 @@ orientation and does not write into sibling domains. It connects
     )
     index.write_text(text)
 
-    with (domain / "log.md").open("a") as handle:
-        handle.write(f"""
+    insert_log_entry(
+        domain,
+        f"""
 ## {TODAY} | ingest | Agent domain boundary note
 - created: Sources/agent-domain-boundary-note.md
 - created: Cards/domain-boundary-discipline.md
 - updated: index.md
-""")
+""",
+    )
 
 
 def simulate_update(domain: Path) -> None:
@@ -143,11 +164,13 @@ def simulate_update(domain: Path) -> None:
         text += "\nIt should preserve [[domain-boundary-discipline]].\n"
     card.write_text(text)
 
-    with (domain / "log.md").open("a") as handle:
-        handle.write(f"""
+    insert_log_entry(
+        domain,
+        f"""
 ## {TODAY} | update | Expert domain wiki
 - updated: Cards/expert-domain-wiki.md
-""")
+""",
+    )
 
 
 def main() -> int:
@@ -171,12 +194,16 @@ def main() -> int:
 
         wiki_before_ingest = digest_tree(wiki)
         simulate_ingest(selected_domain)
+        if not log_headings(selected_domain)[0].startswith(f"## {TODAY} | ingest |"):
+            raise AssertionError("ingest log entry was not inserted as newest entry")
         assert_valid(selected_domain)
         assert_selected_domain_only(wiki_before_ingest, digest_tree(wiki), selected)
         assert_no_changes(other_before, digest_tree(other_domain), "other-domain after ingest")
 
         wiki_before_update = digest_tree(wiki)
         simulate_update(selected_domain)
+        if not log_headings(selected_domain)[0].startswith(f"## {TODAY} | update |"):
+            raise AssertionError("update log entry was not inserted as newest entry")
         assert_valid(selected_domain)
         assert_selected_domain_only(wiki_before_update, digest_tree(wiki), selected)
         assert_no_changes(other_before, digest_tree(other_domain), "other-domain after update")
