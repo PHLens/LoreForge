@@ -2,10 +2,11 @@
 
 Core LoreForge operations and bundled helper skills live here.
 
-LoreForge exposes one core wiki skill:
+LoreForge exposes a router skill and one core domain wiki skill:
 
 | Skill | Purpose |
 |---|---|
+| `loreforge-router` | Route unknown-domain or cross-domain query/ingest requests to the right LoreForge domain expert(s) |
 | `loreforge-wiki` | Query, ingest sources, update durable pages, review, initialize domains, and run Health Checks for expert-owned LoreForge domains |
 
 It also bundles reusable helper skills that a wiki agent can call during
@@ -28,8 +29,8 @@ pages before writing.
 Legacy staged workflow skills such as `capture`, `ingest`, `writeback`,
 `promote`, `query`, `lint`, `register`, and `sync` are intentionally removed
 from the active skill surface. Their responsibilities are either covered by
-`loreforge-wiki` or deferred until a smaller router, migration, domain-management,
-or sync workflow is justified.
+`loreforge-router`, `loreforge-wiki`, or deferred until a smaller migration,
+domain-management, or sync workflow is justified.
 
 The old Obsidian `wiki` adapter skill is not bundled here. LoreForge's durable
 layout is the native `Domains/<domain>/` structure operated by
@@ -37,6 +38,13 @@ layout is the native `Domains/<domain>/` structure operated by
 do not reintroduce the previous staged adapter layout.
 
 ## Core Workflow
+
+Use `loreforge-router` when a user or agent needs to:
+
+- decide which domain should handle a request
+- query across domains
+- ingest a source that may belong to multiple domains
+- coordinate bounded domain expert work through `loreforge-wiki`
 
 Use `loreforge-wiki` when a user or agent needs to:
 
@@ -52,5 +60,5 @@ contradiction metadata, Health Checks, and git diffs.
 
 ## Deferred Work
 
-Router, migration, domain-management, and sync helpers should be added as small
-skills only after the single-domain expert workflow is stable.
+Migration, domain-management, and sync helpers should be added as small skills
+only after repeated use proves they are needed.

@@ -52,8 +52,9 @@ Core and helper skills live in:
 skills/
 ```
 
-Core skill:
+Router and core skill:
 
+- `loreforge-router`
 - `loreforge-wiki`
 
 Bundled helper skills:
