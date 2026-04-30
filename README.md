@@ -44,7 +44,7 @@ LoreForge/
 ├── README.md
 ├── docs/                     # Philosophy, schema, install guidance
 ├── templates/config/          # Optional local registry example
-└── skills/                   # LoreForge wiki skill and helper skills
+└── skills/                   # LoreForge router, wiki skill, and helper skills
 ```
 
 Actual knowledge should live in a separate wiki repository or vault.

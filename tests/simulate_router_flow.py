@@ -44,6 +44,9 @@ def assert_skill_contract() -> None:
         "Multiple write matches",
         "ask before writing multiple domains",
         ".obsidian*",
+        "delegate initialization to `loreforge-wiki`",
+        "parallel expert review is useful",
+        "Otherwise process selected domains sequentially",
         "one subagent per selected domain",
     ]
     missing = [item for item in required if item not in skill]
