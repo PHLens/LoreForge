@@ -78,11 +78,12 @@ querying, ingesting, updating, reviewing, or running a Health Check.
 
 ## Skills
 
-LoreForge exposes one core wiki skill plus helper skills used during source
-capture and Obsidian-facing editing:
+LoreForge exposes a router skill, one core domain wiki skill, and helper skills
+used during source capture and Obsidian-facing editing:
 
 | Skill | Purpose |
 |---|---|
+| `loreforge-router` | Route unknown-domain or cross-domain query/ingest requests to the right expert-owned domains |
 | `loreforge-wiki` | Query, ingest sources, update durable pages, initialize domains, review, and run Health Checks for expert-owned domains |
 | `topic-research` | Browser-backed web research, URL extraction, Zhihu detail expansion, WeChat probing, and source research packs |
 | `convert-to-markdown` | Convert local documents and exported pages to Markdown |
@@ -92,9 +93,10 @@ capture and Obsidian-facing editing:
 | `json-canvas` | Create and edit JSON Canvas files |
 | `obsidian-bases` | Create and edit Obsidian Bases files |
 
-`loreforge-wiki` owns durable wiki writes. Helper skills produce capture input
-or Obsidian-specific artifacts; they should not replace the domain orientation,
-index, log, and Health Check workflow.
+`loreforge-router` owns domain selection and cross-domain coordination.
+`loreforge-wiki` owns durable domain writes. Helper skills produce capture input
+or Obsidian-specific artifacts; they should not replace routing, domain
+orientation, index, log, and Health Check workflow.
 
 The old staged workflow skills (`capture`, `ingest`, `writeback`, `promote`,
 `query`, `lint`, `register`, and `sync`) are no longer part of the active skill
@@ -113,6 +115,7 @@ LoreForge can be installed as a Codex or Claude plugin.
 The plugin layer is intentionally thin:
 
 - expose the `loreforge-wiki` skill and bundled helper skills
+- expose the `loreforge-router` front door for unknown-domain and cross-domain work
 - provide boundary instructions for when to use LoreForge
 - keep actual knowledge in separate wiki instances
 - recover after context compaction from domain `SCHEMA.md`, `index.md`, `log.md`,

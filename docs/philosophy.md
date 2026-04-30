@@ -85,15 +85,17 @@ LoreForge now follows a small core:
 
 1. One shared wiki root can contain many domains.
 2. One expert agent owns and maintains one domain.
-3. The core `loreforge-wiki` skill handles query, ingest, update, review,
-   initialization, and Health Checks.
-4. Expert agents write directly after orientation.
-5. Human supervision happens through `log.md`, `index.md`, confidence metadata,
+3. The `loreforge-router` skill handles domain selection and cross-domain
+   coordination.
+4. The core `loreforge-wiki` skill handles domain query, ingest, update,
+   review, initialization, and Health Checks.
+5. Expert agents write directly after orientation.
+6. Human supervision happens through `log.md`, `index.md`, confidence metadata,
    contradiction records, Health Checks, and git diffs.
 
-The old staged package pipeline is not part of the active core workflow. Router,
-migration, domain-management, and sync helpers should be added only when repeated
-use proves they are needed.
+The old staged package pipeline is not part of the active core workflow.
+Migration, domain-management, and sync helpers should be added only when
+repeated use proves they are needed.
 
 ## What To Learn From LLM Wiki Systems
 
@@ -125,4 +127,4 @@ Do not borrow:
 2. Keep initialization authority in `loreforge-wiki`, not copied wiki templates.
 3. Add focused Health Check fixtures.
 4. Add migration support as source ingestion into native domains.
-5. Design router/subagent orchestration only after independent experts are stable.
+5. Keep router behavior bounded to domain selection and delegated expert work.
