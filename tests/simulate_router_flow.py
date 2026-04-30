@@ -48,6 +48,9 @@ def assert_skill_contract() -> None:
         "parallel expert review is useful",
         "Otherwise process selected domains sequentially",
         "one subagent per selected domain",
+        "Write policy: <read-only|write-confirmed>",
+        "Set `Write policy: read-only` for query operations",
+        "do not create or update domain files",
     ]
     missing = [item for item in required if item not in skill]
     if missing:
