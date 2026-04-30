@@ -118,7 +118,7 @@ wiki/
 Domains/<domain>/
   SCHEMA.md        # Domain boundary, conventions, taxonomy, and update rules
   index.md         # Mechanical inventory with one-line page summaries
-  log.md           # Append-only chronological action log
+  log.md           # Reverse chronological action log, newest entry first
   Atlas/           # Maps of Content (MOCs), emergent thinking views
   Cards/           # Durable concepts, methods, patterns, tradeoffs, comparisons
   Sources/         # Mutable source-grounded Markdown notes
@@ -217,7 +217,7 @@ Adapt to the user's domain. The schema constrains agent behavior and ensures con
 - Use `[[wikilinks]]` to link between pages (minimum 2 outbound links per page)
 - When updating a page, always bump the `updated` date
 - Every new page must be added to `index.md` under the correct section
-- Every action must be appended to `log.md`
+- Every action must be inserted into `log.md` as the newest entry
 - **Provenance markers:** On pages that synthesize 3+ sources, append `^[Sources/articles/source-file.md]`
   at the end of paragraphs whose claims come from a specific source. This lets a reader trace each
   claim back without re-reading the whole source file. Optional on single-source pages where the
@@ -419,7 +419,8 @@ a `Atlas/Scope/topic-map.md` that groups pages by theme for faster navigation.
 ```markdown
 # Domain Log
 
-> Append-only audit trail.
+> Reverse chronological audit trail. Newest entries go first.
+> Insert each new entry directly below this instruction block.
 > Format: `## YYYY-MM-DD | <action> | <subject>`
 > Actions: create, query, ingest, update, lint, archive, delete
 
@@ -431,6 +432,11 @@ a `Atlas/Scope/topic-map.md` that groups pages by theme for faster navigation.
 
 **Rotate the log** — when log.md exceeds 500 entries, rename it `log-YYYY.md` and start fresh.
   The agent should check log size during lint.
+
+**Log insertion rule:** Do not append new entries to the bottom. Insert the new
+entry directly after the `# Domain Log` heading and any leading `>` instruction
+block, before the previous newest `## YYYY-MM-DD | ...` entry. Do not reorder or
+rewrite older entries unless correcting a factual error requested by the user.
 
 ## Migrating Existing Repos or Vaults
 
@@ -452,8 +458,8 @@ When migrating:
    - emergent thinking views into `Atlas/`
    - people, entities, tools, projects, systems, and contexts into `Spaces/`
    - non-Markdown attachments into `Extras/`
-6. Record the migration in target `log.md`, including source alias or source
-   description, import scope, and files created or updated.
+6. Insert a newest-first migration entry in target `log.md`, including source
+   alias or source description, import scope, and files created or updated.
 
 Do not preserve an alternate long-term layout inside the LoreForge wiki. If the
 user asks to adopt an existing repo in place, state that this changes that repo's
@@ -509,7 +515,7 @@ When the user provides a source (URL, file, paste), integrate it into the wiki:
 5. **Update navigation:**
    - Add new pages to `index.md` under the correct section, alphabetically
    - Update the "Total pages" count and "Last updated" date in index header
-   - Append to `log.md`: `## [YYYY-MM-DD] ingest | Source Title`
+   - Insert at the top of `log.md`: `## [YYYY-MM-DD] ingest | Source Title`
    - List every Source, Card, Atlas, Space, image, PDF, manifest, and other file
      created or updated in the log entry
 
@@ -529,7 +535,8 @@ When the user asks a question about the wiki's domain:
 5. **File valuable answers back** — if the answer is a substantial comparison,
    deep dive, or novel synthesis, create a new page in `Cards/` or `Atlas/`.
    Don't file trivial lookups — only answers that would be painful to re-derive.
-6. **Update `log.md`** with the query and whether it was filed.
+6. **Update `log.md`** with a newest-first entry for the query and whether it
+   was filed.
 
 ### 3. Lint
 
@@ -568,7 +575,7 @@ When asked to lint, audit, or run a health-check:
 11. **Log rotation:** If `log.md` exceeds 500 entries, rotate it.
 12. **Report findings** with specific file paths and suggested actions, grouped by
    severity (broken links > orphans > source drift > contested pages > stale content > style issues).
-13. **Append to log.md:** `## [YYYY-MM-DD] lint | N issues found`
+13. **Insert into log.md:** `## [YYYY-MM-DD] lint | N issues found`
 
 ## Working with the Wiki
 

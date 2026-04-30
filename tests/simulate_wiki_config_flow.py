@@ -10,6 +10,7 @@ migration into a native domain.
 from __future__ import annotations
 
 import hashlib
+import re
 import tempfile
 import tomllib
 from pathlib import Path
@@ -19,6 +20,7 @@ from validate_native_domain import validate_domain
 
 TODAY = "2026-04-30"
 REPO_ROOT = Path(__file__).resolve().parents[1]
+LOG_ENTRY_PATTERN = re.compile(r"\n## \d{4}-\d{2}-\d{2} \| ")
 
 
 def write(path: Path, text: str) -> None:
@@ -32,6 +34,23 @@ def digest_tree(root: Path) -> dict[str, str]:
         if path.is_file():
             result[path.relative_to(root).as_posix()] = hashlib.sha256(path.read_bytes()).hexdigest()
     return result
+
+
+def insert_log_entry(domain: Path, entry: str) -> None:
+    path = domain / "log.md"
+    text = path.read_text(encoding="utf-8")
+    normalized = entry.strip() + "\n\n"
+    match = LOG_ENTRY_PATTERN.search(text)
+    if match:
+        offset = match.start() + 1
+        path.write_text(text[:offset] + normalized + text[offset:], encoding="utf-8")
+    else:
+        path.write_text(text.rstrip() + "\n\n" + normalized, encoding="utf-8")
+
+
+def log_headings(domain: Path) -> list[str]:
+    text = (domain / "log.md").read_text(encoding="utf-8")
+    return re.findall(r"^## .+$", text, flags=re.MULTILINE)
 
 
 def load_registry(home: Path) -> dict:
@@ -126,6 +145,10 @@ def initialize_domain(wiki: Path, domain_name: str) -> Path:
     write(
         domain / "log.md",
         "# Domain Log\n\n"
+        "> Reverse chronological audit trail. Newest entries go first.\n"
+        "> Insert each new entry directly below this instruction block.\n"
+        "> Format: `## YYYY-MM-DD | <action> | <subject>`\n"
+        "> Actions: create, query, ingest, update, lint, archive, delete\n\n"
         f"## {TODAY} | create | Domain initialized\n"
         f"- domain: {domain_name}\n"
         "- default_note_language: zh\n"
@@ -216,17 +239,18 @@ source material such as [[old-obsidian-llm-wiki]].
         "## Spaces\n"
         "- [[obsidian]] - Tool used to browse and edit the wiki.\n",
     )
-    with (domain / "log.md").open("a", encoding="utf-8") as handle:
-        handle.write(
-            f"\n## {TODAY} | ingest | old-obsidian migration\n"
-            "- source_alias: old-obsidian\n"
-            "- import_scope: notes/llm-wiki.md and attachment metadata\n"
-            "- created: Sources/old-obsidian-llm-wiki.md\n"
-            "- created: Cards/compounding-wiki.md\n"
-            "- created: Spaces/obsidian.md\n"
-            "- created: Extras/old-obsidian/diagram.png\n"
-            "- updated: index.md\n"
-        )
+    insert_log_entry(
+        domain,
+        f"""## {TODAY} | ingest | old-obsidian migration
+- source_alias: old-obsidian
+- import_scope: notes/llm-wiki.md and attachment metadata
+- created: Sources/old-obsidian-llm-wiki.md
+- created: Cards/compounding-wiki.md
+- created: Spaces/obsidian.md
+- created: Extras/old-obsidian/diagram.png
+- updated: index.md
+""",
+    )
 
 
 def assert_valid(domain: Path) -> None:
@@ -325,6 +349,8 @@ default_target_domain = "ai-research"
         assert_valid(domain)
         assert (domain / "Extras" / "old-obsidian" / "diagram.png").exists()
         assert "source_alias: old-obsidian" in (domain / "log.md").read_text(encoding="utf-8")
+        if not log_headings(domain)[0].startswith(f"## {TODAY} | ingest |"):
+            raise AssertionError("migration log entry was not inserted as newest entry")
         print("PASS migration: source stayed read-only and target domain remains valid")
 
     print("wiki config flow smoke test ok")

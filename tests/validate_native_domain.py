@@ -106,6 +106,10 @@ def wikilinks(text: str) -> list[str]:
             for match in re.findall(r"\[\[([^\]]+)\]\]", text)]
 
 
+def log_entry_dates(text: str) -> list[str]:
+    return re.findall(r"^## (\d{4}-\d{2}-\d{2}) \| ", text, flags=re.MULTILINE)
+
+
 def is_cross_domain_link(target: str) -> bool:
     return (
         target.startswith("/")
@@ -162,8 +166,10 @@ def validate_domain(domain: Path) -> list[Issue]:
 
     schema_path = domain / "SCHEMA.md"
     index_path = domain / "index.md"
+    log_path = domain / "log.md"
     schema_text = schema_path.read_text() if schema_path.exists() else ""
     index_text = index_path.read_text() if index_path.exists() else ""
+    log_text = log_path.read_text() if log_path.exists() else ""
     allowed_tags = taxonomy(schema_text)
 
     pages = active_pages(domain)
@@ -221,6 +227,18 @@ def validate_domain(domain: Path) -> list[Issue]:
             elif "/" not in target and target not in known_stems:
                 issues.append(Issue("broken-wikilink", "index.md", f"`[[{target}]]` has no active page"))
 
+    if log_path.exists():
+        dates = log_entry_dates(log_text)
+        for earlier, later in zip(dates, dates[1:]):
+            if later > earlier:
+                issues.append(
+                    Issue(
+                        "log-order",
+                        "log.md",
+                        f"`{later}` appears below older `{earlier}`; log entries must be newest first",
+                    )
+                )
+
     return sorted(issues, key=lambda issue: (issue.code, issue.path, issue.message))
 
 
@@ -268,6 +286,7 @@ def main(argv: list[str]) -> int:
         "missing-frontmatter-field",
         "missing-index-entry",
         "missing-required-path",
+        "log-order",
         "unknown-tag",
     }
 

@@ -28,7 +28,7 @@ self-contained LLM Wiki maintained by one expert agent.
 |---|---|
 | `SCHEMA.md` | Domain boundary, conventions, taxonomy, and update rules |
 | `index.md` | Mechanical inventory with one-line page summaries |
-| `log.md` | Append-only chronological action log |
+| `log.md` | Reverse chronological action log, newest entry first |
 | `Atlas/` | Maps of Content (MOCs), emergent thinking views |
 | `Cards/` | Durable concepts, methods, patterns, tradeoffs, comparisons |
 | `Sources/` | Mutable source-grounded Markdown notes |
@@ -49,7 +49,9 @@ Routine maintenance writes directly inside the selected domain after
 orientation. There is no staged promotion pipeline in the active core workflow.
 
 After substantive changes, update `index.md` when stable pages are created,
-archived, renamed, or materially changed, and append a concise `log.md` entry.
+archived, renamed, or materially changed. Insert a concise newest-first
+`log.md` entry directly below the log heading and instruction block, before the
+previous newest entry.
 
 ## Source Capture
 
