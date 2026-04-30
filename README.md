@@ -21,7 +21,8 @@ pamem
 LoreForge wiki instance
   professional knowledge
   concepts
-  source notes
+  shared raw source library
+  domain source lenses
   maps and indexes
 
 LoreForge framework repo
@@ -60,6 +61,9 @@ The core wiki skill expects this shape:
 wiki/
 00_System/
   ...
+Library/
+  Sources/
+  Extras/
 Domains/
   <domain>/
     SCHEMA.md
@@ -75,6 +79,10 @@ Domains/
 Each domain is a self-contained LLM Wiki owned by one expert agent. The agent
 orients on `SCHEMA.md`, `index.md`, recent `log.md`, and relevant pages before
 querying, ingesting, updating, reviewing, or running a Health Check.
+
+`Library/` is shared across domains. It stores raw source records and source
+attachments once, such as PDFs, page captures, images, and manifests. Domain
+`Sources/` pages are domain-specific lenses over those shared sources.
 
 ## Skills
 
@@ -144,8 +152,9 @@ Agents should use the local clone for search and editing. GitHub is for persiste
 ## Existing Repos And Vaults
 
 Existing repos or vaults should be treated as sources. Use `loreforge-wiki` to
-ingest useful material into a native `Domains/<domain>/` wiki instead of keeping
-long-term alternate layouts.
+capture reusable raw material into `Library/` and ingest useful domain lenses
+into native `Domains/<domain>/` pages instead of keeping long-term alternate
+layouts.
 
 ## License
 

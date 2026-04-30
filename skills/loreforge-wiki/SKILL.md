@@ -110,6 +110,9 @@ query, ingest, migrate, index, run Health Checks on, or write their contents.
 ```text
 wiki/
   00_System/       # Wiki-level entrypoints, shared protocols, views, and domain registry
+  Library/         # Shared raw source records and source attachments
+    Sources/       # One canonical source record per reusable source
+    Extras/        # PDFs, images, HTML snapshots, manifests, and source assets
   Domains/         # Expert-owned domain wiki collection
     <domain>/      # One domain maintained by one expert agent
 ```
@@ -121,17 +124,19 @@ Domains/<domain>/
   log.md           # Reverse chronological action log, newest entry first
   Atlas/           # Maps of Content (MOCs), emergent thinking views
   Cards/           # Durable concepts, methods, patterns, tradeoffs, comparisons
-  Sources/         # Mutable source-grounded Markdown notes
+  Sources/         # Domain-specific source lenses over Library/Sources
   Spaces/          # Durable people, orgs, projects, tools, systems, contexts
-  Extras/          # Non-Markdown attachments such as PDFs and images
+  Extras/          # Domain-owned non-source attachments
 ```
 
 Treat `00_System/` as the wiki-level operating surface. Treat each
 `Domains/<domain>/` as a self-contained LLM Wiki for a single expert-owned
-domain.
+domain. Treat `Library/` as shared raw source infrastructure for the whole wiki.
 
 Orient, query, ingest, update, review, and Health Check inside the selected
-domain. DO NOT write across domains unless the user explicitly asks.
+domain. DO NOT write across domains unless the user explicitly asks. During
+ingest, you may write `Library/Sources/` and `Library/Extras/` only for shared
+raw source records and attachments that support the selected domain lens.
 
 ## Resuming an Existing Domain (CRITICAL — do this every session)
 
@@ -160,17 +165,18 @@ When the user asks to create or start a wiki or domain:
 2. Create the wiki root if needed.
 3. Create `00_System/`, `00_System/index.md`, and `00_System/domains.md` if
    missing.
-4. Create `Domains/<domain>/`.
-5. Create the required domain files and directories above.
-6. Ask for a concise domain description and the default language for extracted
+4. Create `Library/`, `Library/Sources/`, and `Library/Extras/` if missing.
+5. Create `Domains/<domain>/`.
+6. Create the required domain files and directories above.
+7. Ask for a concise domain description and the default language for extracted
    Cards, Atlas pages, and Spaces.
-7. Write `SCHEMA.md` customized to the domain (see template below).
-8. Write `index.md` with sectioned header.
-9. Write initial `log.md` with creation entry.
-10. Add or update the domain row in `00_System/domains.md`.
-11. If the user is setting up a durable local wiki and the registry has no
+8. Write `SCHEMA.md` customized to the domain (see template below).
+9. Write `index.md` with sectioned header.
+10. Write initial `log.md` with creation entry.
+11. Add or update the domain row in `00_System/domains.md`.
+12. If the user is setting up a durable local wiki and the registry has no
     matching `[[wikis]]` entry, offer to add one.
-12. Report the wiki path, domain path, and next useful actions.
+13. Report the wiki path, domain path, and next useful actions.
 
 ### 00_System Minimal Files
 
@@ -206,7 +212,7 @@ Adapt to the user's domain. The schema constrains agent behavior and ensures con
 [What this domain covers — e.g., "AI/ML research", "personal health", "startup intelligence"]
 
 ## Language Policy
-- Source notes preserve the source language by default.
+- Shared source records and domain Source lenses preserve the source language by default.
 - Extracted Cards, Atlas pages, and Spaces use this domain's configured default note language: `[language]`.
 - If this policy is missing, ask once before creating synthesized pages, then add it to `SCHEMA.md`.
 - Do not translate source material unless the user asks for translation or bilingual notes.
@@ -218,10 +224,10 @@ Adapt to the user's domain. The schema constrains agent behavior and ensures con
 - When updating a page, always bump the `updated` date
 - Every new page must be added to `index.md` under the correct section
 - Every action must be inserted into `log.md` as the newest entry
-- **Provenance markers:** On pages that synthesize 3+ sources, append `^[Sources/articles/source-file.md]`
+- **Provenance markers:** On pages that synthesize 3+ sources, append `^[Sources/source-lens.md]`
   at the end of paragraphs whose claims come from a specific source. This lets a reader trace each
-  claim back without re-reading the whole source file. Optional on single-source pages where the
-  `sources:` frontmatter is enough.
+  claim back to the domain lens, which links to the shared `Library/Sources/` record. Optional on
+  single-source pages where the `sources:` frontmatter is enough.
 
 ## Frontmatter
 ```yaml
@@ -236,6 +242,9 @@ status: active | tentative | archived
 sources: []
 contested: false
 contradictions: []
+# Source lens pages may also include:
+library_source: Library/Sources/<kind>/<source-slug>.md
+artifacts: []
 ---
 ```
 confidence and contested are optional but recommended for opinion-heavy or fast-moving topics. Lint surfaces contested: true and confidence: low pages for review so weak claims don't silently harden into accepted wiki fact.
@@ -295,20 +304,22 @@ Side-by-side analyses. Include:
 - Sources
 
 ## Extras
-Use `Extras/` for non-Markdown artifacts:
-- PDFs
-- images
+Use domain `Extras/` only for non-source attachments owned by this domain:
 - diagrams
-- HTML snapshots
-- local file attachments
 - reusable templates or other non-note assets
 
-DO NOT index `Extras/` directly. Link attachments from relevant Sources, Cards,
-or Atlas pages.
+Put source PDFs, images, HTML snapshots, and capture manifests under
+`Library/Extras/<source-slug>/`, not under domain `Extras/`.
+
+DO NOT index `Extras/` directly. Link domain attachments from relevant Sources,
+Cards, or Atlas pages.
 
 ## Sources
-Use `Sources/` for mutable source-grounded Markdown notes.
-Create or update a Source note when the source has durable domain value:
+Use domain `Sources/` for source lenses: mutable notes about why a shared raw
+source matters to this domain.
+
+Create or update a domain Source lens when a shared source has durable domain
+value:
 - paper
 - article
 - docs
@@ -320,36 +331,60 @@ Create or update a Source note when the source has durable domain value:
 - user-provided material
 
 Include key claims, evidence, provenance, limitations, relevance, and links to
-Cards, Atlas views, or Spaces.
+Cards, Atlas views, or Spaces. Link each lens to the canonical
+`Library/Sources/...` record and any `Library/Extras/...` attachments.
+
+### Shared Library
+
+Use `Library/` for raw source material shared across domains:
+
+- `Library/Sources/<kind>/<source-slug>.md`: canonical source record, metadata,
+  source-language text or structured notes, canonical URL, access notes, and
+  links to attachments.
+- `Library/Extras/<source-slug>/`: PDFs, images, HTML snapshots, manifests, and
+  other source artifacts.
+
+Before creating a new library source, search `Library/Sources/` for the URL,
+title, DOI, arXiv ID, filename, or source hash. Reuse the existing source record
+when found. Do not duplicate the same PDF or web capture under multiple domains.
 
 ### Source Capture Policy
 
-- Preserve the source before synthesizing cards.
+- Preserve the shared raw source before synthesizing cards.
 - Text articles, blogs, docs, and pasted text: save source-language Markdown in
-  `Sources/articles/` or the right `Sources/` directory. Preserve title,
-  author/publisher, dates, canonical URL, headings, links, and local image refs.
-  Prefer complete transcription when the material is user-provided, local,
-  permissively licensed, public domain, or otherwise appropriate to reuse in
-  full. For third-party web pages where full transcription is not appropriate,
-  keep a faithful structured source note with specific excerpts and grounded
-  notes; do not add generic boilerplate explaining that the note is not a full
-  transcription unless a concrete capture limitation matters.
-- Article images/diagrams: download to `Extras/<source-slug>/`, link them from
-  the Source note, and create a manifest for multiple images.
-- PDFs: download the original PDF to `Extras/<source-slug>/`; create a
-  `Sources/papers/` or `Sources/docs/` summary note with metadata, key claims,
-  limitations, and a local PDF link. Extract full text only when needed or asked.
-- Language: Source notes stay in the source language. Synthesized Cards, Atlas
-  pages, and Spaces use the domain default note language from `SCHEMA.md`.
-- Durable local paths in Source notes must point to wiki-local files, such as
-  the Source note itself and files under `Extras/`. Do not put transient
-  extractor paths such as `/tmp/topic-research/...` in Source note metadata; if
-  those paths are useful for debugging, record them in `log.md` only.
+  `Library/Sources/articles/` or the right `Library/Sources/` directory.
+  Preserve title, author/publisher, dates, canonical URL, headings, links, and
+  local image refs. Prefer complete transcription when the material is
+  user-provided, local, permissively licensed, public domain, or otherwise
+  appropriate to reuse in full. For third-party web pages where full
+  transcription is not appropriate, keep a faithful structured source record
+  with specific excerpts and grounded notes; do not add generic boilerplate
+  explaining that the note is not a full transcription unless a concrete capture
+  limitation matters.
+- Article images/diagrams: download to `Library/Extras/<source-slug>/`, link
+  them from the shared source record and the domain lens, and create a manifest
+  for multiple images.
+- PDFs: download the original PDF to `Library/Extras/<source-slug>/`; create a
+  `Library/Sources/papers/` or `Library/Sources/docs/` source record with
+  metadata, key claims, limitations, and a local PDF link. Extract full text
+  only when needed or asked.
+- Domain lens: create or update `Domains/<domain>/Sources/<source-slug>.md` with
+  this domain's relevance, extracted claims, and links to the shared library
+  source and attachments.
+- Language: shared source records and domain Source lenses preserve the source
+  language by default. Synthesized Cards, Atlas pages, and Spaces use the domain
+  default note language from `SCHEMA.md`.
+- Durable local paths in source records and domain lenses must point to
+  wiki-local files, such as `Library/Sources/...`, `Library/Extras/...`, or the
+  domain lens itself. Do not put transient extractor paths such as
+  `/tmp/topic-research/...` in source metadata; if those paths are useful for
+  debugging, record them in `log.md` only.
 
 ### Built-In Capture Tools
 
 - For web topics, direct links, Zhihu, WeChat, and pages that need browser state,
-  use the bundled `topic-research` skill before writing Source notes.
+  use the bundled `topic-research` skill before writing shared source records
+  or domain Source lenses.
 - For local documents or exported files, use `convert-to-markdown` when it can
   preserve structure or extract images better than manual conversion.
 - For standard web pages where a lightweight extractor is enough, `defuddle`
@@ -453,11 +488,12 @@ When migrating:
 3. If the target domain does not exist, initialize it first.
 4. Read from the source without changing it.
 5. Ingest durable material into the native domain structure:
-   - source-grounded notes into `Sources/`
+   - raw source records into `Library/Sources/`
+   - non-Markdown source attachments into `Library/Extras/`
+   - domain-specific source lenses into `Sources/`
    - synthesized reusable concepts into `Cards/`
    - emergent thinking views into `Atlas/`
    - people, entities, tools, projects, systems, and contexts into `Spaces/`
-   - non-Markdown attachments into `Extras/`
 6. Insert a newest-first migration entry in target `log.md`, including source
    alias or source description, import scope, and files created or updated.
 
@@ -474,19 +510,24 @@ When the user provides a source (URL, file, paste), integrate it into the wiki:
 1. **Capture the source:**
    - Determine source type and language first.
    - Text URL/article/blog/docs → extract source-language Markdown, preserve
-     structure/links/metadata, save to `Sources/articles/` or the right
-     `Sources/` directory. Prefer complete transcription when the material can
-     appropriately be stored in full; otherwise keep a faithful structured note
-     and record only concrete capture limitations.
-   - Article images/diagrams → download to `Extras/<source-slug>/`, manifest
-     multiple files, and link local images from the Source note.
-   - PDF → download the original PDF to `Extras/<source-slug>/`; create a
-     `Sources/papers/` or `Sources/docs/` summary note with metadata, key claims,
-     limitations, and a local PDF link. Extract full text only when needed.
+     structure/links/metadata, save to `Library/Sources/articles/` or the right
+     `Library/Sources/` directory. Prefer complete transcription when the
+     material can appropriately be stored in full; otherwise keep a faithful
+     structured note and record only concrete capture limitations.
+   - Article images/diagrams → download to `Library/Extras/<source-slug>/`,
+     manifest multiple files, and link local images from the shared source record
+     and the domain Source lens.
+   - PDF → download the original PDF to `Library/Extras/<source-slug>/`; create
+     a `Library/Sources/papers/` or `Library/Sources/docs/` record with metadata,
+     key claims, limitations, and a local PDF link. Extract full text only when
+     needed.
    - Pasted text → save in the original language; prefer complete transcription.
-   - Source note metadata → use wiki-local durable paths only. Do not cite
+   - Source metadata → use wiki-local durable paths only. Do not cite
      temporary extractor output directories as source artifacts inside the note.
-   - Name the file descriptively: `Sources/articles/karpathy-llm-wiki-2026.md`
+   - Name the shared source file descriptively:
+     `Library/Sources/articles/karpathy-llm-wiki-2026.md`
+   - Create or update a domain lens at
+     `Domains/<domain>/Sources/karpathy-llm-wiki-2026.md`.
 
 2. **Discuss takeaways** with the user — what's interesting, what matters for
    the domain. (Skip this in automated/cron contexts — proceed directly.)
@@ -500,14 +541,15 @@ When the user provides a source (URL, file, paste), integrate it into the wiki:
      in SCHEMA.md (2+ source mentions, or central to one source)
    - **Existing pages:** Add new information, update facts, bump `updated` date.
      When new info contradicts existing content, follow the Update Policy.
-   - **Language:** Source notes stay in the source language. New Cards, Atlas
-     pages, and Spaces use the domain's configured default note language from
-     `SCHEMA.md`.
+   - **Language:** Shared source records and domain Source lenses stay in the
+     source language. New Cards, Atlas pages, and Spaces use the domain's
+     configured default note language from `SCHEMA.md`.
    - **Cross-reference:** Every new or updated page must link to at least 2 other
      pages via `[[wikilinks]]`. Check that existing pages link back.
    - **Tags:** Only use tags from the taxonomy in `SCHEMA.md`
-   - **Provenance:** On pages synthesizing 3+ sources, append `^[Sources/articles/source.md]`
-     markers to paragraphs whose claims trace to a specific source.
+   - **Provenance:** On pages synthesizing 3+ sources, append
+     `^[Sources/source-lens.md]` markers to paragraphs whose claims trace to a
+     specific domain Source lens. The lens links back to `Library/Sources/...`.
    - **Confidence:** For opinion-heavy, fast-moving, or single-source claims, set
      `confidence: medium` or `low` in frontmatter. Don't mark `high` unless the
      claim is well-supported across multiple sources.
@@ -516,8 +558,8 @@ When the user provides a source (URL, file, paste), integrate it into the wiki:
    - Add new pages to `index.md` under the correct section, alphabetically
    - Update the "Total pages" count and "Last updated" date in index header
    - Insert at the top of `log.md`: `## [YYYY-MM-DD] ingest | Source Title`
-   - List every Source, Card, Atlas, Space, image, PDF, manifest, and other file
-     created or updated in the log entry
+   - List every Library source, Library attachment, domain Source lens, Card,
+     Atlas, Space, and other file created or updated in the log entry
 
 6. **Report what changed** — list every file created or updated to the user,
    including local image/PDF attachment paths.
@@ -606,9 +648,13 @@ When content is fully superseded or the domain scope changes:
 - **Always update index.md and log.md** — skipping this makes the wiki degrade. These are the
   navigational backbone.
 - **Don't drop source attachments** — article images, diagrams, PDFs, and other durable source
-  artifacts belong in `Extras/<source-slug>/` and should be linked from the Source note.
-- **Don't silently translate sources** — Source notes preserve the original language. Use the
-  domain default note language only for synthesized Cards, Atlas pages, and Spaces.
+  artifacts belong in `Library/Extras/<source-slug>/` and should be linked from the shared
+  source record and domain Source lens.
+- **Don't duplicate raw sources** — search `Library/Sources/` before adding a source. Reuse the
+  shared raw source and create a new domain lens when another domain needs it.
+- **Don't silently translate sources** — shared source records and domain Source lenses preserve
+  the original language. Use the domain default note language only for synthesized Cards, Atlas
+  pages, and Spaces.
 - **Don't create pages for passing mentions** — follow the Page Thresholds in SCHEMA.md. A name
   appearing once in a footnote doesn't warrant an entity page.
 - **Don't create pages without cross-references** — isolated pages are invisible. Every page must

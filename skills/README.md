@@ -24,7 +24,9 @@ capture or Obsidian-facing work:
 
 The core skill follows the LLM Wiki pattern: one expert agent maintains one
 domain by orienting on `SCHEMA.md`, `index.md`, recent `log.md`, and relevant
-pages before writing.
+pages before writing. Raw source records and source attachments are shared once
+under wiki-level `Library/`; domain `Sources/` pages are expert-owned lenses
+over those shared sources.
 
 Legacy staged workflow skills such as `capture`, `ingest`, `writeback`,
 `promote`, `query`, `lint`, `register`, and `sync` are intentionally removed
@@ -49,7 +51,8 @@ Use `loreforge-router` when a user or agent needs to:
 Use `loreforge-wiki` when a user or agent needs to:
 
 - answer from an existing LoreForge domain
-- ingest a source into `Sources/` and update related pages
+- capture a raw source into `Library/`, ingest a domain lens into `Sources/`,
+  and update related pages
 - create or revise durable Cards, Atlas MOCs, or Spaces
 - initialize a new expert-owned domain
 - review or run a Health Check on a domain

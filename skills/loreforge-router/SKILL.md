@@ -18,6 +18,7 @@ Always:
 - resolve the active wiki before routing
 - inspect available domains before choosing
 - keep one expert-owned domain as the write boundary
+- treat raw source records and attachments as shared wiki-level `Library/` data
 - use `loreforge-wiki` for domain query, ingest, update, review, and Health Check
 - report routing decisions and uncertainty clearly
 
@@ -56,8 +57,9 @@ Then read:
 
 1. `00_System/domains.md`
 2. `00_System/index.md` if present
-3. Candidate `Domains/<domain>/SCHEMA.md`
-4. Candidate `Domains/<domain>/index.md` when more evidence is needed
+3. `Library/Sources/` when checking whether a source already exists
+4. Candidate `Domains/<domain>/SCHEMA.md`
+5. Candidate `Domains/<domain>/index.md` when more evidence is needed
 
 Ignore `.obsidian*` directories. They are editor profile state.
 
@@ -103,6 +105,11 @@ only when:
 - the source has distinct durable value for multiple domains and the user
   approves the split.
 
+For sources that matter to multiple domains, use one shared raw source record in
+`Library/Sources/` and shared artifacts in `Library/Extras/`. Each selected
+domain gets its own `Domains/<domain>/Sources/` lens and domain-owned
+synthesis.
+
 ## Delegation
 
 For each selected domain, delegate to a domain expert using `loreforge-wiki`.
@@ -124,9 +131,10 @@ Operation: <query|ingest|update|review|initialize|migrate>
 Write policy: <read-only|write-confirmed>
 Request: <user request>
 
-Stay inside Domains/<domain>/.
+Stay inside Domains/<domain>/ for domain pages. Use Library/Sources/ and
+Library/Extras/ only for shared raw source records and attachments.
 Orient on SCHEMA.md, index.md, recent log.md, and relevant pages.
-If Write policy is read-only, do not create or update domain files.
+If Write policy is read-only, do not create or update wiki files.
 If Write policy is write-confirmed, update index.md and insert a newest-first
 log.md entry.
 Return: answer or change summary, files changed, unresolved conflicts,
@@ -158,9 +166,11 @@ For ingest:
 1. Inspect the source enough to route it.
 2. Select a primary target domain.
 3. If more domains may be relevant, list them as secondary candidates.
-4. Delegate the ingest to `loreforge-wiki` for the target domain.
+4. Delegate shared raw source capture and primary domain lens ingest to
+   `loreforge-wiki` for the target domain.
 5. If multiple domains are approved, split the work into separate domain-bound
-   ingests. Do not reuse one domain's pages as another domain's source of truth.
+   lens ingests that reuse the same `Library/Sources/` record. Do not reuse one
+   domain's pages as another domain's source of truth.
 
 For existing repos, vaults, or folders, route them as source material. Do not
 adopt alternate layouts as long-term LoreForge structure unless the user

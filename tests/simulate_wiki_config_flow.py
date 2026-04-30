@@ -111,6 +111,8 @@ def initialize_domain(wiki: Path, domain_name: str) -> Path:
     domain = wiki / "Domains" / domain_name
     for directory in [
         wiki / "00_System",
+        wiki / "Library" / "Sources",
+        wiki / "Library" / "Extras",
         domain / "Atlas",
         domain / "Cards",
         domain / "Sources",
@@ -159,10 +161,30 @@ def initialize_domain(wiki: Path, domain_name: str) -> Path:
 
 def migrate_source(source: Path, domain: Path) -> None:
     (source / "notes" / "llm-wiki.md").read_text(encoding="utf-8")
+    wiki = domain.parents[1]
 
-    extras = domain / "Extras" / "old-obsidian"
+    extras = wiki / "Library" / "Extras" / "old-obsidian"
     extras.mkdir(parents=True, exist_ok=True)
     (extras / "diagram.png").write_bytes(b"fake image bytes for migration smoke test")
+
+    write(
+        wiki / "Library" / "Sources" / "imports" / "old-obsidian-llm-wiki.md",
+        f"""---
+title: Old Obsidian LLM Wiki Raw Source
+created: {TODAY}
+updated: {TODAY}
+type: source
+source_alias: old-obsidian
+source_path: notes/llm-wiki.md
+artifacts:
+  - Library/Extras/old-obsidian/diagram.png
+---
+
+# Old Obsidian LLM Wiki Raw Source
+
+Imported source-language note from the old Obsidian vault.
+""",
+    )
 
     write(
         domain / "Sources" / "old-obsidian-llm-wiki.md",
@@ -182,7 +204,8 @@ contradictions: []
 # Old Obsidian LLM Wiki Note
 
 The imported note connects [[compounding-wiki]] and [[obsidian]] for this domain.
-Local attachment: `Extras/old-obsidian/diagram.png`.
+Shared raw source: `Library/Sources/imports/old-obsidian-llm-wiki.md`.
+Local attachment: `Library/Extras/old-obsidian/diagram.png`.
 """,
     )
     write(
@@ -244,10 +267,11 @@ source material such as [[old-obsidian-llm-wiki]].
         f"""## {TODAY} | ingest | old-obsidian migration
 - source_alias: old-obsidian
 - import_scope: notes/llm-wiki.md and attachment metadata
+- created: Library/Sources/imports/old-obsidian-llm-wiki.md
+- created: Library/Extras/old-obsidian/diagram.png
 - created: Sources/old-obsidian-llm-wiki.md
 - created: Cards/compounding-wiki.md
 - created: Spaces/obsidian.md
-- created: Extras/old-obsidian/diagram.png
 - updated: index.md
 """,
     )
@@ -339,15 +363,18 @@ default_target_domain = "ai-research"
         domain = initialize_domain(wiki, "ai-research")
         assert_valid(domain)
         assert (wiki / "00_System" / "index.md").exists()
+        assert (wiki / "Library" / "Sources").is_dir()
+        assert (wiki / "Library" / "Extras").is_dir()
         assert "ai-research" in (wiki / "00_System" / "domains.md").read_text(encoding="utf-8")
-        print("PASS initialization: 00_System and native domain contract created")
+        print("PASS initialization: 00_System, Library, and native domain contract created")
 
         source_before = digest_tree(source)
         migrate_source(source, domain)
         if source_before != digest_tree(source):
             raise AssertionError("source vault changed during migration")
         assert_valid(domain)
-        assert (domain / "Extras" / "old-obsidian" / "diagram.png").exists()
+        assert (wiki / "Library" / "Sources" / "imports" / "old-obsidian-llm-wiki.md").exists()
+        assert (wiki / "Library" / "Extras" / "old-obsidian" / "diagram.png").exists()
         assert "source_alias: old-obsidian" in (domain / "log.md").read_text(encoding="utf-8")
         if not log_headings(domain)[0].startswith(f"## {TODAY} | ingest |"):
             raise AssertionError("migration log entry was not inserted as newest entry")
