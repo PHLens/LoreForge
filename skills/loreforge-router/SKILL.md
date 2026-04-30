@@ -112,16 +112,23 @@ the host supports them. Otherwise process selected domains sequentially. When
 using subagents, start one subagent per selected domain. Give each subagent or
 sequential pass a bounded prompt:
 
+Set `Write policy: read-only` for query operations. Use
+`Write policy: write-confirmed` only when the router has selected an approved
+write target.
+
 ```text
 Use loreforge-wiki.
 Wiki root: <wiki-root>
 Domain: <domain>
 Operation: <query|ingest|update|review|initialize|migrate>
+Write policy: <read-only|write-confirmed>
 Request: <user request>
 
 Stay inside Domains/<domain>/.
 Orient on SCHEMA.md, index.md, recent log.md, and relevant pages.
-For writes, update index.md and insert a newest-first log.md entry.
+If Write policy is read-only, do not create or update domain files.
+If Write policy is write-confirmed, update index.md and insert a newest-first
+log.md entry.
 Return: answer or change summary, files changed, unresolved conflicts,
 confidence, and whether another domain should be consulted.
 ```
