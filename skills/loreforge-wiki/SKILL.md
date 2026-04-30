@@ -101,6 +101,10 @@ folders.
 The wiki is just a directory of Markdown files — open it in Obsidian, VS Code,
 or any editor. No database, no special tooling required.
 
+If Obsidian config/profile directories exist (`.obsidian*`, such as
+`.obsidian-desktop` or `.obsidian-mobile`), treat them as editor state. Do not
+query, ingest, migrate, index, run Health Checks on, or write their contents.
+
 ## Architecture: Multi-Layer Wiki
 
 ```text
