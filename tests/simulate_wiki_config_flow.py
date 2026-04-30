@@ -245,6 +245,9 @@ def assert_skill_example_is_generic() -> None:
     for expected in ["/path/to/loreforge-wiki", "/path/to/source-vault"]:
         if expected not in skill:
             raise AssertionError(f"skill example is missing placeholder path: {expected}")
+    for expected in [".obsidian*", ".obsidian-desktop", ".obsidian-mobile"]:
+        if expected not in skill:
+            raise AssertionError(f"skill is missing Obsidian profile boundary: {expected}")
 
 
 def main() -> int:
