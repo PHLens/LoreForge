@@ -224,8 +224,9 @@ Adapt to the user's domain. The schema constrains agent behavior and ensures con
 - When updating a page, always bump the `updated` date
 - Every new page must be added to `index.md` under the correct section
 - Every action must be inserted into `log.md` as the newest entry
-- **Provenance markers:** On pages that synthesize 3+ sources, append `^[Sources/source-lens.md]`
-  at the end of paragraphs whose claims come from a specific source. This lets a reader trace each
+- **Provenance markers:** On pages that synthesize 3+ sources, append `[^1]`
+  at the end of paragraphs whose claims come from a specific source, with a footnote definition
+  at the end of the page using a wikilink (e.g. `[^1]: [[source-lens-name]]`). This lets a reader trace each
   claim back to the domain lens, which links to the shared `Library/Sources/` record. Optional on
   single-source pages where the `sources:` frontmatter is enough.
 
@@ -548,7 +549,7 @@ When the user provides a source (URL, file, paste), integrate it into the wiki:
      pages via `[[wikilinks]]`. Check that existing pages link back.
    - **Tags:** Only use tags from the taxonomy in `SCHEMA.md`
    - **Provenance:** On pages synthesizing 3+ sources, append
-     `^[Sources/source-lens.md]` markers to paragraphs whose claims trace to a
+     `[^1]` inline markers with `[^1]: [[source-lens-name]]` footnote definitions to paragraphs whose claims trace to a
      specific domain Source lens. The lens links back to `Library/Sources/...`.
    - **Confidence:** For opinion-heavy, fast-moving, or single-source claims, set
      `confidence: medium` or `low` in frontmatter. Don't mark `high` unless the
