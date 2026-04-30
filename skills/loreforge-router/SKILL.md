@@ -92,8 +92,9 @@ Use these routing rules:
 - **Multiple read matches:** query all relevant domains, then synthesize with attribution.
 - **Multiple write matches:** pick one primary target when possible. If durable
   writes belong in more than one domain, ask before writing multiple domains.
-- **No suitable domain:** ask whether to initialize a new domain. Do not force
-  off-domain material into the nearest domain.
+- **No suitable domain:** ask whether to initialize a new domain. If approved,
+  delegate initialization to `loreforge-wiki`; do not create the domain directly
+  as the router. Do not force off-domain material into the nearest domain.
 
 For ingest, default to **one primary domain**. Multi-domain ingest is allowed
 only when:
@@ -106,8 +107,10 @@ only when:
 
 For each selected domain, delegate to a domain expert using `loreforge-wiki`.
 
-If the host supports subagents, start one subagent per selected domain. Give
-each subagent a bounded prompt:
+For multi-domain work, use subagents when parallel expert review is useful and
+the host supports them. Otherwise process selected domains sequentially. When
+using subagents, start one subagent per selected domain. Give each subagent or
+sequential pass a bounded prompt:
 
 ```text
 Use loreforge-wiki.
@@ -123,8 +126,7 @@ Return: answer or change summary, files changed, unresolved conflicts,
 confidence, and whether another domain should be consulted.
 ```
 
-If subagents are unavailable, process selected domains sequentially with the
-same boundaries.
+Use the same boundaries for subagent and sequential execution.
 
 ## Query Routing
 
