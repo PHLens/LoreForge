@@ -50,7 +50,10 @@ def assert_skill_contract() -> None:
         "one subagent per selected domain",
         "Write policy: <read-only|write-confirmed>",
         "Set `Write policy: read-only` for query operations",
-        "do not create or update domain files",
+        "do not create or update wiki files",
+        "Library/Sources/",
+        "Library/Extras/",
+        "domain lens",
     ]
     missing = [item for item in required if item not in skill]
     if missing:

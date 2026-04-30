@@ -12,5 +12,5 @@ python3 tests/simulate_router_flow.py
 These scripts check the minimum single-expert LoreForge domain contract used by
 the `loreforge-wiki` skill and smoke-test query, ingest, and update boundaries
 on a temporary fixture copy. They also smoke-test wiki config discovery,
-initialization, source-only migration behavior, and router domain-selection
-behavior.
+initialization, shared `Library/` source capture, source-only migration
+behavior, and router domain-selection behavior.

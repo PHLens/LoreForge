@@ -17,7 +17,8 @@ pamem
 
 LoreForge wiki instance
   professional knowledge
-  source-grounded notes
+  shared raw source library
+  domain source lenses
   durable concepts
   maps, indexes, logs
 
@@ -66,7 +67,8 @@ Hermes / pamem
 LoreForge
   shared knowledge compounds
   professional concepts become reusable
-  source summaries become queryable
+  shared raw sources avoid duplicate capture
+  domain source lenses become queryable
   stable notes remain human-readable
 ```
 
@@ -76,7 +78,8 @@ LoreForge
 | Agent operating experience | `pamem` or host agent memory |
 | Current task state | session, project files, or `pamem` |
 | Reusable professional concept | LoreForge wiki |
-| Source-grounded summary | LoreForge wiki |
+| Raw source artifact | LoreForge wiki `Library/` |
+| Domain source summary | LoreForge domain `Sources/` lens |
 | Durable domain view | LoreForge wiki |
 
 ## Current Design
@@ -84,13 +87,14 @@ LoreForge
 LoreForge now follows a small core:
 
 1. One shared wiki root can contain many domains.
-2. One expert agent owns and maintains one domain.
-3. The `loreforge-router` skill handles domain selection and cross-domain
+2. Shared raw sources and attachments live once under wiki-level `Library/`.
+3. One expert agent owns and maintains one domain.
+4. The `loreforge-router` skill handles domain selection and cross-domain
    coordination.
-4. The core `loreforge-wiki` skill handles domain query, ingest, update,
+5. The core `loreforge-wiki` skill handles domain query, ingest, update,
    review, initialization, and Health Checks.
-5. Expert agents write directly after orientation.
-6. Human supervision happens through `log.md`, `index.md`, confidence metadata,
+6. Expert agents write directly after orientation.
+7. Human supervision happens through `log.md`, `index.md`, confidence metadata,
    contradiction records, Health Checks, and git diffs.
 
 The old staged package pipeline is not part of the active core workflow.

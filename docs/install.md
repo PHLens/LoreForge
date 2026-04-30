@@ -10,7 +10,7 @@ LoreForge has two parts:
 Create a wiki root:
 
 ```bash
-mkdir -p /path/to/my-wiki/00_System
+mkdir -p /path/to/my-wiki/00_System /path/to/my-wiki/Library/Sources /path/to/my-wiki/Library/Extras
 ```
 
 Then ask an agent with the `loreforge-wiki` skill to initialize the target
@@ -25,8 +25,9 @@ domain. It should create:
 - `Spaces/`
 - `Extras/`
 
-Existing repos or vaults should be ingested as sources into a native LoreForge
-domain. Do not keep alternate layouts as long-term LoreForge structure.
+Existing repos or vaults should be ingested as sources into the shared
+`Library/` plus native domain lenses under `Domains/<domain>/Sources/`. Do not
+keep alternate layouts as long-term LoreForge structure.
 
 ## Use With pamem
 
