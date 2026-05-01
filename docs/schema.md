@@ -22,7 +22,6 @@ wiki/
       Cards/
       Sources/
       Spaces/
-      Extras/
 ```
 
 `00_System/` is the wiki-level operating surface. It typically contains
@@ -57,7 +56,7 @@ source records, `Shared/Raw/` stores shared source attachments, and
 | `Cards/` | Durable concepts, methods, patterns, tradeoffs, comparisons |
 | `Sources/` | `Domains/<domain>/Sources/` domain-specific source lenses linked to wiki-root shared `Shared/SourceRecords/` records |
 | `Spaces/` | Durable non-Card objects, contexts, and archive space |
-| `Extras/` | `Domains/<domain>/Extras/` domain-owned non-source attachments; source artifacts belong in wiki-root `Shared/Raw/` |
+| `Extras/` | Optional domain-owned non-source attachments; create only when needed |
 
 ## Operating Rules
 
@@ -100,6 +99,6 @@ wiki-local files, not temporary extractor outputs such as
   in the wiki.
 - Do not write across domains unless the user explicitly asks.
 - Do not duplicate the same raw source or PDF under multiple domains.
-- Do not index `Extras/` directly.
+- If `Extras/` exists, do not index it directly.
 - Do not index `Spaces/_archive/` or transient workspace notes.
 - Mark low-confidence and contested knowledge explicitly.

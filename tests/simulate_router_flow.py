@@ -158,8 +158,9 @@ def main() -> int:
             "- `Shared/Raw/` for source artifacts\n"
             "- `Shared/Templates/` for reusable templates\n\n"
             "Domain layer:\n\n"
-            "- `Domains/<domain>/Sources/` for domain-specific source lenses\n"
-            "- `Domains/<domain>/Extras/` for domain-owned non-source attachments\n",
+            "- `Domains/<domain>/Sources/` for domain-specific source lenses\n\n"
+            "Create `Domains/<domain>/Extras/` only when the domain needs its own\n"
+            "non-source attachments.\n",
         )
         create_domain(
             wiki,

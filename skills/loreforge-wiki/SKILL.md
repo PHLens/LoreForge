@@ -129,7 +129,6 @@ Domains/<domain>/
   Cards/           # Durable concepts, methods, patterns, tradeoffs, comparisons
   Sources/         # Domain-specific source lenses over shared source records
   Spaces/          # Durable people, orgs, projects, tools, systems, contexts
-  Extras/          # Domain-owned non-source attachments
 ```
 
 Treat `00_System/` as the wiki-level operating surface. Treat each
@@ -138,6 +137,9 @@ domain. Treat `Shared/SourceRecords/`, `Shared/Raw/`, and `Shared/Templates/`
 as the shared raw source, attachment, and template infrastructure for the whole
 wiki. Treat `Calendar/` as wiki-level dated personal notes, not as a domain
 knowledge area.
+
+Create `Domains/<domain>/Extras/` only when a domain truly needs local
+non-source attachments.
 
 Orient, query, ingest, update, review, and Health Check inside the selected
 domain. DO NOT write across domains unless the user explicitly asks. During
@@ -217,8 +219,10 @@ Canonical shared layer:
 Domain layer:
 
 - `Domains/<domain>/Sources/` for domain-specific source lenses
-- `Domains/<domain>/Extras/` for domain-owned non-source attachments
 ```
+
+Create `Domains/<domain>/Extras/` only when the domain needs its own
+non-source attachments.
 
 `00_System/domains.md`:
 
@@ -334,15 +338,15 @@ Side-by-side analyses. Include:
 - Sources
 
 ## Extras
-Use domain `Extras/` only for non-source attachments owned by this domain:
+Create domain `Extras/` only for non-source attachments owned by this domain:
 - diagrams
 - reusable templates or other non-note assets
 
 Put source PDFs, images, HTML snapshots, and capture manifests under
 `Shared/Raw/<source-slug>/`, not under domain `Extras/`.
 
-DO NOT index `Extras/` directly. Link domain attachments from relevant Sources,
-Cards, or Atlas pages.
+If `Extras/` exists, do not index it directly. Link domain attachments from
+relevant Sources, Cards, or Atlas pages.
 
 ## Sources
 Use domain `Sources/` for source lenses: mutable notes about why a shared raw
