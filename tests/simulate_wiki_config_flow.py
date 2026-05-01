@@ -125,6 +125,21 @@ def initialize_domain(wiki: Path, domain_name: str) -> Path:
 
     write(wiki / "00_System" / "index.md", "# Wiki Index\n\n- Domains: [[domains]]\n")
     write(
+        wiki / "00_System" / "index.md",
+        "# Wiki Index\n\n- Layout: [[wiki-layout]]\n- Domains: [[domains]]\n",
+    )
+    write(
+        wiki / "00_System" / "wiki-layout.md",
+        "# Wiki Layout\n\n"
+        "Canonical shared layer:\n\n"
+        "- `Shared/SourceRecords/` for shared source records\n"
+        "- `Shared/Raw/` for source artifacts\n"
+        "- `Shared/Templates/` for reusable templates\n\n"
+        "Domain layer:\n\n"
+        "- `Domains/<domain>/Sources/` for domain-specific source lenses\n"
+        "- `Domains/<domain>/Extras/` for domain-owned non-source attachments\n",
+    )
+    write(
         wiki / "00_System" / "domains.md",
         "# Domains\n\n"
         "| Domain | Purpose | Default Language | Expert | Status |\n"
@@ -365,12 +380,14 @@ default_target_domain = "ai-research"
         domain = initialize_domain(wiki, "ai-research")
         assert_valid(domain)
         assert (wiki / "00_System" / "index.md").exists()
+        assert (wiki / "00_System" / "wiki-layout.md").exists()
         assert (wiki / "Calendar" / "dailynotes").is_dir()
         assert (wiki / "Shared" / "SourceRecords").is_dir()
         assert (wiki / "Shared" / "Raw").is_dir()
         assert (wiki / "Shared" / "Templates").is_dir()
+        assert "Layout: [[wiki-layout]]" in (wiki / "00_System" / "index.md").read_text(encoding="utf-8")
         assert "ai-research" in (wiki / "00_System" / "domains.md").read_text(encoding="utf-8")
-        print("PASS initialization: 00_System, Calendar, shared sources/extras, and native domain contract created")
+        print("PASS initialization: 00_System, Calendar, shared sources/extras, wiki layout, and native domain contract created")
 
         source_before = digest_tree(source)
         migrate_source(source, domain)

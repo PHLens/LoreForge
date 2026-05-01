@@ -20,6 +20,7 @@ mkdir -p /path/to/my-wiki/00_System \
 Then ask an agent with the `loreforge-wiki` skill to initialize the target
 domain. It should create:
 
+- `00_System/index.md`, `00_System/domains.md`, and `00_System/wiki-layout.md`
 - shared `Calendar/dailynotes/`, `Shared/SourceRecords/`, `Shared/Raw/`, and
   `Shared/Templates/`
 - domain `SCHEMA.md`, `index.md`, `log.md`, `Atlas/`, `Cards/`, `Sources/`,

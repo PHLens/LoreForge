@@ -171,8 +171,8 @@ When the user asks to create or start a wiki or domain:
 
 1. Resolve the wiki root and domain name using the discovery order above.
 2. Create the wiki root if needed.
-3. Create `00_System/`, `00_System/index.md`, and `00_System/domains.md` if
-   missing.
+3. Create `00_System/`, `00_System/index.md`, `00_System/domains.md`, and
+   `00_System/wiki-layout.md` if missing.
 4. Create `Calendar/` and `Calendar/dailynotes/` if missing.
 5. Create `Shared/SourceRecords/`, `Shared/Raw/`, and `Shared/Templates/` if
    missing.
@@ -181,7 +181,8 @@ When the user asks to create or start a wiki or domain:
 8. Ask for a concise domain description and the default language for extracted
    Cards, Atlas pages, and Spaces.
 9. Write `SCHEMA.md` customized to the domain (see template below).
-10. Write `index.md` with sectioned header.
+10. Write `index.md` with sectioned header and `wiki-layout.md` with the
+    canonical shared/domain layout summary.
 11. Write initial `log.md` with creation entry.
 12. Add or update the domain row in `00_System/domains.md`.
 13. If the user is setting up a durable local wiki and the registry has no
@@ -198,7 +199,25 @@ each domain's `SCHEMA.md`.
 ```markdown
 # Wiki Index
 
+- Layout: [[wiki-layout]]
 - Domains: [[domains]]
+```
+
+`00_System/wiki-layout.md`:
+
+```markdown
+# Wiki Layout
+
+Canonical shared layer:
+
+- `Shared/SourceRecords/` for shared source records
+- `Shared/Raw/` for source artifacts
+- `Shared/Templates/` for reusable templates
+
+Domain layer:
+
+- `Domains/<domain>/Sources/` for domain-specific source lenses
+- `Domains/<domain>/Extras/` for domain-owned non-source attachments
 ```
 
 `00_System/domains.md`:

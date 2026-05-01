@@ -25,7 +25,8 @@ wiki/
       Extras/
 ```
 
-`00_System/` is the wiki-level operating surface. `Calendar/` stores dated
+`00_System/` is the wiki-level operating surface. It typically contains
+`index.md`, `domains.md`, and `wiki-layout.md`. `Calendar/` stores dated
 personal notes such as daily notes. `Shared/SourceRecords/` stores shared raw
 source records, `Shared/Raw/` stores shared source attachments, and
 `Shared/Templates/` stores reusable templates once for the whole wiki. Each
