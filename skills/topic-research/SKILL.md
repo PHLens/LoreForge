@@ -9,7 +9,7 @@ Use this skill to gather source material for a topic, reuse human-provided brows
 
 When this skill is used with `loreforge-wiki`, treat its outputs as capture
 inputs. Durable raw source records and attachments belong under the wiki-level
-`Library/Sources/` and `Library/Extras/` directories. Domain-specific source
+`Shared/SourceRecords/` and `Shared/Raw/` directories. Domain-specific source
 lenses belong under the selected domain's `Sources/` directory. Do not leave
 final wiki notes pointing at `/tmp/topic-research/...`.
 

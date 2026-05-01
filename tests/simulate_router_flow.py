@@ -51,8 +51,9 @@ def assert_skill_contract() -> None:
         "Write policy: <read-only|write-confirmed>",
         "Set `Write policy: read-only` for query operations",
         "do not create or update wiki files",
-        "Library/Sources/",
-        "Library/Extras/",
+        "Shared/SourceRecords/",
+        "Shared/Raw/",
+        "Domains/<domain>/Sources/",
         "domain lens",
     ]
     missing = [item for item in required if item not in skill]

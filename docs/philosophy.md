@@ -17,7 +17,7 @@ pamem
 
 LoreForge wiki instance
   professional knowledge
-  shared raw source library
+  shared source records
   domain source lenses
   durable concepts
   maps, indexes, logs
@@ -78,7 +78,9 @@ LoreForge
 | Agent operating experience | `pamem` or host agent memory |
 | Current task state | session, project files, or `pamem` |
 | Reusable professional concept | LoreForge wiki |
-| Raw source artifact | LoreForge wiki `Library/` |
+| Raw source record | LoreForge wiki `Shared/SourceRecords/` |
+| Raw source artifact | LoreForge wiki `Shared/Raw/` |
+| Reusable template | LoreForge wiki `Shared/Templates/` |
 | Domain source summary | LoreForge domain `Sources/` lens |
 | Durable domain view | LoreForge wiki |
 
@@ -87,7 +89,8 @@ LoreForge
 LoreForge now follows a small core:
 
 1. One shared wiki root can contain many domains.
-2. Shared raw sources and attachments live once under wiki-level `Library/`.
+2. Shared raw sources live in `Shared/SourceRecords/`, attachments in
+   `Shared/Raw/`, and reusable templates in `Shared/Templates/`.
 3. One expert agent owns and maintains one domain.
 4. The `loreforge-router` skill handles domain selection and cross-domain
    coordination.
