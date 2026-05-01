@@ -146,7 +146,21 @@ def main() -> int:
             "| ml-systems | PyTorch, compiler runtime, distributed training, inference systems | 中文 | systems expert | active |\n"
             "| product-strategy | Roadmaps, market positioning, customer research | 中文 | strategy expert | active |\n",
         )
-        write(wiki / "00_System" / "index.md", "# Wiki Index\n\n- Domains: [[domains]]\n")
+        write(
+            wiki / "00_System" / "index.md",
+            "# Wiki Index\n\n- Layout: [[wiki-layout]]\n- Domains: [[domains]]\n",
+        )
+        write(
+            wiki / "00_System" / "wiki-layout.md",
+            "# Wiki Layout\n\n"
+            "Canonical shared layer:\n\n"
+            "- `Shared/SourceRecords/` for shared source records\n"
+            "- `Shared/Raw/` for source artifacts\n"
+            "- `Shared/Templates/` for reusable templates\n\n"
+            "Domain layer:\n\n"
+            "- `Domains/<domain>/Sources/` for domain-specific source lenses\n"
+            "- `Domains/<domain>/Extras/` for domain-owned non-source attachments\n",
+        )
         create_domain(
             wiki,
             "gpu-arch-research",
