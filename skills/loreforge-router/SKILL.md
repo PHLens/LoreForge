@@ -18,7 +18,8 @@ Always:
 - resolve the active wiki before routing
 - inspect available domains before choosing
 - keep one expert-owned domain as the write boundary
-- treat raw source records and attachments as shared wiki-level `Library/` data
+- treat raw source records and attachments as shared wiki-root
+  `Shared/SourceRecords/` and `Shared/Raw/` data
 - use `loreforge-wiki` for domain query, ingest, update, review, and Health Check
 - report routing decisions and uncertainty clearly
 
@@ -57,7 +58,7 @@ Then read:
 
 1. `00_System/domains.md`
 2. `00_System/index.md` if present
-3. `Library/Sources/` when checking whether a source already exists
+3. wiki-root `Shared/SourceRecords/` when checking whether a source already exists
 4. Candidate `Domains/<domain>/SCHEMA.md`
 5. Candidate `Domains/<domain>/index.md` when more evidence is needed
 
@@ -105,10 +106,10 @@ only when:
 - the source has distinct durable value for multiple domains and the user
   approves the split.
 
-For sources that matter to multiple domains, use one shared raw source record in
-`Library/Sources/` and shared artifacts in `Library/Extras/`. Each selected
-domain gets its own `Domains/<domain>/Sources/` lens and domain-owned
-synthesis.
+For sources that matter to multiple domains, use one shared raw source record
+in wiki-root `Shared/SourceRecords/` and shared artifacts in wiki-root
+`Shared/Raw/`. Each selected domain gets its own `Domains/<domain>/Sources/`
+lens and domain-owned synthesis.
 
 ## Delegation
 
@@ -131,8 +132,9 @@ Operation: <query|ingest|update|review|initialize|migrate>
 Write policy: <read-only|write-confirmed>
 Request: <user request>
 
-Stay inside Domains/<domain>/ for domain pages. Use Library/Sources/ and
-Library/Extras/ only for shared raw source records and attachments.
+Stay inside Domains/<domain>/ for domain pages. Use wiki-root
+`Shared/SourceRecords/` and wiki-root `Shared/Raw/` only for shared raw source
+records and attachments.
 Orient on SCHEMA.md, index.md, recent log.md, and relevant pages.
 If Write policy is read-only, do not create or update wiki files.
 If Write policy is write-confirmed, update index.md and insert a newest-first
@@ -169,8 +171,8 @@ For ingest:
 4. Delegate shared raw source capture and primary domain lens ingest to
    `loreforge-wiki` for the target domain.
 5. If multiple domains are approved, split the work into separate domain-bound
-   lens ingests that reuse the same `Library/Sources/` record. Do not reuse one
-   domain's pages as another domain's source of truth.
+   lens ingests that reuse the same wiki-root `Shared/SourceRecords/` record.
+   Do not reuse one domain's pages as another domain's source of truth.
 
 For existing repos, vaults, or folders, route them as source material. Do not
 adopt alternate layouts as long-term LoreForge structure unless the user

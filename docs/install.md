@@ -10,24 +10,25 @@ LoreForge has two parts:
 Create a wiki root:
 
 ```bash
-mkdir -p /path/to/my-wiki/00_System /path/to/my-wiki/Library/Sources /path/to/my-wiki/Library/Extras
+mkdir -p /path/to/my-wiki/00_System \
+  /path/to/my-wiki/Calendar/dailynotes \
+  /path/to/my-wiki/Shared/SourceRecords \
+  /path/to/my-wiki/Shared/Raw \
+  /path/to/my-wiki/Shared/Templates
 ```
 
 Then ask an agent with the `loreforge-wiki` skill to initialize the target
 domain. It should create:
 
-- `SCHEMA.md`
-- `index.md`
-- `log.md`
-- `Atlas/`
-- `Cards/`
-- `Sources/`
-- `Spaces/`
-- `Extras/`
+- shared `Calendar/dailynotes/`, `Shared/SourceRecords/`, `Shared/Raw/`, and
+  `Shared/Templates/`
+- domain `SCHEMA.md`, `index.md`, `log.md`, `Atlas/`, `Cards/`, `Sources/`,
+  `Spaces/`, and `Extras/` under `Domains/<domain>/`
 
 Existing repos or vaults should be ingested as sources into the shared
-`Library/` plus native domain lenses under `Domains/<domain>/Sources/`. Do not
-keep alternate layouts as long-term LoreForge structure.
+`Shared/SourceRecords/` and `Shared/Raw/` areas plus native domain lenses under
+`Domains/<domain>/Sources/`. Do not keep alternate layouts as long-term
+LoreForge structure.
 
 ## Use With pamem
 

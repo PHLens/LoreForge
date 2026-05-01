@@ -56,12 +56,12 @@ def assert_selected_domain_only(before: dict[str, str], after: dict[str, str], s
         raise AssertionError(f"operation changed paths outside {allowed_prefix}: {leaks}")
 
 
-def assert_selected_domain_or_library_only(before: dict[str, str], after: dict[str, str], selected: str) -> None:
-    allowed_prefixes = (f"Domains/{selected}/", "Library/Sources/", "Library/Extras/")
+def assert_selected_domain_or_shared_only(before: dict[str, str], after: dict[str, str], selected: str) -> None:
+    allowed_prefixes = (f"Domains/{selected}/", "Shared/SourceRecords/", "Shared/Raw/")
     changes = changed_paths(before, after)
     leaks = sorted(path for path in changes if not path.startswith(allowed_prefixes))
     if leaks:
-        raise AssertionError(f"operation changed paths outside selected domain or Library: {leaks}")
+        raise AssertionError(f"operation changed paths outside selected domain or shared source areas: {leaks}")
 
 
 def insert_log_entry(domain: Path, entry: str) -> None:
@@ -92,25 +92,25 @@ def simulate_query(domain: Path) -> str:
 
 def simulate_ingest(domain: Path) -> None:
     wiki = domain.parents[1]
-    library_source = wiki / "Library" / "Sources" / "tests" / "agent-domain-boundary-note.md"
-    library_source.parent.mkdir(parents=True, exist_ok=True)
-    library_source.write_text(f"""---
+    shared_source = wiki / "Shared" / "SourceRecords" / "tests" / "agent-domain-boundary-note.md"
+    shared_source.parent.mkdir(parents=True, exist_ok=True)
+    shared_source.write_text(f"""---
 title: Agent Domain Boundary Raw Source
 created: {TODAY}
 updated: {TODAY}
 type: source
 source_url: local boundary test
 artifacts:
-  - Library/Extras/agent-domain-boundary-note/diagram.txt
+  - Shared/Raw/agent-domain-boundary-note/diagram.txt
 ---
 
 # Agent Domain Boundary Raw Source
 
 Raw source shared by any domain that needs the boundary note.
 """)
-    library_extra = wiki / "Library" / "Extras" / "agent-domain-boundary-note" / "diagram.txt"
-    library_extra.parent.mkdir(parents=True, exist_ok=True)
-    library_extra.write_text("test attachment\n")
+    shared_attachment = wiki / "Shared" / "Raw" / "agent-domain-boundary-note" / "diagram.txt"
+    shared_attachment.parent.mkdir(parents=True, exist_ok=True)
+    shared_attachment.write_text("test attachment\n")
 
     source = domain / "Sources" / "agent-domain-boundary-note.md"
     source.write_text(f"""---
@@ -131,7 +131,7 @@ contradictions: []
 This source describes why [[expert-domain-wiki]] should update only the selected
 domain and why [[domain-boundary-discipline]] belongs in `Cards/`.
 
-Shared raw source: `Library/Sources/tests/agent-domain-boundary-note.md`.
+Shared raw source: `Shared/SourceRecords/tests/agent-domain-boundary-note.md`.
 """)
 
     card = domain / "Cards" / "domain-boundary-discipline.md"
@@ -177,8 +177,8 @@ orientation and does not write into sibling domains. It connects
         domain,
         f"""
 ## {TODAY} | ingest | Agent domain boundary note
-- created: Library/Sources/tests/agent-domain-boundary-note.md
-- created: Library/Extras/agent-domain-boundary-note/diagram.txt
+- created: Shared/SourceRecords/tests/agent-domain-boundary-note.md
+- created: Shared/Raw/agent-domain-boundary-note/diagram.txt
 - created: Sources/agent-domain-boundary-note.md
 - created: Cards/domain-boundary-discipline.md
 - updated: index.md
@@ -230,7 +230,7 @@ def main() -> int:
         if not log_headings(selected_domain)[0].startswith(f"## {TODAY} | ingest |"):
             raise AssertionError("ingest log entry was not inserted as newest entry")
         assert_valid(selected_domain)
-        assert_selected_domain_or_library_only(wiki_before_ingest, digest_tree(wiki), selected)
+        assert_selected_domain_or_shared_only(wiki_before_ingest, digest_tree(wiki), selected)
         assert_no_changes(other_before, digest_tree(other_domain), "other-domain after ingest")
 
         wiki_before_update = digest_tree(wiki)

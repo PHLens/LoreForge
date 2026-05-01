@@ -7,9 +7,12 @@ LoreForge wiki instances use one shared wiki root with expert-owned domains.
 ```text
 wiki/
   00_System/
-  Library/
-    Sources/
-    Extras/
+  Calendar/
+    dailynotes/
+  Shared/
+    SourceRecords/
+    Raw/
+    Templates/
   Domains/
     <domain>/
       SCHEMA.md
@@ -22,16 +25,25 @@ wiki/
       Extras/
 ```
 
-`00_System/` is the wiki-level operating surface. `Library/` stores shared raw
-source records and attachments once for the whole wiki. Each
+`00_System/` is the wiki-level operating surface. `Calendar/` stores dated
+personal notes such as daily notes. `Shared/SourceRecords/` stores shared raw
+source records, `Shared/Raw/` stores shared source attachments, and
+`Shared/Templates/` stores reusable templates once for the whole wiki. Each
 `Domains/<domain>/` is a self-contained LLM Wiki maintained by one expert agent.
 
-## Library Files
+## Calendar Files
 
 | Path | Purpose |
 |---|---|
-| `Library/Sources/` | Shared raw source records, captures, metadata, and source text |
-| `Library/Extras/` | Shared source attachments such as PDFs, images, HTML snapshots, and manifests |
+| `Calendar/dailynotes/` | Default folder for daily diary or daily-note pages |
+
+## Shared Files
+
+| Path | Purpose |
+|---|---|
+| `Shared/SourceRecords/` | Wiki-root shared raw source records, captures, metadata, and source text |
+| `Shared/Raw/` | Wiki-root shared source attachments such as PDFs, images, HTML snapshots, and manifests |
+| `Shared/Templates/` | Wiki-root reusable note templates, including diary templates |
 
 ## Domain Files
 
@@ -42,9 +54,9 @@ source records and attachments once for the whole wiki. Each
 | `log.md` | Reverse chronological action log, newest entry first |
 | `Atlas/` | Maps of Content (MOCs), emergent thinking views |
 | `Cards/` | Durable concepts, methods, patterns, tradeoffs, comparisons |
-| `Sources/` | Domain-specific source lenses linked to shared `Library/Sources/` records |
+| `Sources/` | `Domains/<domain>/Sources/` domain-specific source lenses linked to wiki-root shared `Shared/SourceRecords/` records |
 | `Spaces/` | Durable non-Card objects, contexts, and archive space |
-| `Extras/` | Domain-owned non-source attachments; source artifacts belong in `Library/Extras/` |
+| `Extras/` | `Domains/<domain>/Extras/` domain-owned non-source attachments; source artifacts belong in wiki-root `Shared/Raw/` |
 
 ## Operating Rules
 
@@ -67,17 +79,17 @@ previous newest entry.
 ## Source Capture
 
 Raw source records preserve the source language by default and live under
-`Library/Sources/`. For text articles, blogs, docs, and pasted text, keep title,
+`Shared/SourceRecords/`. For text articles, blogs, docs, and pasted text, keep title,
 author/publisher, dates, canonical URL, headings, links, and local image
 references. Prefer complete transcription when the material is user-provided,
 local, permissively licensed, public domain, or otherwise appropriate to reuse in
 full. Otherwise keep a faithful structured source record and record only
 concrete capture limitations.
 
-Durable source attachments belong under `Library/Extras/<source-slug>/` and
+Durable source attachments belong under `Shared/Raw/<source-slug>/` and
 should be linked from the shared source record and any relevant domain lens.
 Domain `Sources/` pages should summarize why the shared source matters to that
-domain and link to `Library/Sources/...`. Source metadata should point to
+domain and link to `Shared/SourceRecords/...`. Source metadata should point to
 wiki-local files, not temporary extractor outputs such as
 `/tmp/topic-research/...`.
 

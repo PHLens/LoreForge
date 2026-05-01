@@ -21,7 +21,7 @@ pamem
 LoreForge wiki instance
   professional knowledge
   concepts
-  shared raw source library
+  shared source records
   domain source lenses
   maps and indexes
 
@@ -59,30 +59,34 @@ The core wiki skill expects this shape:
 
 ```text
 wiki/
-00_System/
-  ...
-Library/
-  Sources/
-  Extras/
-Domains/
-  <domain>/
-    SCHEMA.md
-    index.md
-    log.md
-    Atlas/
-    Cards/
-    Sources/
-    Spaces/
-    Extras/
+  00_System/
+    ...
+  Calendar/
+    dailynotes/
+  Shared/
+    SourceRecords/
+    Raw/
+    Templates/
+  Domains/
+    <domain>/
+      SCHEMA.md
+      index.md
+      log.md
+      Atlas/
+      Cards/
+      Sources/
+      Spaces/
+      Extras/
 ```
 
 Each domain is a self-contained LLM Wiki owned by one expert agent. The agent
 orients on `SCHEMA.md`, `index.md`, recent `log.md`, and relevant pages before
 querying, ingesting, updating, reviewing, or running a Health Check.
 
-`Library/` is shared across domains. It stores raw source records and source
-attachments once, such as PDFs, page captures, images, and manifests. Domain
-`Sources/` pages are domain-specific lenses over those shared sources.
+`Shared/SourceRecords/` stores shared raw source records once. `Shared/Raw/`
+stores source attachments such as PDFs, page captures, images, and manifests.
+`Shared/Templates/` stores reusable wiki templates. Domain `Sources/` pages are
+domain-specific lenses over those shared sources.
 
 ## Skills
 
@@ -152,9 +156,9 @@ Agents should use the local clone for search and editing. GitHub is for persiste
 ## Existing Repos And Vaults
 
 Existing repos or vaults should be treated as sources. Use `loreforge-wiki` to
-capture reusable raw material into `Library/` and ingest useful domain lenses
-into native `Domains/<domain>/` pages instead of keeping long-term alternate
-layouts.
+capture reusable raw material into `Shared/SourceRecords/` and `Shared/Raw/`,
+then ingest useful domain lenses into native `Domains/<domain>/` pages instead
+of keeping long-term alternate layouts.
 
 ## License
 
