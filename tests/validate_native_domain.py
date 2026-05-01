@@ -21,7 +21,6 @@ REQUIRED_PATHS = [
     "Cards",
     "Sources",
     "Spaces",
-    "Extras",
 ]
 
 PAGE_DIRS = ["Atlas", "Cards", "Sources", "Spaces"]
@@ -285,7 +284,6 @@ def main(argv: list[str]) -> int:
         "cross-domain-link",
         "missing-frontmatter-field",
         "missing-index-entry",
-        "missing-required-path",
         "log-order",
         "unknown-tag",
     }

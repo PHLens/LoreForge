@@ -119,7 +119,6 @@ def initialize_domain(wiki: Path, domain_name: str) -> Path:
         domain / "Cards",
         domain / "Sources",
         domain / "Spaces",
-        domain / "Extras",
     ]:
         directory.mkdir(parents=True, exist_ok=True)
 
@@ -136,8 +135,9 @@ def initialize_domain(wiki: Path, domain_name: str) -> Path:
         "- `Shared/Raw/` for source artifacts\n"
         "- `Shared/Templates/` for reusable templates\n\n"
         "Domain layer:\n\n"
-        "- `Domains/<domain>/Sources/` for domain-specific source lenses\n"
-        "- `Domains/<domain>/Extras/` for domain-owned non-source attachments\n",
+        "- `Domains/<domain>/Sources/` for domain-specific source lenses\n\n"
+        "Create `Domains/<domain>/Extras/` only when the domain needs its own\n"
+        "non-source attachments.\n",
     )
     write(
         wiki / "00_System" / "domains.md",

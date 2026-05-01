@@ -76,12 +76,14 @@ wiki/
       Cards/
       Sources/
       Spaces/
-      Extras/
 ```
 
 Each domain is a self-contained LLM Wiki owned by one expert agent. The agent
 orients on `SCHEMA.md`, `index.md`, recent `log.md`, and relevant pages before
 querying, ingesting, updating, reviewing, or running a Health Check.
+
+`Extras/` is optional for a domain and only used when the domain truly needs
+its own non-source attachments.
 
 `Shared/SourceRecords/` stores shared raw source records once. `Shared/Raw/`
 stores source attachments such as PDFs, page captures, images, and manifests.

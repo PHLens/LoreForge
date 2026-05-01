@@ -24,12 +24,15 @@ domain. It should create:
 - shared `Calendar/dailynotes/`, `Shared/SourceRecords/`, `Shared/Raw/`, and
   `Shared/Templates/`
 - domain `SCHEMA.md`, `index.md`, `log.md`, `Atlas/`, `Cards/`, `Sources/`,
-  `Spaces/`, and `Extras/` under `Domains/<domain>/`
+  and `Spaces/` under `Domains/<domain>/`
 
 Existing repos or vaults should be ingested as sources into the shared
 `Shared/SourceRecords/` and `Shared/Raw/` areas plus native domain lenses under
 `Domains/<domain>/Sources/`. Do not keep alternate layouts as long-term
 LoreForge structure.
+
+Create `Domains/<domain>/Extras/` only if the domain needs its own non-source
+attachments.
 
 ## Use With pamem
 
