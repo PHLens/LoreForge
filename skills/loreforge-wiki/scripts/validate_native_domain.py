@@ -404,7 +404,7 @@ def main(argv: list[str]) -> int:
                 print("ok")
         return 0 if ok else 1
 
-    root = Path(__file__).resolve().parents[1] / "tests" / "fixtures" / "native-domain"
+    root = Path(__file__).resolve().parents[3] / "tests" / "fixtures" / "native-domain"
     valid = root / "valid" / "wiki" / "Domains" / "ai-research"
     invalid = root / "invalid" / "wiki" / "Domains" / "ai-research"
     invalid_expected = {
