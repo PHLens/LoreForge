@@ -39,6 +39,11 @@ def digest_tree(root: Path) -> dict[str, str]:
     return result
 
 
+def digest_index(values: dict[str, str]) -> str:
+    payload = "\n".join(f"{path}:{digest}" for path, digest in sorted(values.items()))
+    return hashlib.sha256(payload.encode("utf-8")).hexdigest()
+
+
 def insert_log_entry(domain: Path, entry: str) -> None:
     path = domain / "log.md"
     text = path.read_text(encoding="utf-8")
@@ -115,12 +120,10 @@ def initialize_domain(wiki: Path, domain_name: str) -> Path:
     for directory in [
         wiki / "00_System",
         wiki / "Calendar" / "dailynotes",
-        wiki / "Shared" / "SourceRecords",
         wiki / "Shared" / "Raw",
         wiki / "Shared" / "Templates",
         domain / "Atlas",
         domain / "Cards",
-        domain / "Sources",
         domain / "Spaces",
     ]:
         directory.mkdir(parents=True, exist_ok=True)
@@ -134,11 +137,11 @@ def initialize_domain(wiki: Path, domain_name: str) -> Path:
         wiki / "00_System" / "wiki-layout.md",
         "# Wiki Layout\n\n"
         "Canonical shared layer:\n\n"
-        "- `Shared/SourceRecords/` for shared source records\n"
-        "- `Shared/Raw/` for source artifacts\n"
+        "- `Shared/Raw/<source-id>/manifest.md` for raw source manifests, hashes, and compiled page metadata\n"
+        "- `Shared/Raw/<source-id>/` for source artifacts\n"
         "- `Shared/Templates/` for reusable templates\n\n"
         "Domain layer:\n\n"
-        "- `Domains/<domain>/Sources/` for domain-specific source lenses\n\n"
+        "- `Domains/<domain>/Sources/` is optional for legacy or special-purpose source notes\n\n"
         "Create `Domains/<domain>/Extras/` only when the domain needs its own\n"
         "non-source attachments.\n",
     )
@@ -162,7 +165,7 @@ def initialize_domain(wiki: Path, domain_name: str) -> Path:
         domain / "index.md",
         "# Domain Index\n\n"
         f"> Last updated: {TODAY} | Total pages: 0\n\n"
-        "## Atlas\n\n## Cards\n\n## Sources\n\n## Spaces\n",
+        "## Atlas\n\n## Cards\n\n## Spaces\n",
     )
     write(
         domain / "log.md",
@@ -183,49 +186,32 @@ def migrate_source(source: Path, domain: Path) -> None:
     (source / "notes" / "llm-wiki.md").read_text(encoding="utf-8")
     wiki = domain.parents[1]
 
-    extras = wiki / "Shared" / "Raw" / "old-obsidian"
-    extras.mkdir(parents=True, exist_ok=True)
-    (extras / "diagram.png").write_bytes(b"fake image bytes for migration smoke test")
+    raw = wiki / "Shared" / "Raw" / "old-obsidian-llm-wiki"
+    raw.mkdir(parents=True, exist_ok=True)
+    (raw / "diagram.png").write_bytes(b"fake image bytes for migration smoke test")
+    raw_hash = digest_index(digest_tree(source))
 
     write(
-        wiki / "Shared" / "SourceRecords" / "imports" / "old-obsidian-llm-wiki.md",
+        raw / "manifest.md",
         f"""---
 title: Old Obsidian LLM Wiki Raw Source
 created: {TODAY}
 updated: {TODAY}
 type: source
+source_id: old-obsidian-llm-wiki
 source_alias: old-obsidian
 source_path: notes/llm-wiki.md
+hash: {raw_hash}
+compiled_pages:
+  - Domains/{domain.name}/Cards/compounding-wiki.md
+  - Domains/{domain.name}/Spaces/obsidian.md
 artifacts:
-  - Shared/Raw/old-obsidian/diagram.png
+  - Shared/Raw/old-obsidian-llm-wiki/diagram.png
 ---
 
 # Old Obsidian LLM Wiki Raw Source
 
 Imported source-language note from the old Obsidian vault.
-""",
-    )
-
-    write(
-        domain / "Sources" / "old-obsidian-llm-wiki.md",
-        f"""---
-title: Old Obsidian LLM Wiki Note
-created: {TODAY}
-updated: {TODAY}
-type: source
-tags: [source, wiki]
-confidence: medium
-status: active
-sources: []
-contested: false
-contradictions: []
----
-
-# Old Obsidian LLM Wiki Note
-
-The imported note connects [[compounding-wiki]] and [[obsidian]] for this domain.
-Shared raw source: `Shared/SourceRecords/imports/old-obsidian-llm-wiki.md`.
-Local attachment: `Shared/Raw/old-obsidian/diagram.png`.
 """,
     )
     write(
@@ -238,7 +224,7 @@ type: concept
 tags: [concept, wiki]
 confidence: medium
 status: active
-sources: ["[[old-obsidian-llm-wiki]]"]
+sources: ["Shared/Raw/old-obsidian-llm-wiki/manifest.md"]
 contested: false
 contradictions: []
 ---
@@ -246,7 +232,8 @@ contradictions: []
 # Compounding Wiki
 
 A compounding wiki turns repeated source processing into durable knowledge. It is
-grounded by [[old-obsidian-llm-wiki]] and maintained with [[obsidian]].
+grounded by `Shared/Raw/old-obsidian-llm-wiki/manifest.md` and maintained with
+[[obsidian]].
 """,
     )
     write(
@@ -259,26 +246,24 @@ type: space
 tags: [tool]
 confidence: medium
 status: active
-sources: ["[[old-obsidian-llm-wiki]]"]
+sources: ["Shared/Raw/old-obsidian-llm-wiki/manifest.md"]
 contested: false
 contradictions: []
 ---
 
 # Obsidian
 
-Obsidian is the editor used to browse [[compounding-wiki]] notes and imported
-source material such as [[old-obsidian-llm-wiki]].
+Obsidian is the editor used to browse [[compounding-wiki]] notes and imported raw
+source manifests.
 """,
     )
     write(
         domain / "index.md",
         "# Domain Index\n\n"
-        f"> Last updated: {TODAY} | Total pages: 3\n\n"
+        f"> Last updated: {TODAY} | Total pages: 2\n\n"
         "## Atlas\n\n"
         "## Cards\n"
         "- [[compounding-wiki]] - Durable knowledge that compounds from repeated source processing.\n\n"
-        "## Sources\n"
-        "- [[old-obsidian-llm-wiki]] - Migrated source note from old Obsidian vault.\n\n"
         "## Spaces\n"
         "- [[obsidian]] - Tool used to browse and edit the wiki.\n",
     )
@@ -287,9 +272,8 @@ source material such as [[old-obsidian-llm-wiki]].
         f"""## {TODAY} | ingest | old-obsidian migration
 - source_alias: old-obsidian
 - import_scope: notes/llm-wiki.md and attachment metadata
-- created: Shared/SourceRecords/imports/old-obsidian-llm-wiki.md
-- created: Shared/Raw/old-obsidian/diagram.png
-- created: Sources/old-obsidian-llm-wiki.md
+- created: Shared/Raw/old-obsidian-llm-wiki/manifest.md
+- created: Shared/Raw/old-obsidian-llm-wiki/diagram.png
 - created: Cards/compounding-wiki.md
 - created: Spaces/obsidian.md
 - updated: index.md
@@ -385,20 +369,25 @@ default_target_domain = "ai-research"
         assert (wiki / "00_System" / "index.md").exists()
         assert (wiki / "00_System" / "wiki-layout.md").exists()
         assert (wiki / "Calendar" / "dailynotes").is_dir()
-        assert (wiki / "Shared" / "SourceRecords").is_dir()
         assert (wiki / "Shared" / "Raw").is_dir()
         assert (wiki / "Shared" / "Templates").is_dir()
+        assert not (domain / "Sources").exists()
         assert "Layout: [[wiki-layout]]" in (wiki / "00_System" / "index.md").read_text(encoding="utf-8")
         assert "ai-research" in (wiki / "00_System" / "domains.md").read_text(encoding="utf-8")
-        print("PASS initialization: 00_System, Calendar, shared sources/extras, wiki layout, and native domain contract created")
+        print("PASS initialization: 00_System, Calendar, shared raw layer, wiki layout, and native domain contract created")
 
         source_before = digest_tree(source)
         migrate_source(source, domain)
         if source_before != digest_tree(source):
             raise AssertionError("source vault changed during migration")
         assert_valid(domain)
-        assert (wiki / "Shared" / "SourceRecords" / "imports" / "old-obsidian-llm-wiki.md").exists()
-        assert (wiki / "Shared" / "Raw" / "old-obsidian" / "diagram.png").exists()
+        manifest = wiki / "Shared" / "Raw" / "old-obsidian-llm-wiki" / "manifest.md"
+        assert manifest.exists()
+        manifest_text = manifest.read_text(encoding="utf-8")
+        assert "hash:" in manifest_text
+        assert "compiled_pages:" in manifest_text
+        assert (wiki / "Shared" / "Raw" / "old-obsidian-llm-wiki" / "diagram.png").exists()
+        assert not (domain / "Sources").exists()
         assert "source_alias: old-obsidian" in (domain / "log.md").read_text(encoding="utf-8")
         if not log_headings(domain)[0].startswith(f"## {TODAY} | ingest |"):
             raise AssertionError("migration log entry was not inserted as newest entry")

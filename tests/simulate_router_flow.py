@@ -51,10 +51,8 @@ def assert_skill_contract() -> None:
         "Write policy: <read-only|write-confirmed>",
         "Set `Write policy: read-only` for query operations",
         "do not create or update wiki files",
-        "Shared/SourceRecords/",
         "Shared/Raw/",
-        "Domains/<domain>/Sources/",
-        "domain lens",
+        "domain Source note",
     ]
     missing = [item for item in required if item not in skill]
     if missing:
@@ -154,11 +152,11 @@ def main() -> int:
             wiki / "00_System" / "wiki-layout.md",
             "# Wiki Layout\n\n"
             "Canonical shared layer:\n\n"
-            "- `Shared/SourceRecords/` for shared source records\n"
-            "- `Shared/Raw/` for source artifacts\n"
+            "- `Shared/Raw/<source-id>/manifest.md` for raw source manifests, hashes, and compiled page metadata\n"
+            "- `Shared/Raw/<source-id>/` for source artifacts\n"
             "- `Shared/Templates/` for reusable templates\n\n"
             "Domain layer:\n\n"
-            "- `Domains/<domain>/Sources/` for domain-specific source lenses\n\n"
+            "- `Domains/<domain>/Sources/` is optional for legacy or special-purpose source notes\n\n"
             "Create `Domains/<domain>/Extras/` only when the domain needs its own\n"
             "non-source attachments.\n",
         )

@@ -12,7 +12,6 @@ Create a wiki root:
 ```bash
 mkdir -p /path/to/my-wiki/00_System \
   /path/to/my-wiki/Calendar/dailynotes \
-  /path/to/my-wiki/Shared/SourceRecords \
   /path/to/my-wiki/Shared/Raw \
   /path/to/my-wiki/Shared/Templates
 ```
@@ -21,15 +20,16 @@ Then ask an agent with the `loreforge-wiki` skill to initialize the target
 domain. It should create:
 
 - `00_System/index.md`, `00_System/domains.md`, and `00_System/wiki-layout.md`
-- shared `Calendar/dailynotes/`, `Shared/SourceRecords/`, `Shared/Raw/`, and
-  `Shared/Templates/`
-- domain `SCHEMA.md`, `index.md`, `log.md`, `Atlas/`, `Cards/`, `Sources/`,
-  and `Spaces/` under `Domains/<domain>/`
+- shared `Calendar/dailynotes/`, `Shared/Raw/`, and `Shared/Templates/`
+- domain `SCHEMA.md`, `index.md`, `log.md`, `Atlas/`, `Cards/`, and `Spaces/`
+  under `Domains/<domain>/`, with `Sources/` optional for legacy or
+  special-purpose source notes
 
 Existing repos or vaults should be ingested as sources into the shared
-`Shared/SourceRecords/` and `Shared/Raw/` areas plus native domain lenses under
-`Domains/<domain>/Sources/`. Do not keep alternate layouts as long-term
-LoreForge structure.
+`Shared/Raw/<source-id>/` area plus native domain synthesis under
+`Domains/<domain>/`. Do not keep alternate layouts as long-term LoreForge
+structure. `Shared/SourceRecords/` may appear in older wikis, but it is not
+part of the active setup.
 
 Create `Domains/<domain>/Extras/` only if the domain needs its own non-source
 attachments.

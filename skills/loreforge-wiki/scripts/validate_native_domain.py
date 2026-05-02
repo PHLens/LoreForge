@@ -19,7 +19,6 @@ REQUIRED_PATHS = [
     "log.md",
     "Atlas",
     "Cards",
-    "Sources",
     "Spaces",
 ]
 

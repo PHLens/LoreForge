@@ -13,7 +13,6 @@ python3 tests/simulate_router_flow.py
 These scripts check the minimum single-expert LoreForge domain contract used by
 the `loreforge-wiki` skill and smoke-test query, ingest, and update boundaries
 on a temporary fixture copy. They also smoke-test wiki config discovery,
-initialization, shared `Shared/SourceRecords/` source capture, `Shared/Raw/`
-attachment capture, source-only migration behavior, and router domain-selection
-behavior. The native domain validator can also clean orphan footnote
-definitions with `--fix`.
+initialization, raw `Shared/Raw/<source-id>/manifest.md` capture, source
+migration behavior, and router domain-selection behavior. The native domain
+validator can also clean orphan footnote definitions with `--fix`.

@@ -10,8 +10,11 @@ wiki/
   Calendar/
     dailynotes/
   Shared/
-    SourceRecords/
     Raw/
+      <source-id>/
+        manifest.md
+        original/
+        extracted/
     Templates/
   Domains/
     <domain>/
@@ -20,16 +23,17 @@ wiki/
       log.md
       Atlas/
       Cards/
-      Sources/
+      Sources/  # optional compiled source notes
       Spaces/
 ```
 
 `00_System/` is the wiki-level operating surface. It typically contains
 `index.md`, `domains.md`, and `wiki-layout.md`. `Calendar/` stores dated
-personal notes such as daily notes. `Shared/SourceRecords/` stores shared raw
-source records, `Shared/Raw/` stores shared source attachments, and
-`Shared/Templates/` stores reusable templates once for the whole wiki. Each
-`Domains/<domain>/` is a self-contained LLM Wiki maintained by one expert agent.
+personal notes such as daily notes. `Shared/Raw/<source-id>/` stores the
+canonical raw source package, `Shared/Templates/` stores reusable templates
+once for the whole wiki, and `Shared/SourceRecords/` is legacy compatibility
+only. Each `Domains/<domain>/` is a self-contained LLM Wiki maintained by one
+expert agent.
 
 ## Calendar Files
 
@@ -41,9 +45,9 @@ source records, `Shared/Raw/` stores shared source attachments, and
 
 | Path | Purpose |
 |---|---|
-| `Shared/SourceRecords/` | Wiki-root shared raw source records, captures, metadata, and source text |
-| `Shared/Raw/` | Wiki-root shared source attachments such as PDFs, images, HTML snapshots, and manifests |
+| `Shared/Raw/` | Wiki-root raw source packages. Each package holds a `manifest.md`, original artifacts, extracted artifacts, and any source-specific assets |
 | `Shared/Templates/` | Wiki-root reusable note templates, including diary templates |
+| `Shared/SourceRecords/` | Legacy shared source record area kept only for older imports and compatibility |
 
 ## Domain Files
 
@@ -54,7 +58,7 @@ source records, `Shared/Raw/` stores shared source attachments, and
 | `log.md` | Reverse chronological action log, newest entry first |
 | `Atlas/` | Maps of Content (MOCs), emergent thinking views |
 | `Cards/` | Durable concepts, methods, patterns, tradeoffs, comparisons |
-| `Sources/` | `Domains/<domain>/Sources/` domain-specific source lenses linked to wiki-root shared `Shared/SourceRecords/` records |
+| `Sources/` | Optional `Domains/<domain>/Sources/` compiled source notes for special-purpose views, comparisons, or legacy compatibility |
 | `Spaces/` | Durable non-Card objects, contexts, and archive space |
 | `Extras/` | Optional domain-owned non-source attachments; create only when needed |
 
@@ -71,6 +75,10 @@ Agents should orient before writing:
 Routine maintenance writes directly inside the selected domain after
 orientation. There is no staged promotion pipeline in the active core workflow.
 
+Query and ingest should stay question-driven: start from the problem being
+answered, then decide whether the raw package, a compiled source note, or a
+durable Card/Atlas/Space page is actually warranted.
+
 After substantive changes, update `index.md` when stable pages are created,
 archived, renamed, or materially changed. Insert a concise newest-first
 `log.md` entry directly below the log heading and instruction block, before the
@@ -78,18 +86,20 @@ previous newest entry.
 
 ## Source Capture
 
-Raw source records preserve the source language by default and live under
-`Shared/SourceRecords/`. For text articles, blogs, docs, and pasted text, keep title,
-author/publisher, dates, canonical URL, headings, links, and local image
-references. Prefer complete transcription when the material is user-provided,
-local, permissively licensed, public domain, or otherwise appropriate to reuse in
-full. Otherwise keep a faithful structured source record and record only
-concrete capture limitations.
+Raw source packages preserve the source language by default and live under
+`Shared/Raw/<source-id>/`. Each package should include a `manifest.md` with the
+source metadata, source hash, `compiled_pages`, capture notes, and links to the
+original and extracted artifacts. For text articles, blogs, docs, and pasted
+text, keep title, author/publisher, dates, canonical URL, headings, links, and
+local image references. Prefer complete transcription when the material is
+user-provided, local, permissively licensed, public domain, or otherwise
+appropriate to reuse in full. Otherwise keep a faithful structured capture and
+record only concrete limitations.
 
-Durable source attachments belong under `Shared/Raw/<source-slug>/` and
-should be linked from the shared source record and any relevant domain lens.
-Domain `Sources/` pages should summarize why the shared source matters to that
-domain and link to `Shared/SourceRecords/...`. Source metadata should point to
+Domain `Sources/` pages are optional compiled source notes. Use them only when a
+source deserves a special-purpose note, comparison, or legacy compatibility
+note. They should summarize why the source matters to that domain and link to
+the raw package and any compiled pages. Source metadata should point to
 wiki-local files, not temporary extractor outputs such as
 `/tmp/topic-research/...`.
 
@@ -99,6 +109,11 @@ wiki-local files, not temporary extractor outputs such as
   in the wiki.
 - Do not write across domains unless the user explicitly asks.
 - Do not duplicate the same raw source or PDF under multiple domains.
+- Do not treat `Shared/SourceRecords/` as source-of-truth; if it exists, only
+  use it for legacy migration or compatibility.
+- Do not mechanically split every source into a Source note and new Cards.
+  Start from the question and create durable synthesis only when it reduces
+  future work.
 - If `Extras/` exists, do not index it directly.
 - Do not index `Spaces/_archive/` or transient workspace notes.
 - Mark low-confidence and contested knowledge explicitly.

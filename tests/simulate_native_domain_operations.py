@@ -61,7 +61,7 @@ def assert_selected_domain_only(before: dict[str, str], after: dict[str, str], s
 
 
 def assert_selected_domain_or_shared_only(before: dict[str, str], after: dict[str, str], selected: str) -> None:
-    allowed_prefixes = (f"Domains/{selected}/", "Shared/SourceRecords/", "Shared/Raw/")
+    allowed_prefixes = (f"Domains/{selected}/", "Shared/Raw/")
     changes = changed_paths(before, after)
     leaks = sorted(path for path in changes if not path.startswith(allowed_prefixes))
     if leaks:
@@ -86,24 +86,37 @@ def log_headings(domain: Path) -> list[str]:
 
 
 def simulate_query(domain: Path) -> str:
+    wiki = domain.parents[1]
     schema = (domain / "SCHEMA.md").read_text()
     index = (domain / "index.md").read_text()
     log = (domain / "log.md").read_text()
     card = (domain / "Cards" / "expert-domain-wiki.md").read_text()
-    source = (domain / "Sources" / "llm-wiki-skill-note.md").read_text()
-    return "\n".join([schema, index, log, card, source])
+    manifest = (wiki / "Shared" / "Raw" / "llm-wiki-skill-note" / "manifest.md").read_text()
+    return "\n".join([schema, index, log, card, manifest])
+
+
+def digest_index(values: dict[str, str]) -> str:
+    payload = "\n".join(f"{path}:{digest}" for path, digest in sorted(values.items()))
+    return hashlib.sha256(payload.encode("utf-8")).hexdigest()
 
 
 def simulate_ingest(domain: Path) -> None:
     wiki = domain.parents[1]
-    shared_source = wiki / "Shared" / "SourceRecords" / "tests" / "agent-domain-boundary-note.md"
-    shared_source.parent.mkdir(parents=True, exist_ok=True)
-    shared_source.write_text(f"""---
+    raw = wiki / "Shared" / "Raw" / "agent-domain-boundary-note"
+    raw.mkdir(parents=True, exist_ok=True)
+    (raw / "diagram.txt").write_text("test attachment\n")
+    raw_hash = digest_index(digest_tree(domain))
+    (raw / "manifest.md").write_text(f"""---
 title: Agent Domain Boundary Raw Source
 created: {TODAY}
 updated: {TODAY}
 type: source
 source_url: local boundary test
+source_id: agent-domain-boundary-note
+hash: {raw_hash}
+compiled_pages:
+  - Domains/{domain.name}/Cards/domain-boundary-discipline.md
+  - Domains/{domain.name}/Cards/expert-domain-wiki.md
 artifacts:
   - Shared/Raw/agent-domain-boundary-note/diagram.txt
 ---
@@ -112,20 +125,17 @@ artifacts:
 
 Raw source shared by any domain that needs the boundary note.
 """)
-    shared_attachment = wiki / "Shared" / "Raw" / "agent-domain-boundary-note" / "diagram.txt"
-    shared_attachment.parent.mkdir(parents=True, exist_ok=True)
-    shared_attachment.write_text("test attachment\n")
 
-    source = domain / "Sources" / "agent-domain-boundary-note.md"
+    source = domain / "Cards" / "agent-domain-boundary-note.md"
     source.write_text(f"""---
 title: Agent Domain Boundary Note
 created: {TODAY}
 updated: {TODAY}
-type: source
+type: concept
 tags: [wiki, agent, source]
 confidence: medium
 status: active
-sources: ["local boundary test"]
+sources: ["Shared/Raw/agent-domain-boundary-note/manifest.md"]
 contested: false
 contradictions: []
 ---
@@ -135,7 +145,7 @@ contradictions: []
 This source describes why [[expert-domain-wiki]] should update only the selected
 domain and why [[domain-boundary-discipline]] belongs in `Cards/`.
 
-Shared raw source: `Shared/SourceRecords/tests/agent-domain-boundary-note.md`.
+Shared raw source: `Shared/Raw/agent-domain-boundary-note/manifest.md`.
 """)
 
     card = domain / "Cards" / "domain-boundary-discipline.md"
@@ -147,7 +157,7 @@ type: concept
 tags: [wiki, agent, concept]
 confidence: medium
 status: active
-sources: ["[[agent-domain-boundary-note]]"]
+sources: ["Shared/Raw/agent-domain-boundary-note/manifest.md"]
 contested: false
 contradictions: []
 ---
@@ -156,24 +166,20 @@ contradictions: []
 
 Domain boundary discipline means an expert updates the selected domain after
 orientation and does not write into sibling domains. It connects
-[[agent-domain-boundary-note]] with [[expert-domain-wiki]].
+`Shared/Raw/agent-domain-boundary-note/manifest.md` with [[expert-domain-wiki]].
 """)
 
     index = domain / "index.md"
     text = index.read_text()
     text = text.replace(
-        "> Last updated: 2026-04-29 | Total pages: 5",
-        "> Last updated: 2026-04-29 | Total pages: 7",
+        "> Last updated: 2026-04-29 | Total pages: 4",
+        "> Last updated: 2026-04-29 | Total pages: 6",
     )
     text = text.replace(
         "- [[expert-domain-wiki]] - Self-contained expert-owned domain wiki.\n",
+        "- [[agent-domain-boundary-note]] - Raw-first note captured as a durable card.\n"
         "- [[domain-boundary-discipline]] - Selected-domain-only update discipline.\n"
         "- [[expert-domain-wiki]] - Self-contained expert-owned domain wiki.\n",
-    )
-    text = text.replace(
-        "- [[llm-wiki-skill-note]] - Test source note for LoreForge wiki behavior.\n",
-        "- [[agent-domain-boundary-note]] - Test source note for domain boundary behavior.\n"
-        "- [[llm-wiki-skill-note]] - Test source note for LoreForge wiki behavior.\n",
     )
     index.write_text(text)
 
@@ -181,10 +187,10 @@ orientation and does not write into sibling domains. It connects
         domain,
         f"""
 ## {TODAY} | ingest | Agent domain boundary note
-- created: Shared/SourceRecords/tests/agent-domain-boundary-note.md
 - created: Shared/Raw/agent-domain-boundary-note/diagram.txt
-- created: Sources/agent-domain-boundary-note.md
+- created: Shared/Raw/agent-domain-boundary-note/manifest.md
 - created: Cards/domain-boundary-discipline.md
+- created: Cards/agent-domain-boundary-note.md
 - updated: index.md
 """,
     )
