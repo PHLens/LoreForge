@@ -10,10 +10,14 @@ from __future__ import annotations
 import hashlib
 import re
 import shutil
+import sys
 import tempfile
 from pathlib import Path
 
-from validate_native_domain import validate_domain
+REPO_ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(REPO_ROOT))
+
+from scripts.validate_native_domain import validate_domain
 
 
 TODAY = "2026-04-29"

@@ -41,6 +41,9 @@ EXPECTED_TYPE_BY_DIR = {
     "Spaces": "space",
 }
 
+FOOTNOTE_REF_RE = re.compile(r"(?<!\^)\[\^([^\]]+)\](?!:)")
+FOOTNOTE_DEF_RE = re.compile(r"^\[\^([^\]]+)\]:\s*(.*)$")
+
 
 @dataclass(frozen=True)
 class Issue:
@@ -103,6 +106,103 @@ def taxonomy(schema_text: str) -> set[str]:
 def wikilinks(text: str) -> list[str]:
     return [match.split("|", 1)[0].split("#", 1)[0].strip()
             for match in re.findall(r"\[\[([^\]]+)\]\]", text)]
+
+
+def split_frontmatter(text: str) -> tuple[str, str]:
+    if not text.startswith("---\n"):
+        return "", text
+    parts = text.split("---", 2)
+    if len(parts) < 3:
+        return "", text
+    return f"---{parts[1]}---", parts[2]
+
+
+def footnote_blocks(lines: list[str]) -> list[tuple[str, int, int]]:
+    blocks: list[tuple[str, int, int]] = []
+    i = 0
+    while i < len(lines):
+        match = FOOTNOTE_DEF_RE.match(lines[i])
+        if not match:
+            i += 1
+            continue
+        label = match.group(1)
+        start = i
+        i += 1
+        while i < len(lines):
+            line = lines[i]
+            if line.startswith("    ") or line.startswith("\t"):
+                i += 1
+                continue
+            if line.strip() == "":
+                next_index = i + 1
+                if next_index < len(lines) and (
+                    lines[next_index].startswith("    ") or lines[next_index].startswith("\t")
+                ):
+                    i += 1
+                    continue
+            break
+        blocks.append((label, start, i))
+    return blocks
+
+
+def footnote_labels(body: str) -> tuple[set[str], set[str]]:
+    lines = body.splitlines()
+    blocks = footnote_blocks(lines)
+    defined = {label for label, _, _ in blocks}
+    if not blocks:
+        refs = set(FOOTNOTE_REF_RE.findall(body))
+        return refs, defined
+
+    block_starts = {start: end for _, start, end in blocks}
+    filtered: list[str] = []
+    i = 0
+    while i < len(lines):
+        if i in block_starts:
+            i = block_starts[i]
+            continue
+        filtered.append(lines[i])
+        i += 1
+    refs = set(FOOTNOTE_REF_RE.findall("\n".join(filtered)))
+    return refs, defined
+
+
+def remove_orphan_footnote_definitions(text: str) -> str:
+    prefix, body = split_frontmatter(text)
+    if not body:
+        return text
+
+    lines = body.splitlines()
+    blocks = footnote_blocks(lines)
+    if not blocks:
+        return text
+
+    refs, _ = footnote_labels(body)
+    keep_labels = refs
+    block_starts = {start: (label, end) for label, start, end in blocks}
+
+    filtered: list[str] = []
+    i = 0
+    changed = False
+    while i < len(lines):
+        block = block_starts.get(i)
+        if block is not None:
+            label, end = block
+            if label in keep_labels:
+                filtered.extend(lines[i:end])
+            else:
+                changed = True
+            i = end
+            continue
+        filtered.append(lines[i])
+        i += 1
+
+    if not changed:
+        return text
+
+    cleaned_body = "\n".join(filtered).rstrip()
+    if cleaned_body:
+        cleaned_body += "\n"
+    return prefix + cleaned_body
 
 
 def log_entry_dates(text: str) -> list[str]:
@@ -195,6 +295,13 @@ def validate_domain(domain: Path) -> list[Issue]:
         for tag in sorted(unknown):
             issues.append(Issue("unknown-tag", page_rel, f"`{tag}` not in SCHEMA.md taxonomy"))
 
+        _, body = split_frontmatter(text)
+        refs, defined = footnote_labels(body)
+        for label in sorted(refs - defined):
+            issues.append(Issue("missing-footnote-definition", page_rel, f"`[^{label}]` has no matching definition"))
+        for label in sorted(defined - refs):
+            issues.append(Issue("orphan-footnote-definition", page_rel, f"`[^{label}]` definition has no body references"))
+
         if should_index(page, domain, fields):
             if f"[[{page.stem}]]" not in index_text:
                 issues.append(Issue("missing-index-entry", page_rel, "indexable page is absent from index.md"))
@@ -241,6 +348,18 @@ def validate_domain(domain: Path) -> list[Issue]:
     return sorted(issues, key=lambda issue: (issue.code, issue.path, issue.message))
 
 
+def fix_orphan_footnotes(domain: Path) -> list[str]:
+    changed: list[str] = []
+    for page in active_pages(domain):
+        text = page.read_text()
+        fixed = remove_orphan_footnote_definitions(text)
+        if fixed == text:
+            continue
+        page.write_text(fixed)
+        changed.append(rel(page, domain))
+    return changed
+
+
 def run_fixture(name: str, domain: Path, expected_codes: set[str]) -> bool:
     issues = validate_domain(domain)
     codes = {issue.code for issue in issues}
@@ -262,10 +381,19 @@ def run_fixture(name: str, domain: Path, expected_codes: set[str]) -> bool:
 
 
 def main(argv: list[str]) -> int:
+    fix = False
+    if argv and argv[0] in {"--fix", "-f"}:
+        fix = True
+        argv = argv[1:]
+
     if argv:
         ok = True
         for arg in argv:
             domain = Path(arg)
+            if fix:
+                changed = fix_orphan_footnotes(domain)
+                for page in changed:
+                    print(f"fixed orphan footnotes: {page}")
             issues = validate_domain(domain)
             print(f"== {domain}")
             if issues:
@@ -276,15 +404,17 @@ def main(argv: list[str]) -> int:
                 print("ok")
         return 0 if ok else 1
 
-    root = Path(__file__).resolve().parent / "fixtures" / "native-domain"
+    root = Path(__file__).resolve().parents[1] / "tests" / "fixtures" / "native-domain"
     valid = root / "valid" / "wiki" / "Domains" / "ai-research"
     invalid = root / "invalid" / "wiki" / "Domains" / "ai-research"
     invalid_expected = {
         "broken-wikilink",
         "cross-domain-link",
         "missing-frontmatter-field",
+        "missing-footnote-definition",
         "missing-index-entry",
         "log-order",
+        "orphan-footnote-definition",
         "unknown-tag",
     }
 
