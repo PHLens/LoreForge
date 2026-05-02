@@ -6,7 +6,7 @@ type: space
 tags: [tool]
 confidence: medium
 status: active
-sources: ["[[llm-wiki-skill-note]]"]
+sources: ["Shared/Raw/llm-wiki-skill-note/manifest.md"]
 contested: false
 contradictions: []
 ---

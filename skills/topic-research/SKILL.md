@@ -8,10 +8,11 @@ description: Research a topic across Chinese and general web sources, gather at 
 Use this skill to gather source material for a topic, reuse human-provided browser state when needed, and prepare a source-backed research pack before writing a synthesized report.
 
 When this skill is used with `loreforge-wiki`, treat its outputs as capture
-inputs. Durable raw source records and attachments belong under the wiki-level
-`Shared/SourceRecords/` and `Shared/Raw/` directories. Domain-specific source
-lenses belong under the selected domain's `Sources/` directory. Do not leave
-final wiki notes pointing at `/tmp/topic-research/...`.
+inputs. Durable raw source packages belong under the wiki-level
+`Shared/Raw/<source-id>/` directory, with `manifest.md` tracking metadata,
+source hash, compiled page pointers, and artifact links. Domain-specific
+`Sources/` pages are optional compiled notes for special-purpose views. Do not
+leave final wiki notes pointing at `/tmp/topic-research/...`.
 
 ## Environment Setup
 

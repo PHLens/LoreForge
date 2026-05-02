@@ -13,9 +13,11 @@ Build and maintain a persistent, compounding Markdown wiki for one expert-owned
 domain.
 
 LoreForge follows the [LLM Wiki](https://github.com/NousResearch/hermes-agent/blob/main/skills/research/llm-wiki/SKILL.md)
-pattern: compile durable knowledge once, keep it linked, and update it as
-sources and questions arrive. It adds expert-owned domains and Atlas MOCs for
-preserving evolving conceptual views.
+pattern: compile durable knowledge once, keep it linked, and update it as raw
+source packages and questions arrive. It adds expert-owned domains and Atlas
+MOCs for preserving evolving conceptual views.
+
+When source-layer details matter, read [references/raw-first-wiki.md](references/raw-first-wiki.md).
 
 Always:
 
@@ -112,9 +114,8 @@ wiki/
   00_System/       # Wiki-level entrypoints, shared protocols, views, and domain registry
   Calendar/        # Date-based notes such as daily notes
     dailynotes/    # Default daily-note folder
-  Shared/          # Shared source records, source artifacts, and reusable templates
-    SourceRecords/ # One canonical source record per reusable source
-    Raw/           # PDFs, images, HTML snapshots, manifests, and source assets
+  Shared/          # Raw source packages and reusable templates
+    Raw/           # Canonical source packages: manifest, originals, extracted artifacts
     Templates/     # Wiki-level reusable note templates, such as diary templates
   Domains/         # Expert-owned domain wiki collection
     <domain>/      # One domain maintained by one expert agent
@@ -127,26 +128,26 @@ Domains/<domain>/
   log.md           # Reverse chronological action log, newest entry first
   Atlas/           # Maps of Content (MOCs), emergent thinking views
   Cards/           # Durable concepts, methods, patterns, tradeoffs, comparisons
-  Sources/         # Domain-specific source lenses over shared source records
+  Sources/         # Optional compiled source notes
   Spaces/          # Durable people, orgs, projects, tools, systems, contexts
 ```
 
 Treat `00_System/` as the wiki-level operating surface. Treat each
 `Domains/<domain>/` as a self-contained LLM Wiki for a single expert-owned
-domain. Treat `Shared/SourceRecords/`, `Shared/Raw/`, and `Shared/Templates/`
-as the shared raw source, attachment, and template infrastructure for the whole
-wiki. Treat `Calendar/` as wiki-level dated personal notes, not as a domain
-knowledge area.
+domain. Treat `Shared/Raw/` and `Shared/Templates/` as the shared raw source
+and template infrastructure for the whole wiki. Treat `Shared/SourceRecords/`
+as legacy compatibility only, not the active source-of-truth layer. Treat
+`Calendar/` as wiki-level dated personal notes, not as a domain knowledge area.
 
 Create `Domains/<domain>/Extras/` only when a domain truly needs local
 non-source attachments.
 
 Orient, query, ingest, update, review, and Health Check inside the selected
 domain. DO NOT write across domains unless the user explicitly asks. During
-ingest, you may write `Shared/SourceRecords/` and `Shared/Raw/` only for shared
-raw source records and attachments that support the selected domain lens. Only
-write `Calendar/` or `Shared/Templates/` when the user explicitly asks for
-daily-note, diary, calendar, or reusable template work.
+ingest, write `Shared/Raw/<source-id>/` only for shared raw source packages
+that support the selected domain question. Only write `Calendar/` or
+`Shared/Templates/` when the user explicitly asks for daily-note, diary,
+calendar, or reusable template work.
 
 ## Resuming an Existing Domain (CRITICAL — do this every session)
 
@@ -176,8 +177,7 @@ When the user asks to create or start a wiki or domain:
 3. Create `00_System/`, `00_System/index.md`, `00_System/domains.md`, and
    `00_System/wiki-layout.md` if missing.
 4. Create `Calendar/` and `Calendar/dailynotes/` if missing.
-5. Create `Shared/SourceRecords/`, `Shared/Raw/`, and `Shared/Templates/` if
-   missing.
+5. Create `Shared/Raw/` and `Shared/Templates/` if missing.
 6. Create `Domains/<domain>/`.
 7. Create the required domain files and directories above.
 8. Ask for a concise domain description and the default language for extracted
@@ -212,13 +212,12 @@ each domain's `SCHEMA.md`.
 
 Canonical shared layer:
 
-- `Shared/SourceRecords/` for shared source records
-- `Shared/Raw/` for source artifacts
+- `Shared/Raw/` for raw source packages
 - `Shared/Templates/` for reusable templates
 
 Domain layer:
 
-- `Domains/<domain>/Sources/` for domain-specific source lenses
+- `Domains/<domain>/Sources/` for optional compiled source notes
 ```
 
 Create `Domains/<domain>/Extras/` only when the domain needs its own
@@ -245,7 +244,7 @@ Adapt to the user's domain. The schema constrains agent behavior and ensures con
 [What this domain covers — e.g., "AI/ML research", "personal health", "startup intelligence"]
 
 ## Language Policy
-- Shared source records and domain Source lenses preserve the source language by default.
+- Raw packages preserve the source language by default. Optional domain Source notes preserve it too when used.
 - Extracted Cards, Atlas pages, and Spaces use this domain's configured default note language: `[language]`.
 - If this policy is missing, ask once before creating synthesized pages, then add it to `SCHEMA.md`.
 - Do not translate source material unless the user asks for translation or bilingual notes.
@@ -262,9 +261,9 @@ Adapt to the user's domain. The schema constrains agent behavior and ensures con
   than burying them in a trailing related-pages section.
 - **Provenance markers:** On pages that synthesize 3+ sources, append `[^1]`
   at the end of paragraphs whose claims come from a specific source, with a footnote definition
-  at the end of the page using a wikilink (e.g. `[^1]: [[source-lens-name]]`). This lets a reader trace each
-  claim back to the domain lens, which links to the `Shared/SourceRecords/`
-  record. Optional on single-source pages where the `sources:` frontmatter is enough.
+  at the end of the page using a wikilink (e.g. `[^1]: [[source-note-name]]`). This lets a reader trace each
+  claim back to the optional domain Source note, which links to the raw package.
+  Optional on single-source pages where the `sources:` frontmatter is enough.
 
 ## Frontmatter
 ```yaml
@@ -279,8 +278,8 @@ status: active | tentative | archived
 sources: []
 contested: false
 contradictions: []
-# Source lens pages may also include:
-shared_source_record: Shared/SourceRecords/<kind>/<source-slug>.md
+# Optional Source note pages may also include:
+shared_raw_package: Shared/Raw/<source-id>/manifest.md
 artifacts: []
 ---
 ```
@@ -346,16 +345,16 @@ Create domain `Extras/` only for non-source attachments owned by this domain:
 - reusable templates or other non-note assets
 
 Put source PDFs, images, HTML snapshots, and capture manifests under
-`Shared/Raw/<source-slug>/`, not under domain `Extras/`.
+`Shared/Raw/<source-id>/`, not under domain `Extras/`.
 
 If `Extras/` exists, do not index it directly. Link domain attachments from
 relevant Sources, Cards, or Atlas pages.
 
 ## Sources
-Use domain `Sources/` for source lenses: mutable notes about why a shared raw
-source matters to this domain.
+Use domain `Sources/` for optional compiled source notes: mutable notes about
+why a raw source package matters to this domain.
 
-Create or update a domain Source lens when a shared source has durable domain
+Create or update a domain Source note only when a source has durable special
 value:
 - paper
 - article
@@ -369,64 +368,44 @@ value:
 
 Include key claims, evidence, provenance, limitations, relevance, and links to
 Cards, Atlas views, or Spaces. Link each lens to the canonical
-`Shared/SourceRecords/...` record and any `Shared/Raw/...` attachments.
-
-### Shared Source Records
-
-Use `Shared/SourceRecords/` for canonical raw source records, `Shared/Raw/` for
-source artifacts, and `Shared/Templates/` for reusable templates shared across
-domains:
-
-- `Shared/SourceRecords/<kind>/<source-slug>.md`: canonical source record,
-  metadata, source-language text or structured notes, canonical URL, access
-  notes, and links to attachments.
-- `Shared/Raw/<source-slug>/`: PDFs, images, HTML snapshots, manifests, and
-  other source artifacts.
-
-Before creating a new shared source record, search `Shared/SourceRecords/` for
-the URL, title, DOI, arXiv ID, filename, or source hash. Reuse the existing
-source record when found. Do not duplicate the same PDF or web capture under
-multiple domains.
+`Shared/Raw/<source-id>/manifest.md` package and any attachments. `Shared/SourceRecords/`
+may exist in older wikis, but it is not the active source-of-truth layer.
 
 ### Source Capture Policy
 
 - Preserve the shared raw source before synthesizing cards.
 - Text articles, blogs, docs, and pasted text: save source-language Markdown in
-  `Shared/SourceRecords/articles/` or the right `Shared/SourceRecords/`
-  directory.
-  Preserve title, author/publisher, dates, canonical URL, headings, links, and
+  `Shared/Raw/<source-id>/manifest.md` plus extracted artifacts. Preserve
+  title, author/publisher, dates, canonical URL, headings, links, and
   local image refs. Prefer complete transcription when the material is
   user-provided, local, permissively licensed, public domain, or otherwise
   appropriate to reuse in full. For third-party web pages where full
-  transcription is not appropriate, keep a faithful structured source record
+  transcription is not appropriate, keep a faithful structured capture
   with specific excerpts and grounded notes; do not add generic boilerplate
   explaining that the note is not a full transcription unless a concrete capture
   limitation matters.
-- Article images/diagrams: download to `Shared/Raw/<source-slug>/`, link
-  them from the shared source record and the domain lens, and create a manifest
+- Article images/diagrams: download to `Shared/Raw/<source-id>/`, link
+  them from the raw package and any domain Source note, and create a manifest
   for multiple images.
-- PDFs: download the original PDF to `Shared/Raw/<source-slug>/`; create a
-  `Shared/SourceRecords/papers/` or `Shared/SourceRecords/docs/` source record
-  with
-  metadata, key claims, limitations, and a local PDF link. Extract full text
-  only when needed or asked.
-- Domain lens: create or update `Domains/<domain>/Sources/<source-slug>.md` with
-  this domain's relevance, extracted claims, and links to the shared source
-  record and attachments.
-- Language: shared source records and domain Source lenses preserve the source
+- PDFs: download the original PDF to `Shared/Raw/<source-id>/`; create or
+  update `manifest.md` with metadata, source hash, compiled pages, limitations,
+  and a local PDF link. Extract full text only when needed or asked.
+- Domain Source note: create or update `Domains/<domain>/Sources/<source-id>.md` only
+  when a source-specific compiled note is justified, with this domain's
+  relevance, extracted claims, and links to the raw package and attachments.
+- Language: raw packages and optional domain Source notes preserve the source
   language by default. Synthesized Cards, Atlas pages, and Spaces use the domain
   default note language from `SCHEMA.md`.
-- Durable local paths in source records and domain lenses must point to
-  wiki-local files, such as `Shared/SourceRecords/...`, `Shared/Raw/...`, or
-  the domain lens itself. Do not put transient extractor paths such as
+- Durable local paths in raw packages and domain Source notes must point to
+  wiki-local files, such as `Shared/Raw/...` or the domain Source note itself. Do not put transient extractor paths such as
   `/tmp/topic-research/...` in source metadata; if those paths are useful for
   debugging, record them in `log.md` only.
 
 ### Built-In Capture Tools
 
 - For web topics, direct links, Zhihu, WeChat, and pages that need browser state,
-  use the bundled `topic-research` skill before writing shared source records
-  or domain Source lenses.
+  use the bundled `topic-research` skill before writing raw source packages
+  or optional domain Source notes.
 - For local documents or exported files, use `convert-to-markdown` when it can
   preserve structure or extract images better than manual conversion.
 - For standard web pages where a lightweight extractor is enough, `defuddle`
@@ -530,9 +509,8 @@ When migrating:
 3. If the target domain does not exist, initialize it first.
 4. Read from the source without changing it.
 5. Ingest durable material into the native domain structure:
-   - raw source records into `Shared/SourceRecords/`
-   - non-Markdown source attachments into `Shared/Raw/`
-   - domain-specific source lenses into `Domains/<domain>/Sources/`
+   - raw source packages into `Shared/Raw/<source-id>/`
+   - optional domain source notes into `Domains/<domain>/Sources/` only when justified
    - synthesized reusable concepts into `Cards/`
    - emergent thinking views into `Atlas/`
    - people, entities, tools, projects, systems, and contexts into `Spaces/`
@@ -563,24 +541,24 @@ When the user provides a source (URL, file, paste), integrate it into the wiki:
 2. **Capture the source:**
    - Determine source type and language first.
    - Text URL/article/blog/docs → extract source-language Markdown, preserve
-     structure/links/metadata, save to `Shared/SourceRecords/articles/` or the
-     right `Shared/SourceRecords/` directory. Prefer complete transcription when the
-     material can appropriately be stored in full; otherwise keep a faithful
-     structured note and record only concrete capture limitations.
-   - Article images/diagrams → download to `Shared/Raw/<source-slug>/`,
-     manifest multiple files, and link local images from the shared source record
-     and the domain Source lens.
-   - PDF → download the original PDF to `Shared/Raw/<source-slug>/`; create
-     a `Shared/SourceRecords/papers/` or `Shared/SourceRecords/docs/` record with metadata,
-     key claims, limitations, and a local PDF link. Extract full text only when
+     structure/links/metadata, save to `Shared/Raw/<source-id>/manifest.md`
+     plus extracted artifacts. Prefer complete transcription when the material
+     can appropriately be stored in full; otherwise keep a faithful structured
+     capture and record only concrete capture limitations.
+   - Article images/diagrams → download to `Shared/Raw/<source-id>/`,
+     manifest multiple files, and link local images from the raw package and
+     any optional domain Source note.
+   - PDF → download the original PDF to `Shared/Raw/<source-id>/`; update the
+     raw package manifest with metadata, source hash, compiled pages, key
+     claims, limitations, and a local PDF link. Extract full text only when
      needed.
    - Pasted text → save in the original language; prefer complete transcription.
    - Source metadata → use wiki-local durable paths only. Do not cite
      temporary extractor output directories as source artifacts inside the note.
    - Name the shared source file descriptively:
-     `Shared/SourceRecords/articles/karpathy-llm-wiki-2026.md`
-   - Create or update a domain lens at
-     `Domains/<domain>/Sources/karpathy-llm-wiki-2026.md`.
+     `Shared/Raw/karpathy-llm-wiki-2026/manifest.md`
+   - Create or update a domain Source note only if a special-purpose compiled note is
+     justified at `Domains/<domain>/Sources/karpathy-llm-wiki-2026.md`.
 
 3. **Discuss takeaways** with the user — what's interesting, what matters for
    the domain. (Skip this in automated/cron contexts — proceed directly.)
@@ -594,9 +572,9 @@ When the user provides a source (URL, file, paste), integrate it into the wiki:
      in SCHEMA.md (2+ source mentions, or central to one source)
    - **Existing pages:** Add new information, update facts, bump `updated` date.
      When new info contradicts existing content, follow the Update Policy.
-   - **Language:** Shared source records and domain Source lenses stay in the
-     source language. New Cards, Atlas pages, and Spaces use the domain's
-     configured default note language from `SCHEMA.md`.
+   - **Language:** Raw packages and optional domain Source notes stay in the source
+     language. New Cards, Atlas pages, and Spaces use the domain's configured
+     default note language from `SCHEMA.md`.
    - **Related links:** Put important related pages near the top of Cards and
      Atlas pages with `related:: [[...]]` so readers see the local graph before
      the body.
@@ -604,9 +582,9 @@ When the user provides a source (URL, file, paste), integrate it into the wiki:
      pages via `[[wikilinks]]`. Check that existing pages link back.
    - **Tags:** Only use tags from the taxonomy in `SCHEMA.md`
    - **Provenance:** On pages synthesizing 3+ sources, append
-     `[^1]` inline markers with `[^1]: [[source-lens-name]]` footnote definitions to paragraphs whose claims trace to a
-     specific domain Source lens. The lens links back to
-     `Shared/SourceRecords/...`.
+     `[^1]` inline markers with `[^1]: [[source-note-name]]` footnote definitions to paragraphs whose claims trace to a
+     specific domain Source note. The note links back to
+     the raw package.
    - **Confidence:** For opinion-heavy, fast-moving, or single-source claims, set
      `confidence: medium` or `low` in frontmatter. Don't mark `high` unless the
      claim is well-supported across multiple sources.
@@ -615,8 +593,8 @@ When the user provides a source (URL, file, paste), integrate it into the wiki:
    - Add new pages to `index.md` under the correct section, alphabetically
    - Update the "Total pages" count and "Last updated" date in index header
    - Insert at the top of `log.md`: `## [YYYY-MM-DD] ingest | Source Title`
-   - List every shared source record, shared attachment, domain Source lens, Card,
-     Atlas, Space, and other file created or updated in the log entry
+   - List every raw package, optional domain Source note, Card, Atlas, Space,
+     and other file created or updated in the log entry
 
 7. **Report what changed** — list every file created or updated to the user,
    including local image/PDF attachment paths.
@@ -714,13 +692,13 @@ When content is fully superseded or the domain scope changes:
 - **Always update index.md and log.md** — skipping this makes the wiki degrade. These are the
   navigational backbone.
 - **Don't drop source attachments** — article images, diagrams, PDFs, and other durable source
-  artifacts belong in `Shared/Raw/<source-slug>/` and should be linked from the shared
-  source record and domain Source lens.
-- **Don't duplicate raw sources** — search `Shared/SourceRecords/` before adding a source. Reuse the
-  shared raw source and create a new domain lens when another domain needs it.
+  artifacts belong in `Shared/Raw/<source-id>/` and should be linked from the raw
+  package and any optional domain Source note.
+- **Don't duplicate raw sources** — search `Shared/Raw/` before adding a source. Reuse the
+  shared raw package and create a new domain Source note only when another domain needs it.
 - **Don't make ingest purely mechanical** — start from the user's problem or
-  uncertainty, then use source records and Cards to lower future cognitive load.
-- **Don't silently translate sources** — shared source records and domain Source lenses preserve
+  uncertainty, then use raw packages and Cards to lower future cognitive load.
+- **Don't silently translate sources** — raw packages and optional domain Source notes preserve
   the original language. Use the domain default note language only for synthesized Cards, Atlas
   pages, and Spaces.
 - **Don't create pages for passing mentions** — follow the Page Thresholds in SCHEMA.md. A name

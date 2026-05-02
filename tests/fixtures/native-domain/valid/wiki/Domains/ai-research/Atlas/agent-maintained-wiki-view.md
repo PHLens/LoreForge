@@ -6,7 +6,7 @@ type: map
 tags: [wiki, agent, map]
 confidence: medium
 status: active
-sources: ["[[llm-wiki-skill-note]]"]
+sources: ["Shared/Raw/llm-wiki-skill-note/manifest.md"]
 contested: false
 contradictions: []
 ---

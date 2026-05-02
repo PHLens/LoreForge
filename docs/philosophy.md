@@ -4,7 +4,8 @@ LoreForge is a framework for LLM-wiki style professional knowledge bases.
 
 It is not agent memory and not a full agent runtime. The goal is to reduce
 repeated raw search and summarization by compiling useful source material into
-durable, queryable, human-readable knowledge.
+durable, queryable, human-readable knowledge. Ingest should start from the
+user's question or uncertainty, not from mechanical source decomposition.
 
 ## Separation
 
@@ -17,8 +18,8 @@ pamem
 
 LoreForge wiki instance
   professional knowledge
-  shared source records
-  domain source lenses
+  raw source packages
+  optional domain source notes
   durable concepts
   maps, indexes, logs
 
@@ -68,7 +69,7 @@ LoreForge
   shared knowledge compounds
   professional concepts become reusable
   shared raw sources avoid duplicate capture
-  domain source lenses become queryable
+  optional domain source notes remain queryable when useful
   stable notes remain human-readable
 ```
 
@@ -78,10 +79,10 @@ LoreForge
 | Agent operating experience | `pamem` or host agent memory |
 | Current task state | session, project files, or `pamem` |
 | Reusable professional concept | LoreForge wiki |
-| Raw source record | LoreForge wiki `Shared/SourceRecords/` |
-| Raw source artifact | LoreForge wiki `Shared/Raw/` |
+| Raw source package | LoreForge wiki `Shared/Raw/<source-id>/` |
+| Raw source artifact | LoreForge wiki `Shared/Raw/<source-id>/` |
 | Reusable template | LoreForge wiki `Shared/Templates/` |
-| Domain source summary | LoreForge domain `Sources/` lens |
+| Optional domain source note | LoreForge domain `Sources/` note |
 | Durable domain view | LoreForge wiki |
 
 ## Current Design
@@ -89,8 +90,8 @@ LoreForge
 LoreForge now follows a small core:
 
 1. One shared wiki root can contain many domains.
-2. Shared raw sources live in `Shared/SourceRecords/`, attachments in
-   `Shared/Raw/`, and reusable templates in `Shared/Templates/`.
+2. Shared raw sources live in `Shared/Raw/<source-id>/`, and reusable templates
+   in `Shared/Templates/`.
 3. One expert agent owns and maintains one domain.
 4. The `loreforge-router` skill handles domain selection and cross-domain
    coordination.
@@ -110,6 +111,9 @@ Borrow:
 
 - **Session orientation**: before operating on a wiki, read schema, indexes, and
   recent meaningful log entries.
+- **Question-driven ingest**: frame source capture around the problem being
+  solved, then decide whether a raw package, an optional domain Source note, or durable synthesis
+  is actually needed.
 - **Memory/knowledge split**: keep facts, preferences, procedures, and durable
   professional knowledge in separate stores.
 - **Source discipline**: preserve provenance and avoid turning passing mentions
@@ -133,5 +137,5 @@ Do not borrow:
 1. Stabilize the single-domain expert workflow.
 2. Keep initialization authority in `loreforge-wiki`, not copied wiki templates.
 3. Add focused Health Check fixtures.
-4. Add migration support as source ingestion into native domains.
+4. Add migration support as raw source ingestion into native domains.
 5. Keep router behavior bounded to domain selection and delegated expert work.

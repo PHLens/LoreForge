@@ -4,7 +4,7 @@ LoreForge is a framework for building LLM-wiki style professional knowledge base
 
 It is inspired by [Karpathy's LLM Wiki](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f), but its scope is narrower and more practical:
 
-- compile reusable professional knowledge from sources and queries
+- compile reusable professional knowledge from questions, sources, and queries
 - make that knowledge readable by humans and agents
 - reduce repeated raw search and re-summarization
 - keep agent-local experience out of the shared wiki
@@ -21,8 +21,8 @@ pamem
 LoreForge wiki instance
   professional knowledge
   concepts
-  shared source records
-  domain source lenses
+  raw source packages
+  optional domain source notes
   maps and indexes
 
 LoreForge framework repo
@@ -64,8 +64,11 @@ wiki/
   Calendar/
     dailynotes/
   Shared/
-    SourceRecords/
     Raw/
+      <source-id>/
+        manifest.md
+        original/
+        extracted/
     Templates/
   Domains/
     <domain>/
@@ -74,7 +77,7 @@ wiki/
       log.md
       Atlas/
       Cards/
-      Sources/
+      Sources/  # optional compiled source notes
       Spaces/
 ```
 
@@ -85,10 +88,13 @@ querying, ingesting, updating, reviewing, or running a Health Check.
 `Extras/` is optional for a domain and only used when the domain truly needs
 its own non-source attachments.
 
-`Shared/SourceRecords/` stores shared raw source records once. `Shared/Raw/`
-stores source attachments such as PDFs, page captures, images, and manifests.
-`Shared/Templates/` stores reusable wiki templates. Domain `Sources/` pages are
-domain-specific lenses over those shared sources.
+`Shared/Raw/<source-id>/` stores the canonical raw source package: a
+`manifest.md` with metadata, source hash, compiled page pointers, and links to
+original/extracted artifacts. `Shared/Templates/` stores reusable wiki
+templates. `Shared/SourceRecords/` is legacy compatibility only, not the active
+source-of-truth layer. Domain `Sources/` pages are optional compiled source
+notes for special-purpose views; `Cards/`, `Atlas/`, and `Spaces/` hold the
+durable synthesis.
 
 ## Skills
 
@@ -158,9 +164,9 @@ Agents should use the local clone for search and editing. GitHub is for persiste
 ## Existing Repos And Vaults
 
 Existing repos or vaults should be treated as sources. Use `loreforge-wiki` to
-capture reusable raw material into `Shared/SourceRecords/` and `Shared/Raw/`,
-then ingest useful domain lenses into native `Domains/<domain>/` pages instead
-of keeping long-term alternate layouts.
+capture raw material into `Shared/Raw/<source-id>/`, then synthesize useful
+domain knowledge into native `Domains/<domain>/` pages instead of keeping
+long-term alternate layouts or source mirrors.
 
 ## License
 
