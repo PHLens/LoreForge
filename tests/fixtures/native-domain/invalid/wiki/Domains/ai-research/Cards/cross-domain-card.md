@@ -14,3 +14,5 @@ contradictions: []
 # Cross Domain Card
 
 This page links outside the selected domain: [[../other-domain/Cards/foreign-page]].
+
+[^orphan]: This definition is not referenced from the page body.

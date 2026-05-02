@@ -11,15 +11,18 @@ from __future__ import annotations
 
 import hashlib
 import re
+import sys
 import tempfile
 import tomllib
 from pathlib import Path
 
-from validate_native_domain import validate_domain
+REPO_ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(REPO_ROOT))
+
+from scripts.validate_native_domain import validate_domain
 
 
 TODAY = "2026-04-30"
-REPO_ROOT = Path(__file__).resolve().parents[1]
 LOG_ENTRY_PATTERN = re.compile(r"\n## \d{4}-\d{2}-\d{2} \| ")
 
 

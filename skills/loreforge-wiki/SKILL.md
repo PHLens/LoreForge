@@ -2,7 +2,7 @@
 name: loreforge-wiki
 description: Use for LoreForge domain wiki query, source ingest, durable updates, review, and Health Checks. One expert owns one domain.
 user-invocable: true
-version: 0.1.2
+version: 0.1.3
 metadata:
   origin: "Inspired by NousResearch Hermes LLM Wiki, MIT"
 ---
@@ -257,6 +257,9 @@ Adapt to the user's domain. The schema constrains agent behavior and ensures con
 - When updating a page, always bump the `updated` date
 - Every new page must be added to `index.md` under the correct section
 - Every action must be inserted into `log.md` as the newest entry
+- Put related page links near the top of Cards and Atlas pages as an Obsidian
+  inline field, for example `related:: [[concept-a]], [[concept-b]]`, rather
+  than burying them in a trailing related-pages section.
 - **Provenance markers:** On pages that synthesize 3+ sources, append `[^1]`
   at the end of paragraphs whose claims come from a specific source, with a footnote definition
   at the end of the page using a wikilink (e.g. `[^1]: [[source-lens-name]]`). This lets a reader trace each
@@ -546,7 +549,18 @@ structure and get explicit confirmation before writing.
 
 When the user provides a source (URL, file, paste), integrate it into the wiki:
 
-1. **Capture the source:**
+1. **Frame the ingest as an inquiry loop:**
+   - Identify the user-facing question, uncertainty, or problem the source helps
+     answer before splitting it into records and pages.
+   - If the problem is unclear, ask a short clarifying question before broad
+     expansion.
+   - Track the loop explicitly: problem framing → evidence capture → synthesis →
+     validation against existing pages → unresolved questions or next sources.
+   - Avoid turning ingest into mechanical source decomposition. The goal is to
+     reduce future cognitive load by making the useful problem, answer, and
+     feedback path easy to see.
+
+2. **Capture the source:**
    - Determine source type and language first.
    - Text URL/article/blog/docs → extract source-language Markdown, preserve
      structure/links/metadata, save to `Shared/SourceRecords/articles/` or the
@@ -568,14 +582,14 @@ When the user provides a source (URL, file, paste), integrate it into the wiki:
    - Create or update a domain lens at
      `Domains/<domain>/Sources/karpathy-llm-wiki-2026.md`.
 
-2. **Discuss takeaways** with the user — what's interesting, what matters for
+3. **Discuss takeaways** with the user — what's interesting, what matters for
    the domain. (Skip this in automated/cron contexts — proceed directly.)
 
-3. **Check what already exists** — search index.md and `search`
+4. **Check what already exists** — search index.md and `search`
    existing pages for mentioned entities/concepts. This is the difference between
    a growing wiki and a pile of duplicates.
 
-4. **Write or update wiki pages:**
+5. **Write or update wiki pages:**
    - **New entities/concepts:** Create pages only if they meet the Page Thresholds
      in SCHEMA.md (2+ source mentions, or central to one source)
    - **Existing pages:** Add new information, update facts, bump `updated` date.
@@ -583,6 +597,9 @@ When the user provides a source (URL, file, paste), integrate it into the wiki:
    - **Language:** Shared source records and domain Source lenses stay in the
      source language. New Cards, Atlas pages, and Spaces use the domain's
      configured default note language from `SCHEMA.md`.
+   - **Related links:** Put important related pages near the top of Cards and
+     Atlas pages with `related:: [[...]]` so readers see the local graph before
+     the body.
    - **Cross-reference:** Every new or updated page must link to at least 2 other
      pages via `[[wikilinks]]`. Check that existing pages link back.
    - **Tags:** Only use tags from the taxonomy in `SCHEMA.md`
@@ -594,14 +611,14 @@ When the user provides a source (URL, file, paste), integrate it into the wiki:
      `confidence: medium` or `low` in frontmatter. Don't mark `high` unless the
      claim is well-supported across multiple sources.
 
-5. **Update navigation:**
+6. **Update navigation:**
    - Add new pages to `index.md` under the correct section, alphabetically
    - Update the "Total pages" count and "Last updated" date in index header
    - Insert at the top of `log.md`: `## [YYYY-MM-DD] ingest | Source Title`
    - List every shared source record, shared attachment, domain Source lens, Card,
      Atlas, Space, and other file created or updated in the log entry
 
-6. **Report what changed** — list every file created or updated to the user,
+7. **Report what changed** — list every file created or updated to the user,
    including local image/PDF attachment paths.
 
 ### 2. Query
@@ -636,28 +653,37 @@ When asked to lint, audit, or run a health-check:
   ```
 
 2. **Broken wikilinks:** Find `[[links]]` that point to pages that don't exist.
-3. **Domain boundary:** Surface wikilinks or path-shaped links that point outside
+3. **Footnote/citation integrity:** Check every footnote marker has a matching
+   definition and every footnote definition is referenced from the page body.
+   For native domains, prefer:
+   ```bash
+   python3 scripts/validate_native_domain.py <domain-path>
+   python3 scripts/validate_native_domain.py --fix <domain-path>
+   ```
+   `--fix` may remove orphan footnote definitions. Missing definitions still
+   require manual repair.
+4. **Domain boundary:** Surface wikilinks or path-shaped links that point outside
    the selected domain unless the user explicitly asked for cross-domain work.
-4. **Index completeness:** Every active page under `Atlas/`, `Cards/`, and
+5. **Index completeness:** Every active page under `Atlas/`, `Cards/`, and
    `Sources/` should appear in `index.md`. Active `Spaces/` pages should appear
    only when tagged `person`, `entity`, `tool`, or `project`. Do not require
    `Spaces/_archive/` or transient workspace notes in the index.
-5. **Frontmatter validation:** Every wiki page must have all required fields
+6. **Frontmatter validation:** Every wiki page must have all required fields
    (title, created, updated, type, tags, status, sources). Tags must be in the taxonomy.
-6. **Stale content:** Pages whose `updated` date is >90 days older than the most
+7. **Stale content:** Pages whose `updated` date is >90 days older than the most
    recent source that mentions the same entities.
-7. **Contradictions:** Pages on the same topic with conflicting claims. Look for
+8. **Contradictions:** Pages on the same topic with conflicting claims. Look for
    pages that share tags/entities but state different facts. Surface all pages
    with `contested: true` or `contradictions:` frontmatter for user review.
-8. **Quality signals:** List pages with `confidence: low` and any page that cites
+9. **Quality signals:** List pages with `confidence: low` and any page that cites
    only a single source but has no confidence field set — these are candidates
    for either finding corroboration or demoting to `confidence: medium`.
-9. **Page size:** Flag pages over 200 lines — candidates for splitting.
-10. **Tag audit:** List all tags in use, flag any not in the `SCHEMA.md` taxonomy.
-11. **Log rotation:** If `log.md` exceeds 500 entries, rotate it.
-12. **Report findings** with specific file paths and suggested actions, grouped by
+10. **Page size:** Flag pages over 200 lines — candidates for splitting.
+11. **Tag audit:** List all tags in use, flag any not in the `SCHEMA.md` taxonomy.
+12. **Log rotation:** If `log.md` exceeds 500 entries, rotate it.
+13. **Report findings** with specific file paths and suggested actions, grouped by
    severity (broken links > orphans > source drift > contested pages > stale content > style issues).
-13. **Insert into log.md:** `## [YYYY-MM-DD] lint | N issues found`
+14. **Insert into log.md:** `## [YYYY-MM-DD] lint | N issues found`
 
 ## Working with the Wiki
 
@@ -692,6 +718,8 @@ When content is fully superseded or the domain scope changes:
   source record and domain Source lens.
 - **Don't duplicate raw sources** — search `Shared/SourceRecords/` before adding a source. Reuse the
   shared raw source and create a new domain lens when another domain needs it.
+- **Don't make ingest purely mechanical** — start from the user's problem or
+  uncertainty, then use source records and Cards to lower future cognitive load.
 - **Don't silently translate sources** — shared source records and domain Source lenses preserve
   the original language. Use the domain default note language only for synthesized Cards, Atlas
   pages, and Spaces.

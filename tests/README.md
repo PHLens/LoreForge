@@ -3,7 +3,8 @@
 Run the native domain verification fixture:
 
 ```bash
-python3 tests/validate_native_domain.py
+python3 scripts/validate_native_domain.py
+python3 scripts/validate_native_domain.py --fix /path/to/domain
 python3 tests/simulate_native_domain_operations.py
 python3 tests/simulate_wiki_config_flow.py
 python3 tests/simulate_router_flow.py
@@ -14,4 +15,5 @@ the `loreforge-wiki` skill and smoke-test query, ingest, and update boundaries
 on a temporary fixture copy. They also smoke-test wiki config discovery,
 initialization, shared `Shared/SourceRecords/` source capture, `Shared/Raw/`
 attachment capture, source-only migration behavior, and router domain-selection
-behavior.
+behavior. The native domain validator can also clean orphan footnote
+definitions with `--fix`.

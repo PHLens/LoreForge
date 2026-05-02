@@ -13,4 +13,5 @@ contradictions: []
 
 # Unindexed Card
 
-This page should be in the index and links to [[missing-card]].
+This page should be in the index and links to [[missing-card]]. It also has a
+missing footnote definition.[^missing]
