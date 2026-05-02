@@ -655,10 +655,10 @@ When asked to lint, audit, or run a health-check:
 2. **Broken wikilinks:** Find `[[links]]` that point to pages that don't exist.
 3. **Footnote/citation integrity:** Check every footnote marker has a matching
    definition and every footnote definition is referenced from the page body.
-   For native domains, prefer:
+   For native domains, prefer the skill-local validator:
    ```bash
-   python3 scripts/validate_native_domain.py <domain-path>
-   python3 scripts/validate_native_domain.py --fix <domain-path>
+   python3 skills/loreforge-wiki/scripts/validate_native_domain.py <domain-path>
+   python3 skills/loreforge-wiki/scripts/validate_native_domain.py --fix <domain-path>
    ```
    `--fix` may remove orphan footnote definitions. Missing definitions still
    require manual repair.

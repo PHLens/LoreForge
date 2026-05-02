@@ -3,8 +3,8 @@
 Run the native domain verification fixture:
 
 ```bash
-python3 scripts/validate_native_domain.py
-python3 scripts/validate_native_domain.py --fix /path/to/domain
+python3 skills/loreforge-wiki/scripts/validate_native_domain.py
+python3 skills/loreforge-wiki/scripts/validate_native_domain.py --fix /path/to/domain
 python3 tests/simulate_native_domain_operations.py
 python3 tests/simulate_wiki_config_flow.py
 python3 tests/simulate_router_flow.py
