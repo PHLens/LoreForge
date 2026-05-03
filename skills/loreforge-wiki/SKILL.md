@@ -1,8 +1,8 @@
 ---
 name: loreforge-wiki
-description: Use for LoreForge domain wiki query, source ingest, durable updates, review, and Health Checks. One expert owns one domain.
+description: Use for LoreForge domain query, capture, ingest, durable updates, review, and Health Checks. One expert owns one domain.
 user-invocable: true
-version: 0.1.3
+version: 0.1.4
 metadata:
   origin: "Inspired by NousResearch Hermes LLM Wiki, MIT"
 ---
@@ -13,9 +13,9 @@ Build and maintain a persistent, compounding Markdown wiki for one expert-owned
 domain.
 
 LoreForge follows the [LLM Wiki](https://github.com/NousResearch/hermes-agent/blob/main/skills/research/llm-wiki/SKILL.md)
-pattern: compile durable knowledge once, keep it linked, and update it as raw
-source packages and questions arrive. It adds expert-owned domains and Atlas
-MOCs for preserving evolving conceptual views.
+pattern: capture the raw clip once, normalize it during ingest, keep durable
+knowledge linked, and update it as questions arrive. It adds expert-owned
+domains and Atlas MOCs for preserving evolving conceptual views.
 
 When source-layer details matter, read [references/raw-first-wiki.md](references/raw-first-wiki.md).
 
@@ -31,6 +31,7 @@ Always:
 Use this skill when the user or another agent asks to:
 
 - query a LoreForge wiki or domain
+- capture a raw source package or clip
 - ingest a source, URL, paper, doc, repo, local file, or pasted material
 - update, revise, or maintain durable domain knowledge
 - create a domain wiki
@@ -114,8 +115,8 @@ wiki/
   00_System/       # Wiki-level entrypoints, shared protocols, views, and domain registry
   Calendar/        # Date-based notes such as daily notes
     dailynotes/    # Default daily-note folder
-  Shared/          # Raw source packages and reusable templates
-    Raw/           # Canonical source packages: manifest, originals, extracted artifacts
+  Shared/          # Raw source clips and reusable templates
+    Raw/           # Raw clip files first, then normalized origin.md/manifest.md packages
     Templates/     # Wiki-level reusable note templates, such as diary templates
   Domains/         # Expert-owned domain wiki collection
     <domain>/      # One domain maintained by one expert agent
@@ -140,17 +141,22 @@ wiki-level dated personal notes, not as a domain knowledge area.
 
 Do not create a wiki-root `Shared/SourceRecords/` layer in the active
 structure. If an old wiki still has one, migrate raw capture material to
-`Shared/Raw/<source-id>/`. Domain `Sources/` is optional and should be used
-only when a domain needs a compact excerpt or source-specific lens over a large
-raw package.
+`Shared/Raw/`. Capture writes the raw clip only. Ingest later derives a
+source-id and normalizes that clip into `Shared/Raw/<source-id>/origin.md` and
+`manifest.md`. Domain `Sources/` is
+optional and should be used only when a domain needs a compact excerpt or
+source-specific lens over a large raw package.
 
 Create `Domains/<domain>/Extras/` only when a domain truly needs local
 non-source attachments.
 
-Orient, query, ingest, update, review, and Health Check inside the selected
-domain. DO NOT write across domains unless the user explicitly asks. During
-ingest, write `Shared/Raw/<source-id>/` only for shared raw source packages
-that support the selected domain question. Only write `Calendar/` or
+Orient, query, capture, ingest, update, review, and Health Check inside the
+selected domain. DO NOT write across domains unless the user explicitly asks.
+During capture, copy the source clip into `Shared/Raw/` as a flat file and do
+not create Cards, Atlas pages, Spaces, source-id directories, `origin.md`, or
+`manifest.md`. During ingest, normalize the clip into `origin.md` and
+`manifest.md` under `Shared/Raw/<source-id>/`, then compile reusable knowledge
+from them. Only write `Calendar/` or
 `Shared/Templates/` when the user explicitly asks for daily-note, diary,
 calendar, or reusable template work.
 
@@ -163,10 +169,14 @@ When the user specified a domain, **always orient yourself before doing anything
 3. Read the latest 20-30 entries from `log.md`.
 4. Search existing pages for the topic.
 5. Read relevant `Atlas/`, `Cards/`, `Sources/`, and `Spaces/` pages; read
-   `Shared/Raw/<source-id>/manifest.md` when source provenance or full raw
-   context matters.
+   `Shared/Raw/<source-id>/manifest.md` when provenance matters, and read
+   `origin.md` or the raw clip file directly only when the compiled layers are
+   insufficient or ingest has not normalized the clip yet.
 
-Only after orientation should you ingest, query, or lint. This prevents:
+Only after orientation should you ingest, query, update, or lint. Capture-only
+can write flat raw clip files under `Shared/Raw/` after resolving the wiki
+root; do not compile or update domain pages until after orientation. This
+prevents:
 
 - Creating duplicate pages for entities that already exist
 - Missing cross-references to existing content
@@ -219,7 +229,8 @@ each domain's `SCHEMA.md`.
 
 Canonical shared layer:
 
-- `Shared/Raw/` for raw source packages
+- `Shared/Raw/` for capture-only flat source clips
+- `Shared/Raw/<source-id>/` for normalized raw packages and attachments after ingest
 - `Shared/Templates/` for reusable templates
 
 Domain layer:
@@ -229,10 +240,11 @@ Domain layer:
 - `Domains/<domain>/Sources/` for optional source excerpts or source-specific lenses
 - `Domains/<domain>/Spaces/` for durable people, tools, projects, and contexts
 
-Raw source material belongs in `Shared/Raw/<source-id>/`. Durable synthesis
-lives in `Atlas/`, `Cards/`, and `Spaces/`. Optional domain source excerpts
-live in `Sources/`. Compiled pages cite raw manifests or domain source notes
-with body footnotes.
+Capture writes raw source clips into `Shared/Raw/` and stops there. Ingest
+normalizes flat clips into `Shared/Raw/<source-id>/`. Durable synthesis lives
+in `Atlas/`, `Cards/`, and `Spaces/`. Optional domain source excerpts live in
+`Sources/`. Compiled pages cite raw manifests or domain source notes with body
+footnotes.
 ```
 
 Create `Domains/<domain>/Extras/` only when the domain needs its own
@@ -365,15 +377,16 @@ Create domain `Extras/` only for non-source attachments owned by this domain:
 - diagrams
 - reusable templates or other non-note assets
 
-Put source PDFs, images, HTML snapshots, and capture manifests under
-`Shared/Raw/<source-id>/`, not under domain `Extras/`.
+Put source PDFs, images, HTML snapshots, origin captures, and manifest files
+under `Shared/Raw/<source-id>/`, not under domain `Extras/`.
 
 If `Extras/` exists, do not index it directly. Link domain attachments from
 relevant Cards or Atlas pages.
 
 ## Source Capture
 
-Raw source packages live only under `Shared/Raw/<source-id>/`. Domain pages do
+Raw capture clips live as flat files under `Shared/Raw/` until ingest
+normalizes them into packages under `Shared/Raw/<source-id>/`. Domain pages do
 not keep YAML `sources:` links. Optional domain `Sources/` pages are compact
 excerpt notes or source-specific lenses over large raw packages. Compiled
 `Cards/`, `Atlas/`, `Spaces/`, and `Sources/` pages cite raw manifests or
@@ -382,29 +395,31 @@ domain source notes with body footnotes, not YAML.
 ### Source Capture Policy
 
 - Preserve the shared raw source before synthesizing cards.
-- Text articles, blogs, docs, and pasted text: save source-language Markdown in
-  `Shared/Raw/<source-id>/manifest.md` plus extracted artifacts. Preserve
-  title, author/publisher, dates, canonical URL, headings, links, and
-  local image refs. Prefer complete transcription when the material is
+- Capture writes the raw clip only. It does not create Cards, Atlas pages,
+  Spaces, source-id directories, `origin.md`, or `manifest.md`.
+- Ingest normalizes the clip into `Shared/Raw/<source-id>/origin.md` and
+  `Shared/Raw/<source-id>/manifest.md`.
+- The manifest should record title, canonical URL or source description,
+  retrieval date, source type, source language, `content_hash`, `origin`,
+  `candidate_domains`, `compiled_pages`, status, and local artifact pointers.
+- Keep `origin.md` in the source language and preserve structure, links, and
+  image refs where possible. Prefer complete transcription when the material is
   user-provided, local, permissively licensed, public domain, or otherwise
   appropriate to reuse in full. For third-party web pages where full
-  transcription is not appropriate, keep a faithful structured capture
-  with specific excerpts and grounded notes; do not add generic boilerplate
-  explaining that the note is not a full transcription unless a concrete capture
-  limitation matters.
-- Article images/diagrams: download to `Shared/Raw/<source-id>/`, link
-  them from the raw package, and create a manifest for multiple images.
-- PDFs: download the original PDF to `Shared/Raw/<source-id>/`; create or
-  update `manifest.md` with metadata, source hash, compiled pages, limitations,
-  and a local PDF link. Extract full text only when needed or asked.
+  transcription is not appropriate, keep a faithful structured capture with
+  specific excerpts and grounded notes; do not add generic boilerplate unless a
+  concrete capture limitation matters.
+- Article images/diagrams, PDFs, and other attachments belong in the raw
+  package directory with clear local references from `origin.md` and the
+  manifest once ingest has normalized the clip.
 - Optional domain Source note: create or update `Domains/<domain>/Sources/<source-id>.md`
-  when the raw package is large, when a source-specific excerpt should stay
+  only when the raw package is large, when a source-specific excerpt should stay
   queryable, or when multiple compiled pages need a stable local lens. A source
   note should preserve source language, link back to the raw manifest, and keep
   only the extracted slice needed by the domain.
-- Language: raw packages preserve the source language by default. Optional
-  domain Source notes preserve it too. Synthesized Cards, Atlas pages, and
-  Spaces use the domain default note language from `SCHEMA.md`.
+- Language: raw packages and optional domain Source notes preserve the source
+  language by default. Synthesized Cards, Atlas pages, and Spaces use the
+  domain default note language from `SCHEMA.md`.
 - Durable local paths in raw packages must point to wiki-local files, such as
   `Shared/Raw/...`. Do not put transient extractor paths such as
   `/tmp/topic-research/...` in source metadata; if those paths are useful for
@@ -517,14 +532,17 @@ When migrating:
 2. Resolve the target wiki and domain using the normal discovery order.
 3. If the target domain does not exist, initialize it first.
 4. Read from the source without changing it.
-5. Ingest durable material into the native domain structure:
-   - raw source packages into `Shared/Raw/<source-id>/`
+5. Capture source material into `Shared/Raw/` as raw clip files. A source-id
+   directory is not required at capture time.
+6. Ingest durable material into the native domain structure:
+   - derive a stable source-id from the clip filename or source metadata
+   - normalize the clip into `Shared/Raw/<source-id>/origin.md` and `manifest.md`
    - optional source excerpts into `Domains/<domain>/Sources/<source-id>.md`
      when the raw package is large or a stable local lens is useful
    - synthesized reusable concepts into `Cards/`
    - emergent thinking views into `Atlas/`
    - people, entities, tools, projects, systems, and contexts into `Spaces/`
-6. Insert a newest-first migration entry in target `log.md`, including source
+7. Insert a newest-first migration entry in target `log.md`, including source
    alias or source description, import scope, and files created or updated.
 
 Do not preserve an alternate long-term layout inside the LoreForge wiki. If the
@@ -533,9 +551,20 @@ structure and get explicit confirmation before writing.
 
 ## Core Operations
 
+### 0. Capture
+
+When the user asks to clip, save, or preserve a source before compiling it:
+
+1. Determine source type and language first.
+2. Copy the source clip into `Shared/Raw/` as-is. Do not require a source-id
+   subdirectory.
+3. Do not create Cards, Atlas pages, Spaces, `origin.md`, `manifest.md`, or
+   domain `index.md` / `log.md` entries during capture alone.
+4. Report the capture path and any concrete limitations to the user.
+
 ### 1. Ingest
 
-When the user provides a source (URL, file, paste), integrate it into the wiki:
+When the user asks to compile a source or raw package into the wiki:
 
 1. **Frame the ingest as an inquiry loop:**
    - Identify the user-facing question, uncertainty, or problem the source helps
@@ -548,37 +577,29 @@ When the user provides a source (URL, file, paste), integrate it into the wiki:
      reduce future cognitive load by making the useful problem, answer, and
      feedback path easy to see.
 
-2. **Capture the source:**
-   - Determine source type and language first.
-   - Text URL/article/blog/docs → extract source-language Markdown, preserve
-     structure/links/metadata, save to `Shared/Raw/<source-id>/manifest.md`
-     plus extracted artifacts. Prefer complete transcription when the material
-     can appropriately be stored in full; otherwise keep a faithful structured
-     capture and record only concrete capture limitations.
-   - Article images/diagrams → download to `Shared/Raw/<source-id>/`,
-     manifest multiple files, and link local images from the raw package.
-   - PDF → download the original PDF to `Shared/Raw/<source-id>/`; update the
-     raw package manifest with metadata, source hash, compiled pages, key
-     claims, limitations, and a local PDF link. Extract full text only when
-     needed.
-   - Pasted text → save in the original language; prefer complete transcription.
-   - Source metadata → use wiki-local durable paths only. Do not cite
-     temporary extractor output directories as source artifacts inside the note.
-   - Name the shared source file descriptively:
-     `Shared/Raw/karpathy-llm-wiki-2026/manifest.md`
-   - Create or update `Domains/<domain>/Sources/karpathy-llm-wiki-2026.md`
-     only when a source-specific excerpt or stable local lens is useful.
+2. **Use the raw clip first:**
+   - If `Shared/Raw/` contains a flat clip file, derive a stable source-id from
+     the filename or source metadata, create `Shared/Raw/<source-id>/`, preserve
+     the clip under the normalized package, and write `origin.md` plus
+     `manifest.md` before compiling.
+   - If `Shared/Raw/<source-id>/` already exists, reuse it.
+   - If it contains only a raw clip, normalize that clip into `origin.md` and
+     `manifest.md` before compiling.
+   - Keep the normalized raw package shape stable: raw clip(s) plus
+     `origin.md`, `manifest.md`, optional `assets/` or `original/`
+     attachments, and wiki-local artifact paths only.
+   - Update the manifest hash when the normalized package changes so downstream
+     pages know whether recompilation is needed.
 
 3. **Discuss takeaways** with the user — what's interesting, what matters for
    the domain. (Skip this in automated/cron contexts — proceed directly.)
 
-4. **Check what already exists** — search index.md and `search`
-   existing pages for mentioned entities/concepts. This is the difference between
-   a growing wiki and a pile of duplicates.
+4. **Check what already exists** — search `index.md` and existing pages for
+   mentioned entities/concepts before creating anything new.
 
 5. **Write or update wiki pages:**
    - **New entities/concepts:** Create pages only if they meet the Page Thresholds
-     in SCHEMA.md (2+ source mentions, or central to one source)
+     in SCHEMA.md (2+ source mentions, or central to one source).
    - **Existing pages:** Add new information, update facts, bump `updated` date.
      When new info contradicts existing content, follow the Update Policy.
    - **Language:** Raw packages and optional domain Source notes stay in the
@@ -589,7 +610,7 @@ When the user provides a source (URL, file, paste), integrate it into the wiki:
      the body.
    - **Cross-reference:** Every new or updated page must link to at least 2 other
      pages via `[[wikilinks]]`. Check that existing pages link back.
-   - **Tags:** Only use tags from the taxonomy in `SCHEMA.md`
+   - **Tags:** Only use tags from the taxonomy in `SCHEMA.md`.
    - **Provenance:** Use body footnotes, not YAML. Append `[^1]` markers to
      source-backed claims and define them with optional source-note or raw
      manifest wikilinks such as `[^1]: [[Sources/source-note-name]]` or
@@ -599,11 +620,11 @@ When the user provides a source (URL, file, paste), integrate it into the wiki:
      claim is well-supported across multiple sources.
 
 6. **Update navigation:**
-   - Add new pages to `index.md` under the correct section, alphabetically
-   - Update the "Total pages" count and "Last updated" date in index header
-   - Insert at the top of `log.md`: `## [YYYY-MM-DD] ingest | Source Title`
+   - Add new pages to `index.md` under the correct section, alphabetically.
+   - Update the "Total pages" count and "Last updated" date in index header.
+   - Insert at the top of `log.md`: `## [YYYY-MM-DD] ingest | Source Title`.
    - List every raw package, optional domain Source note, Card, Atlas, Space,
-     and other file created or updated in the log entry
+     and other file created or updated in the log entry.
 
 7. **Report what changed** — list every file created or updated to the user,
    including local image/PDF attachment paths.
@@ -612,23 +633,42 @@ When the user provides a source (URL, file, paste), integrate it into the wiki:
 
 When the user asks a question about the wiki's domain:
 
-1. **Read `index.md`** to identify relevant pages.
-2. **For wikis with 100+ pages**, also search across all `.md` files
-   for key terms — the index alone may miss relevant content.
-3. **Read the relevant pages**.
-4. **Synthesize an answer** from the compiled knowledge. Cite the wiki pages
-   you drew from: "Based on [[page-a]] and [[page-b]]..."
-5. **File valuable answers back** — if the answer is a substantial comparison,
+1. **Read `index.md` and `log.md` first** to identify relevant compiled pages.
+2. **Start with compiled knowledge** — `Atlas/`, `Cards/`, `Spaces/`, and
+   `Sources/` before dropping into raw packages.
+3. **Use raw packages only when needed** — read `Shared/Raw/<source-id>/manifest.md`
+   for provenance, hash checks, or source pointers, and read `origin.md` or the
+   raw clip file directly only when the compiled pages are insufficient or the
+   user explicitly wants the raw material.
+4. **For wikis with 100+ pages**, also search across all `.md` files for key
+   terms — the index alone may miss relevant content.
+5. **Synthesize an answer** from the least-detailed layer that answers the
+   question. Cite the wiki pages you drew from: "Based on [[page-a]] and
+   [[page-b]]..."
+6. **File valuable answers back** — if the answer is a substantial comparison,
    deep dive, or novel synthesis, create a new page in `Cards/` or `Atlas/`.
    Don't file trivial lookups — only answers that would be painful to re-derive.
-6. **Update `log.md`** with a newest-first entry for the query and whether it
+7. **Update `log.md`** with a newest-first entry for the query and whether it
    was filed.
 
 ### 3. Lint
 
 When asked to lint, audit, or run a health-check:
 
-1. **Orphan pages:** Find pages with no inbound `[[wikilinks]]` from other pages.
+1. **Raw capture integrity:** Validate normalized `Shared/Raw/<source-id>/`
+   packages first. Flat capture-only files and raw clip-only folders are
+   allowed and skipped until ingest.
+   Check that `manifest.md` and `origin.md` either both exist or both do not,
+   `content_hash` matches the normalized raw clip, and all wiki-local artifact
+   and `compiled_pages` pointers are valid. For native domains, prefer the
+   skill-local validator:
+   ```bash
+   python3 skills/loreforge-wiki/scripts/validate_native_domain.py <domain-path>
+   python3 skills/loreforge-wiki/scripts/validate_native_domain.py --fix <domain-path>
+   ```
+   `--fix` may remove orphan footnote definitions. Missing definitions still
+   require manual repair.
+2. **Orphan pages:** Find pages with no inbound `[[wikilinks]]` from other pages.
   ```python
   # Use available scripting tools for this — programmatic scan across all wiki pages
   import os, re
@@ -638,53 +678,50 @@ When asked to lint, audit, or run a health-check:
   # Extract all [[wikilinks]] — build inbound link map
   # Pages with zero inbound links are orphans
   ```
-
-2. **Broken wikilinks:** Find `[[links]]` that point to pages that don't exist.
-3. **Footnote/citation integrity:** Check every footnote marker has a matching
+3. **Broken wikilinks:** Find `[[links]]` that point to pages that don't exist.
+4. **Footnote/citation integrity:** Check every footnote marker has a matching
    definition and every footnote definition is referenced from the page body.
-   For native domains, prefer the skill-local validator:
-   ```bash
-   python3 skills/loreforge-wiki/scripts/validate_native_domain.py <domain-path>
-   python3 skills/loreforge-wiki/scripts/validate_native_domain.py --fix <domain-path>
-   ```
-   `--fix` may remove orphan footnote definitions. Missing definitions still
-   require manual repair.
-4. **Domain boundary:** Surface wikilinks or path-shaped links that point outside
+5. **Domain boundary:** Surface wikilinks or path-shaped links that point outside
    the selected domain unless the user explicitly asked for cross-domain work.
-5. **Index completeness:** Every active page under `Atlas/`, `Cards/`, and
+6. **Index completeness:** Every active page under `Atlas/`, `Cards/`, and
    `Sources/` should appear in `index.md`. Active `Spaces/` pages should appear
    only when tagged `person`, `entity`, `tool`, or `project`. Do not require
    `Spaces/_archive/` or transient workspace notes in the index.
-6. **Frontmatter validation:** Every wiki page must have all required fields
+7. **Frontmatter validation:** Every wiki page must have all required fields
    (title, created, updated, type, tags, status). Tags must be in the taxonomy.
-7. **Stale content:** Pages whose `updated` date is >90 days older than the most
+8. **Stale content:** Pages whose `updated` date is >90 days older than the most
    recent source that mentions the same entities.
-8. **Contradictions:** Pages on the same topic with conflicting claims. Look for
+9. **Contradictions:** Pages on the same topic with conflicting claims. Look for
    pages that share tags/entities but state different facts. Surface all pages
    with `contested: true` or `contradictions:` frontmatter for user review.
-9. **Quality signals:** List pages with `confidence: low` and any page that cites
+10. **Quality signals:** List pages with `confidence: low` and any page that cites
    only a single source but has no confidence field set — these are candidates
    for either finding corroboration or demoting to `confidence: medium`.
-10. **Page size:** Flag pages over 200 lines — candidates for splitting.
-11. **Tag audit:** List all tags in use, flag any not in the `SCHEMA.md`
+11. **Page size:** Flag pages over 200 lines — candidates for splitting.
+12. **Tag audit:** List all tags in use, flag any not in the `SCHEMA.md`
     taxonomy, and flag pages that have tag sprawl (more than 3 tags) so they
     can be simplified.
-12. **Log rotation:** If `log.md` exceeds 500 entries, rotate it.
-13. **Report findings** with specific file paths and suggested actions, grouped by
+13. **Log rotation:** If `log.md` exceeds 500 entries, rotate it.
+14. **Report findings** with specific file paths and suggested actions, grouped by
    severity (broken links > orphans > source drift > contested pages > stale content > style issues).
-14. **Insert into log.md:** `## [YYYY-MM-DD] lint | N issues found`
+15. **Insert into log.md:** `## [YYYY-MM-DD] lint | N issues found`
 
 ## Working with the Wiki
 
 ### Bulk Ingest
 
-When ingesting multiple sources at once, batch the updates:
-1. Read all sources first
-2. Identify all entities and concepts across all sources
-3. Check existing pages for all of them (one search pass, not N)
-4. Create/update pages in one pass (avoids redundant updates)
-5. Update index.md once at the end
-6. Write a single log entry covering the batch
+When ingesting multiple sources at once, keep capture and ingest separated:
+1. Capture can drop many raw clip files directly into `Shared/Raw/`.
+2. Route or group captured clips by candidate domain.
+3. Start domain ingest passes or subagents up to the caller's max concurrency
+   when the runtime supports parallel work.
+4. Each domain pass derives stable source IDs, normalizes assigned clips into
+   `Shared/Raw/<source-id>/`, and updates hashes before compiling pages.
+5. Identify all entities and concepts across the assigned clips.
+6. Check existing pages for all of them in one search pass, not N passes.
+7. Create/update pages in one pass to avoid redundant updates.
+8. Update index.md once at the end.
+9. Write a single log entry covering the batch.
 
 ### Archiving
 
@@ -703,13 +740,20 @@ When content is fully superseded or the domain scope changes:
 - **Always update index.md and log.md** — skipping this makes the wiki degrade. These are the
   navigational backbone.
 - **Don't drop source attachments** — article images, diagrams, PDFs, and other
-  durable source artifacts belong in `Shared/Raw/<source-id>/` and should be
-  linked from the raw package or optional domain Source note.
+  durable source artifacts belong in `Shared/Raw/` during capture and in
+  `Shared/Raw/<source-id>/` after ingest normalization. Link them from the raw
+  package or optional domain Source note.
 - **Don't duplicate raw sources** — search `Shared/Raw/` before adding a source.
   Reuse the shared raw package across domains, and add a domain Source note
   only when its excerpt/lens is actually useful.
+- **Don't confuse capture with ingest** — capture only copies raw clip files.
+  Ingest normalizes them into `origin.md` and `manifest.md`, then compiles
+  reusable domain knowledge from that raw package.
 - **Don't make ingest purely mechanical** — start from the user's problem or
   uncertainty, then use raw packages and Cards to lower future cognitive load.
+- **Don't jump to full raw during query** — use `index.md`, `log.md`, Atlas,
+  Cards, Spaces, and optional Source notes first. Open `origin.md` only when the
+  compiled layers cannot answer or need verification.
 - **Don't silently translate sources** — raw packages and optional domain
   Source notes preserve the original language. Use the domain default note
   language only for synthesized Cards, Atlas pages, and Spaces.

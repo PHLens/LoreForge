@@ -26,11 +26,15 @@ domain. It should create:
 - optional `Sources/` under `Domains/<domain>/` when a source excerpt or
   source-specific lens is useful
 
-Existing repos or vaults should be ingested as sources into the shared
-`Shared/Raw/<source-id>/` area plus native domain synthesis under
-`Domains/<domain>/`. Use `Domains/<domain>/Sources/` only when a source is too
-large or source-specific excerpts are useful. Do not keep alternate layouts as
-long-term LoreForge structure.
+Existing repos or vaults should be ingested as sources by first copying raw
+clips into the shared `Shared/Raw/` area, then compiling native domain synthesis
+under `Domains/<domain>/`. Capture should copy the raw clip into `Shared/Raw/`
+as a flat file; ingest should derive a stable source ID, normalize that clip
+into `Shared/Raw/<source-id>/origin.md` plus `manifest.md`, and then compile
+durable notes from that package. Use
+`Domains/<domain>/Sources/` only when a source is too large or source-specific
+excerpts are useful. Do not keep alternate layouts as long-term LoreForge
+structure.
 
 Create `Domains/<domain>/Extras/` only if the domain needs its own non-source
 attachments.

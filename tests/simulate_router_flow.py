@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """Smoke-test the LoreForge router contract.
 
-The router is a skill-level workflow, not a runtime library. This test keeps the
-expected behavior concrete: discover domains, choose read/write targets, and
-preserve the rule that durable domain work is delegated to loreforge-wiki.
+The router is an optional skill-level dispatch workflow, not a runtime library.
+This test keeps the expected behavior concrete: discover domains, choose
+read/write targets, and preserve the rule that durable domain work is delegated
+to loreforge-wiki.
 """
 
 from __future__ import annotations
@@ -39,8 +40,10 @@ def assert_skill_contract() -> None:
     skill = read_skill()
     required = [
         "loreforge-wiki",
+        "optional dispatch layer",
         "one expert-owned domain as the write boundary",
         "write domain pages directly as the router",
+        "capture raw content, normalize raw packages, or build manifests directly as",
         "Multiple write matches",
         "ask before writing multiple domains",
         ".obsidian*",
@@ -48,11 +51,14 @@ def assert_skill_contract() -> None:
         "parallel expert review is useful",
         "Otherwise process selected domains sequentially",
         "one subagent per selected domain",
+        "max concurrency",
         "Write policy: <read-only|write-confirmed>",
         "Set `Write policy: read-only` for query operations",
         "do not create or update wiki files",
         "Shared/Raw/",
+        "flat raw capture clips",
         "footnotes, not YAML",
+        "use `loreforge-wiki` directly",
     ]
     missing = [item for item in required if item not in skill]
     if missing:
@@ -154,13 +160,13 @@ def main() -> int:
             wiki / "00_System" / "wiki-layout.md",
             "# Wiki Layout\n\n"
             "Canonical shared layer:\n\n"
-            "- `Shared/Raw/<source-id>/manifest.md` for raw source manifests, hashes, and compiled page metadata\n"
-            "- `Shared/Raw/<source-id>/` for source artifacts\n"
+            "- `Shared/Raw/` for capture-only flat source clips\n"
+            "- `Shared/Raw/<source-id>/` for normalized raw packages and attachments after ingest\n"
             "- `Shared/Templates/` for reusable templates\n\n"
         "Domain layer:\n\n"
         "- `Domains/<domain>/Atlas/`, `Cards/`, `Sources/`, and `Spaces/` for compiled durable knowledge\n\n"
         "Compiled pages live in `Domains/<domain>/Atlas/`, `Cards/`, `Sources/`, and `Spaces/`. "
-        "Raw source material belongs in `Shared/Raw/<source-id>/`, and `Sources/` is optional for source excerpts.\n\n"
+        "Capture writes raw clips into `Shared/Raw/` and stops there; ingest normalizes them into `Shared/Raw/<source-id>/`; `Sources/` is optional for source excerpts.\n\n"
         "Create `Domains/<domain>/Extras/` only when the domain needs its own\n"
         "non-source attachments.\n",
     )

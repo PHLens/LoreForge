@@ -1,31 +1,39 @@
 ---
 name: loreforge-router
-description: Use when a LoreForge request may involve an unknown domain, multiple domains, or cross-domain query/ingest coordination. Routes work to domain experts that use loreforge-wiki.
+description: Optional dispatch layer for LoreForge requests with unknown domains, multiple domains, source batches, or cross-domain query/ingest coordination. Routes work to domain experts that use loreforge-wiki.
 user-invocable: true
 version: 0.1.0
 ---
 
 # LoreForge Router
 
-Route user requests to the right LoreForge domain experts.
+Route ambiguous, batch, or cross-domain requests to the right LoreForge domain
+experts.
 
-Use this as the front door when the user does not name a domain, asks across
-domains, or provides a source that may belong in more than one domain. The
-router chooses target domains and delegates durable work to `loreforge-wiki`.
+Use this as an optional dispatch layer when the user does not name a domain,
+asks across domains, provides a batch of captured sources, or provides a source
+that may belong in more than one domain. The router chooses target domains and
+delegates durable work to `loreforge-wiki`.
+
+Do not route straightforward single-domain work through this skill. If the user
+names one domain and the operation is clearly query, capture, ingest, update,
+review, or initialize inside that domain, use `loreforge-wiki` directly.
 
 Always:
 
 - resolve the active wiki before routing
 - inspect available domains before choosing
 - keep one expert-owned domain as the write boundary
-- treat raw source packages as shared wiki-root `Shared/Raw/<source-id>/`
-  data
+- treat flat raw capture clips as shared wiki-root `Shared/Raw/` data, with
+  normalized raw packages under `Shared/Raw/<source-id>/` after ingest
 - use `loreforge-wiki` for domain query, ingest, update, review, and Health Check
 - report routing decisions and uncertainty clearly
 
 Do not:
 
 - write domain pages directly as the router
+- capture raw content, normalize raw packages, or build manifests directly as
+  the router
 - merge multiple domains into one answer without domain attribution
 - update multiple domains on a write unless the user asked or approved
 - route editor state such as `.obsidian*`
@@ -106,20 +114,17 @@ only when:
 - the source has distinct durable value for multiple domains and the user
   approves the split.
 
-For sources that matter to multiple domains, use one shared raw source package
-in wiki-root `Shared/Raw/<source-id>/`. Each selected domain gets domain-owned
-synthesis in `Cards/`, `Atlas/`, or `Spaces/`, and may also keep an optional
-`Domains/<domain>/Sources/` excerpt note for source-specific lenses. Cite raw
-manifests or domain source notes via body footnotes, not YAML.
+For sources that matter to multiple domains, use one shared raw clip or
+normalized raw package in wiki-root `Shared/Raw/`. Each selected domain gets
+domain-owned synthesis in `Cards/`, `Atlas/`, or `Spaces/`, and may also keep
+an optional `Domains/<domain>/Sources/` excerpt note for source-specific
+lenses. Cite raw manifests or domain source notes via body footnotes, not YAML.
 
 ## Delegation
 
 For each selected domain, delegate to a domain expert using `loreforge-wiki`.
 
-For multi-domain work, use subagents when parallel expert review is useful and
-the host supports them. Otherwise process selected domains sequentially. When
-using subagents, start one subagent per selected domain. Give each subagent or
-sequential pass a bounded prompt:
+For multi-domain or multi-source work, use subagents when parallel expert review is useful and the host supports them. Otherwise process selected domains sequentially. When using subagents, start one subagent per selected domain or per domain batch, respecting the user's or caller's max concurrency if one was provided. Give each subagent or sequential pass a bounded prompt:
 
 Set `Write policy: read-only` for query operations. Use
 `Write policy: write-confirmed` only when the router has selected an approved
@@ -133,10 +138,10 @@ Operation: <query|ingest|update|review|initialize|migrate>
 Write policy: <read-only|write-confirmed>
 Request: <user request>
 
-Stay inside Domains/<domain>/ for domain pages. Use wiki-root
-`Shared/Raw/<source-id>/` only for shared raw source packages. Domain
-`Sources/` pages are optional and can point to the raw manifest with body
-footnotes.
+Stay inside Domains/<domain>/ for domain pages. Use wiki-root `Shared/Raw/`
+only for flat raw capture clips and normalized raw packages under
+`Shared/Raw/<source-id>/`. Domain `Sources/` pages are optional and can point to
+the raw manifest with body footnotes.
 Orient on SCHEMA.md, index.md, recent log.md, and relevant pages.
 If Write policy is read-only, do not create or update wiki files.
 If Write policy is write-confirmed, update index.md and insert a newest-first
@@ -167,14 +172,25 @@ When saving a cross-domain synthesis, ask where it belongs:
 
 For ingest:
 
-1. Inspect the source enough to route it.
-2. Select a primary target domain.
-3. If more domains may be relevant, list them as secondary candidates.
-4. Delegate shared raw source capture and primary domain synthesis to
+1. Inspect source metadata, filenames, headings, existing raw clips, or a small
+   preview enough to route it. Do not do full capture extraction as the router.
+2. If the source is not already captured, hand off to the capture workflow first
+   so it lands as a flat raw clip under `Shared/Raw/`, then resume routing from
+   the captured clip. Do not create `origin.md`, `manifest.md`, or domain pages
+   as the router.
+3. Select a primary target domain.
+4. If more domains may be relevant, list them as secondary candidates.
+5. Delegate raw clip normalization and primary domain synthesis to
    `loreforge-wiki` for the target domain.
-5. If multiple domains are approved, split the work into separate domain-bound
-   synthesis passes that reuse the same wiki-root raw package. Do not reuse one
-   domain's pages as another domain's source of truth.
+6. If multiple domains are approved, split the work into separate domain-bound
+   synthesis passes that reuse the same wiki-root raw clip or normalized raw
+   package. Do not reuse one domain's pages as another domain's source of truth.
+
+For batches, group captured clips by target domain, deduplicate shared sources,
+and fan out domain ingest passes up to the requested max concurrency. Each
+domain expert derives or reuses stable source IDs, writes `origin.md` and
+`manifest.md`, updates hashes, and compiles only the pages useful for that
+domain.
 
 For existing repos, vaults, or folders, route them as source material. Do not
 adopt alternate layouts as long-term LoreForge structure unless the user

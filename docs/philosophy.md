@@ -3,9 +3,10 @@
 LoreForge is a framework for LLM-wiki style professional knowledge bases.
 
 It is not agent memory and not a full agent runtime. The goal is to reduce
-repeated raw search and summarization by compiling useful source material into
-durable, queryable, human-readable knowledge. Ingest should start from the
-user's question or uncertainty, not from mechanical source decomposition.
+repeated raw search and summarization by capturing useful source material once,
+normalizing it during ingest, and compiling durable, queryable, human-readable
+knowledge. Capture should preserve the raw clip once; ingest should start from
+the user's question or uncertainty, not from mechanical source decomposition.
 
 ## Separation
 
@@ -18,7 +19,8 @@ pamem
 
 LoreForge wiki instance
   professional knowledge
-  raw source packages
+  raw capture clips
+  normalized raw packages
   optional domain source notes
   durable concepts
   maps, indexes, logs
@@ -46,7 +48,7 @@ Do not expand LoreForge into:
 - autonomous agent runtime
 - gateway or chat UI
 - cron scheduler
-- subagent orchestration platform
+- general-purpose subagent orchestration platform
 - automatic skill evolution system
 
 Those belong in systems such as `pamem`, Hermes, OpenClaw, Slock, or the host
@@ -79,8 +81,9 @@ LoreForge
 | Agent operating experience | `pamem` or host agent memory |
 | Current task state | session, project files, or `pamem` |
 | Reusable professional concept | LoreForge wiki |
-| Raw source package | LoreForge wiki `Shared/Raw/<source-id>/` |
-| Raw source artifact | LoreForge wiki `Shared/Raw/<source-id>/` |
+| Raw capture clip | LoreForge wiki `Shared/Raw/` as a flat file |
+| Normalized raw package | LoreForge wiki `Shared/Raw/<source-id>/origin.md` + `manifest.md` |
+| Raw source artifact | LoreForge wiki `Shared/Raw/<source-id>/` after ingest normalization |
 | Reusable template | LoreForge wiki `Shared/Templates/` |
 | Optional domain source note | LoreForge domain `Sources/` note |
 | Durable domain view | LoreForge wiki |
@@ -90,13 +93,16 @@ LoreForge
 LoreForge now follows a small core:
 
 1. One shared wiki root can contain many domains.
-2. Shared raw sources live in `Shared/Raw/<source-id>/`, and reusable templates
-   in `Shared/Templates/`.
+2. Shared raw capture clips live as flat files in `Shared/Raw/`; ingest
+   normalizes selected clips into `Shared/Raw/<source-id>/` packages. Reusable
+   templates live in `Shared/Templates/`.
 3. Optional domain source notes live in `Domains/<domain>/Sources/` when a raw
    package is large or needs a stable excerpt.
 4. One expert agent owns and maintains one domain.
-5. The `loreforge-router` skill handles domain selection and cross-domain
-   coordination.
+5. The optional `loreforge-router` skill handles domain selection, batch
+   grouping, and bounded fan-out to domain experts. It is bypassed for clear
+   single-domain work, and it does not capture raw content, transform sources,
+   normalize packages, or write domain pages itself.
 6. The core `loreforge-wiki` skill handles domain query, ingest, update,
    review, initialization, and Health Checks.
 7. Expert agents write directly after orientation.
@@ -113,9 +119,9 @@ Borrow:
 
 - **Session orientation**: before operating on a wiki, read schema, indexes, and
   recent meaningful log entries.
-- **Question-driven ingest**: frame source capture around the problem being
-  solved, then decide whether a raw package, an optional domain Source note, or
-  durable synthesis is actually needed.
+- **Question-driven capture and ingest**: frame source capture around the
+  problem being solved, then decide whether a raw clip, an optional domain
+  Source note, or durable synthesis is actually needed.
 - **Memory/knowledge split**: keep facts, preferences, procedures, and durable
   professional knowledge in separate stores.
 - **Source discipline**: preserve provenance and avoid turning passing mentions
@@ -131,7 +137,7 @@ Do not borrow:
 - autonomous memory growth into the shared wiki
 - agent profile state
 - gateway/chat UI responsibilities
-- runtime orchestration
+- general-purpose runtime orchestration
 - unrestricted self-modifying skills
 
 ## Roadmap
@@ -140,4 +146,6 @@ Do not borrow:
 2. Keep initialization authority in `loreforge-wiki`, not copied wiki templates.
 3. Add focused Health Check fixtures.
 4. Add migration support as raw source ingestion into native domains.
-5. Keep router behavior bounded to domain selection and delegated expert work.
+5. Keep router behavior bounded to domain selection, batch grouping, and
+   delegated expert work; capture and ingest semantics remain in
+   `loreforge-wiki`.
