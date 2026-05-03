@@ -39,6 +39,8 @@ EXPECTED_TYPE_BY_DIR = {
     "Spaces": "space",
 }
 
+MAX_TAGS_PER_PAGE = 3
+
 FOOTNOTE_REF_RE = re.compile(r"(?<!\^)\[\^([^\]]+)\](?!:)")
 FOOTNOTE_DEF_RE = re.compile(r"^\[\^([^\]]+)\]:\s*(.*)$")
 
@@ -331,6 +333,16 @@ def validate_domain(domain: Path) -> list[Issue]:
         for tag in sorted(unknown):
             issues.append(Issue("unknown-tag", page_rel, f"`{tag}` not in SCHEMA.md taxonomy"))
 
+        tags = list_value(fields.get("tags", "[]"))
+        if len(tags) > MAX_TAGS_PER_PAGE:
+            issues.append(
+                Issue(
+                    "tag-sprawl",
+                    page_rel,
+                    f"{len(tags)} tags; keep pages to at most {MAX_TAGS_PER_PAGE}",
+                )
+            )
+
         _, body = split_frontmatter(text)
         refs, defined = footnote_labels(body)
         for label in sorted(refs - defined):
@@ -451,6 +463,7 @@ def main(argv: list[str]) -> int:
         "missing-index-entry",
         "log-order",
         "orphan-footnote-definition",
+        "tag-sprawl",
         "unknown-tag",
     }
 

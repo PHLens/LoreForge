@@ -20,4 +20,6 @@ AI research methods and agent-maintained wiki design.
 - entity
 - tool
 - project
+
+Rule: tags are coarse domain classification labels; keep them to 1-3 per page instead of keyword stacks.
 - workspace
