@@ -6,7 +6,6 @@ type: concept
 tags: [concept]
 confidence: medium
 status: active
-sources: []
 contested: false
 contradictions: []
 ---

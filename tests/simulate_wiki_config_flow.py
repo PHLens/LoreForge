@@ -141,7 +141,9 @@ def initialize_domain(wiki: Path, domain_name: str) -> Path:
         "- `Shared/Raw/<source-id>/` for source artifacts\n"
         "- `Shared/Templates/` for reusable templates\n\n"
         "Domain layer:\n\n"
-        "- `Domains/<domain>/Sources/` is optional for legacy or special-purpose source notes\n\n"
+        "- `Domains/<domain>/Atlas/`, `Cards/`, and `Spaces/` for compiled durable knowledge\n\n"
+        "Compiled pages live in `Domains/<domain>/Atlas/`, `Cards/`, and `Spaces/`. "
+        "Raw source material belongs in `Shared/Raw/<source-id>/`.\n\n"
         "Create `Domains/<domain>/Extras/` only when the domain needs its own\n"
         "non-source attachments.\n",
     )
@@ -224,7 +226,6 @@ type: concept
 tags: [concept, wiki]
 confidence: medium
 status: active
-sources: ["Shared/Raw/old-obsidian-llm-wiki/manifest.md"]
 contested: false
 contradictions: []
 ---
@@ -232,8 +233,9 @@ contradictions: []
 # Compounding Wiki
 
 A compounding wiki turns repeated source processing into durable knowledge. It is
-grounded by `Shared/Raw/old-obsidian-llm-wiki/manifest.md` and maintained with
-[[obsidian]].
+grounded by raw source capture and maintained with [[obsidian]].[^source]
+
+[^source]: [[Shared/Raw/old-obsidian-llm-wiki/manifest.md]]
 """,
     )
     write(
@@ -246,7 +248,6 @@ type: space
 tags: [tool]
 confidence: medium
 status: active
-sources: ["Shared/Raw/old-obsidian-llm-wiki/manifest.md"]
 contested: false
 contradictions: []
 ---
@@ -254,7 +255,9 @@ contradictions: []
 # Obsidian
 
 Obsidian is the editor used to browse [[compounding-wiki]] notes and imported raw
-source manifests.
+source manifests.[^source]
+
+[^source]: [[Shared/Raw/old-obsidian-llm-wiki/manifest.md]]
 """,
     )
     write(

@@ -19,7 +19,6 @@ pamem
 LoreForge wiki instance
   professional knowledge
   raw source packages
-  optional domain source notes
   durable concepts
   maps, indexes, logs
 
@@ -69,7 +68,6 @@ LoreForge
   shared knowledge compounds
   professional concepts become reusable
   shared raw sources avoid duplicate capture
-  optional domain source notes remain queryable when useful
   stable notes remain human-readable
 ```
 
@@ -82,7 +80,6 @@ LoreForge
 | Raw source package | LoreForge wiki `Shared/Raw/<source-id>/` |
 | Raw source artifact | LoreForge wiki `Shared/Raw/<source-id>/` |
 | Reusable template | LoreForge wiki `Shared/Templates/` |
-| Optional domain source note | LoreForge domain `Sources/` note |
 | Durable domain view | LoreForge wiki |
 
 ## Current Design
@@ -112,8 +109,8 @@ Borrow:
 - **Session orientation**: before operating on a wiki, read schema, indexes, and
   recent meaningful log entries.
 - **Question-driven ingest**: frame source capture around the problem being
-  solved, then decide whether a raw package, an optional domain Source note, or durable synthesis
-  is actually needed.
+  solved, then decide whether a raw package or durable synthesis is actually
+  needed.
 - **Memory/knowledge split**: keep facts, preferences, procedures, and durable
   professional knowledge in separate stores.
 - **Source discipline**: preserve provenance and avoid turning passing mentions

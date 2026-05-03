@@ -6,7 +6,6 @@ type: space
 tags: [tool]
 confidence: medium
 status: active
-sources: ["Shared/Raw/llm-wiki-skill-note/manifest.md"]
 contested: false
 contradictions: []
 ---
@@ -14,4 +13,6 @@ contradictions: []
 # Codex
 
 Codex is a tool-shaped Space linked from [[agent-maintained-wiki-view]] and
-[[expert-domain-wiki]].
+[[expert-domain-wiki]].[^source]
+
+[^source]: [[Shared/Raw/llm-wiki-skill-note/manifest.md]]

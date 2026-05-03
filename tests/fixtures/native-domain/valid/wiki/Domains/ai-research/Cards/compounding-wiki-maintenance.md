@@ -6,7 +6,6 @@ type: concept
 tags: [wiki, agent, concept]
 confidence: medium
 status: active
-sources: ["Shared/Raw/llm-wiki-skill-note/manifest.md"]
 contested: false
 contradictions: []
 ---
@@ -15,4 +14,6 @@ contradictions: []
 
 Compounding wiki maintenance means an agent updates durable knowledge directly
 after orientation instead of leaving repeated synthesis in chat. It depends on
-`Shared/Raw/llm-wiki-skill-note/manifest.md` and [[expert-domain-wiki]].
+raw source capture and [[expert-domain-wiki]].[^source]
+
+[^source]: [[Shared/Raw/llm-wiki-skill-note/manifest.md]]

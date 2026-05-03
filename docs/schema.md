@@ -23,7 +23,6 @@ wiki/
       log.md
       Atlas/
       Cards/
-      Sources/  # optional compiled source notes
       Spaces/
 ```
 
@@ -31,9 +30,8 @@ wiki/
 `index.md`, `domains.md`, and `wiki-layout.md`. `Calendar/` stores dated
 personal notes such as daily notes. `Shared/Raw/<source-id>/` stores the
 canonical raw source package, `Shared/Templates/` stores reusable templates
-once for the whole wiki, and `Shared/SourceRecords/` is legacy compatibility
-only. Each `Domains/<domain>/` is a self-contained LLM Wiki maintained by one
-expert agent.
+once for the whole wiki. Each `Domains/<domain>/` is a self-contained LLM Wiki
+maintained by one expert agent.
 
 ## Calendar Files
 
@@ -47,7 +45,6 @@ expert agent.
 |---|---|
 | `Shared/Raw/` | Wiki-root raw source packages. Each package holds a `manifest.md`, original artifacts, extracted artifacts, and any source-specific assets |
 | `Shared/Templates/` | Wiki-root reusable note templates, including diary templates |
-| `Shared/SourceRecords/` | Legacy shared source record area kept only for older imports and compatibility |
 
 ## Domain Files
 
@@ -58,7 +55,6 @@ expert agent.
 | `log.md` | Reverse chronological action log, newest entry first |
 | `Atlas/` | Maps of Content (MOCs), emergent thinking views |
 | `Cards/` | Durable concepts, methods, patterns, tradeoffs, comparisons |
-| `Sources/` | Optional `Domains/<domain>/Sources/` compiled source notes for special-purpose views, comparisons, or legacy compatibility |
 | `Spaces/` | Durable non-Card objects, contexts, and archive space |
 | `Extras/` | Optional domain-owned non-source attachments; create only when needed |
 
@@ -70,14 +66,14 @@ Agents should orient before writing:
 2. Read `index.md`.
 3. Read recent `log.md` entries.
 4. Search existing pages for the topic.
-5. Read relevant `Atlas/`, `Cards/`, `Sources/`, and `Spaces/` pages.
+5. Read relevant `Atlas/`, `Cards/`, and `Spaces/` pages.
 
 Routine maintenance writes directly inside the selected domain after
 orientation. There is no staged promotion pipeline in the active core workflow.
 
 Query and ingest should stay question-driven: start from the problem being
-answered, then decide whether the raw package, a compiled source note, or a
-durable Card/Atlas/Space page is actually warranted.
+answered, then decide whether the raw package or a durable Card/Atlas/Space
+page is actually warranted.
 
 After substantive changes, update `index.md` when stable pages are created,
 archived, renamed, or materially changed. Insert a concise newest-first
@@ -96,10 +92,9 @@ user-provided, local, permissively licensed, public domain, or otherwise
 appropriate to reuse in full. Otherwise keep a faithful structured capture and
 record only concrete limitations.
 
-Domain `Sources/` pages are optional compiled source notes. Use them only when a
-source deserves a special-purpose note, comparison, or legacy compatibility
-note. They should summarize why the source matters to that domain and link to
-the raw package and any compiled pages. Source metadata should point to
+Compiled domain pages do not carry YAML `sources:` links. Put source-backed
+provenance in body footnotes that point to raw manifests, for example
+`[^1]: [[Shared/Raw/<source-id>/manifest.md]]`. Source metadata should point to
 wiki-local files, not temporary extractor outputs such as
 `/tmp/topic-research/...`.
 
@@ -109,9 +104,7 @@ wiki-local files, not temporary extractor outputs such as
   in the wiki.
 - Do not write across domains unless the user explicitly asks.
 - Do not duplicate the same raw source or PDF under multiple domains.
-- Do not treat `Shared/SourceRecords/` as source-of-truth; if it exists, only
-  use it for legacy migration or compatibility.
-- Do not mechanically split every source into a Source note and new Cards.
+- Do not mechanically split every source into a raw package and new Cards.
   Start from the question and create durable synthesis only when it reduces
   future work.
 - If `Extras/` exists, do not index it directly.

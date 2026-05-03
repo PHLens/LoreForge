@@ -4,6 +4,4 @@
 
 ## Cards
 
-## Sources
-
 ## Spaces

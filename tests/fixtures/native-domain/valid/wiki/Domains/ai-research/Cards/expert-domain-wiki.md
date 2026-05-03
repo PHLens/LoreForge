@@ -6,7 +6,6 @@ type: concept
 tags: [wiki, agent, concept]
 confidence: medium
 status: active
-sources: ["Shared/Raw/llm-wiki-skill-note/manifest.md"]
 contested: false
 contradictions: []
 ---
@@ -14,5 +13,7 @@ contradictions: []
 # Expert Domain Wiki
 
 An expert domain wiki is maintained by one expert agent and links raw manifests
-such as `Shared/Raw/llm-wiki-skill-note/manifest.md` to durable concepts like
-[[compounding-wiki-maintenance]] and tool Spaces like [[codex]].
+to durable concepts like [[compounding-wiki-maintenance]] and tool Spaces like
+[[codex]] through body footnotes instead of YAML source links.[^source]
+
+[^source]: [[Shared/Raw/llm-wiki-skill-note/manifest.md]]

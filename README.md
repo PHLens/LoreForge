@@ -22,7 +22,6 @@ LoreForge wiki instance
   professional knowledge
   concepts
   raw source packages
-  optional domain source notes
   maps and indexes
 
 LoreForge framework repo
@@ -77,7 +76,6 @@ wiki/
       log.md
       Atlas/
       Cards/
-      Sources/  # optional compiled source notes
       Spaces/
 ```
 
@@ -91,10 +89,8 @@ its own non-source attachments.
 `Shared/Raw/<source-id>/` stores the canonical raw source package: a
 `manifest.md` with metadata, source hash, compiled page pointers, and links to
 original/extracted artifacts. `Shared/Templates/` stores reusable wiki
-templates. `Shared/SourceRecords/` is legacy compatibility only, not the active
-source-of-truth layer. Domain `Sources/` pages are optional compiled source
-notes for special-purpose views; `Cards/`, `Atlas/`, and `Spaces/` hold the
-durable synthesis.
+templates. `Cards/`, `Atlas/`, and `Spaces/` hold the durable synthesis and
+cite raw manifests through body footnotes, not YAML source links.
 
 ## Skills
 
