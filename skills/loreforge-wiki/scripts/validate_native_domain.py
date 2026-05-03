@@ -22,7 +22,7 @@ REQUIRED_PATHS = [
     "Spaces",
 ]
 
-PAGE_DIRS = ["Atlas", "Cards", "Spaces"]
+PAGE_DIRS = ["Atlas", "Cards", "Sources", "Spaces"]
 REQUIRED_FRONTMATTER = [
     "title",
     "created",
@@ -35,6 +35,7 @@ INDEXABLE_SPACE_TAGS = {"person", "entity", "tool", "project"}
 EXPECTED_TYPE_BY_DIR = {
     "Atlas": "map",
     "Cards": "concept",
+    "Sources": "source",
     "Spaces": "space",
 }
 
@@ -303,10 +304,6 @@ def validate_domain(domain: Path) -> list[Issue]:
     log_text = log_path.read_text() if log_path.exists() else ""
     allowed_tags = taxonomy(schema_text)
 
-    sources_dir = domain / "Sources"
-    if sources_dir.exists():
-        issues.append(Issue("unexpected-source-directory", "Sources/", "domain Sources/ is not part of the active structure"))
-
     pages = active_pages(domain)
     archived = archived_pages(domain)
     known_stems = {page.stem for page in pages}
@@ -449,12 +446,12 @@ def main(argv: list[str]) -> int:
     invalid_expected = {
         "broken-wikilink",
         "cross-domain-link",
+        "missing-frontmatter-field",
         "missing-footnote-definition",
         "missing-index-entry",
         "log-order",
         "orphan-footnote-definition",
         "unknown-tag",
-        "unexpected-source-directory",
     }
 
     ok = run_fixture("valid fixture", valid, set())

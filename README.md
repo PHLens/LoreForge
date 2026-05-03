@@ -76,6 +76,7 @@ wiki/
       log.md
       Atlas/
       Cards/
+      Sources/  # optional compiled source excerpts
       Spaces/
 ```
 
@@ -89,8 +90,10 @@ its own non-source attachments.
 `Shared/Raw/<source-id>/` stores the canonical raw source package: a
 `manifest.md` with metadata, source hash, compiled page pointers, and links to
 original/extracted artifacts. `Shared/Templates/` stores reusable wiki
-templates. `Cards/`, `Atlas/`, and `Spaces/` hold the durable synthesis and
-cite raw manifests through body footnotes, not YAML source links.
+templates. `Domains/<domain>/Sources/` is optional and can hold source excerpts
+or source-specific lenses when the raw package is large. `Cards/`, `Atlas/`,
+and `Spaces/` hold the durable synthesis and cite raw manifests or domain
+source notes through body footnotes, not YAML source links.
 
 ## Skills
 
