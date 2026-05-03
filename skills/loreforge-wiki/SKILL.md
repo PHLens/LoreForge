@@ -299,6 +299,12 @@ contradictions: []
 confidence and contested are optional but recommended for opinion-heavy or fast-moving topics. Lint surfaces contested: true and confidence: low pages for review so weak claims don't silently harden into accepted wiki fact.
 
 ## Tag Taxonomy
+
+Tags are a small domain-internal classification surface, not a keyword dump.
+Prefer 1-3 tags per page and only use tags that help stable filtering across
+the domain. If a page feels like it needs many tags, split the page or tighten
+the taxonomy before adding more tags.
+
 [Define 10-20 top-level tags for the domain. Add new tags here BEFORE using them.]
 
 Example for AI/ML:
@@ -307,8 +313,10 @@ Example for AI/ML:
 - Techniques: optimization, fine-tuning, inference, alignment, data
 - Meta: comparison, timeline, controversy, prediction
 
-Rule: every tag on a page must appear in this taxonomy. If a new tag is needed,
-add it here first, then use it. This prevents tag sprawl.
+Rule: every tag on a page must appear in this taxonomy. Keep page tags coarse
+and minimal; if you need more than 3 tags on a page, pause and reassess whether
+the page should be split or the taxonomy should be narrowed first. This
+prevents tag sprawl.
 
 ## Page Thresholds
 - **Create a page** when an entity/concept appears in 2+ sources OR is central to one source
@@ -658,7 +666,9 @@ When asked to lint, audit, or run a health-check:
    only a single source but has no confidence field set — these are candidates
    for either finding corroboration or demoting to `confidence: medium`.
 10. **Page size:** Flag pages over 200 lines — candidates for splitting.
-11. **Tag audit:** List all tags in use, flag any not in the `SCHEMA.md` taxonomy.
+11. **Tag audit:** List all tags in use, flag any not in the `SCHEMA.md`
+    taxonomy, and flag pages that have tag sprawl (more than 3 tags) so they
+    can be simplified.
 12. **Log rotation:** If `log.md` exceeds 500 entries, rotate it.
 13. **Report findings** with specific file paths and suggested actions, grouped by
    severity (broken links > orphans > source drift > contested pages > stale content > style issues).
@@ -708,8 +718,8 @@ When content is fully superseded or the domain scope changes:
 - **Don't create pages without cross-references** — isolated pages are invisible. Every page must
   link to at least 2 other pages.
 - **Frontmatter is required** — it enables search, filtering, and staleness detection.
-- **Tags must come from the taxonomy** — freeform tags decay into noise. Add new tags to SCHEMA.md
-  first, then use them.
+- **Tags must come from the taxonomy** — freeform tags decay into noise. Keep
+  tag counts small and coarse. Add new tags to SCHEMA.md first, then use them.
 - **Keep pages scannable** — a wiki page should be readable in 30 seconds. Split pages over
   200 lines. Move detailed analysis to dedicated deep-dive pages.
 - **Ask before mass-updating** — if an ingest would touch 10+ existing pages, confirm

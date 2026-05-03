@@ -144,6 +144,7 @@ def initialize_domain(wiki: Path, domain_name: str) -> Path:
         "- `Domains/<domain>/Atlas/`, `Cards/`, `Sources/`, and `Spaces/` for compiled durable knowledge\n\n"
         "Compiled pages live in `Domains/<domain>/Atlas/`, `Cards/`, `Sources/`, and `Spaces/`. "
         "Raw source material belongs in `Shared/Raw/<source-id>/`, and `Sources/` is optional for source excerpts.\n\n"
+        "Tags are coarse domain classification labels; keep them to 1-3 per page instead of keyword stacks.\n\n"
         "Create `Domains/<domain>/Extras/` only when the domain needs its own\n"
         "non-source attachments.\n",
     )

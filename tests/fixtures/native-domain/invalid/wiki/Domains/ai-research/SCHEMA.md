@@ -13,3 +13,5 @@ Invalid AI research domain fixture.
 - entity
 - tool
 - project
+
+Rule: tags are coarse domain classification labels; keep them to 1-3 per page instead of keyword stacks.

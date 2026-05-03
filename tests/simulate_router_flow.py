@@ -69,6 +69,8 @@ def create_domain(wiki: Path, name: str, purpose: str, tags: str, index: str) ->
 
 ## Tag Taxonomy
 - {tags}
+
+Rule: tags are coarse domain classification labels; keep them to 1-3 per page instead of keyword stacks.
 """,
     )
     write(wiki / "Domains" / name / "index.md", f"# Domain Index\n\n{index}\n")

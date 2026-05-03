@@ -60,6 +60,9 @@ maintained by one expert agent.
 | `Spaces/` | Durable non-Card objects, contexts, and archive space |
 | `Extras/` | Optional domain-owned non-source attachments; create only when needed |
 
+Tags are stable classification labels, not keyword dumps. Prefer 1-3 tags per
+page and treat tag sprawl as a lint smell rather than a richer description.
+
 ## Operating Rules
 
 Agents should orient before writing:
