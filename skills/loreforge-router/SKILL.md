@@ -108,8 +108,9 @@ only when:
 
 For sources that matter to multiple domains, use one shared raw source package
 in wiki-root `Shared/Raw/<source-id>/`. Each selected domain gets domain-owned
-synthesis in `Cards/`, `Atlas/`, or `Spaces/`, with provenance via body
-footnotes, not YAML.
+synthesis in `Cards/`, `Atlas/`, or `Spaces/`, and may also keep an optional
+`Domains/<domain>/Sources/` excerpt note for source-specific lenses. Cite raw
+manifests or domain source notes via body footnotes, not YAML.
 
 ## Delegation
 
@@ -133,8 +134,9 @@ Write policy: <read-only|write-confirmed>
 Request: <user request>
 
 Stay inside Domains/<domain>/ for domain pages. Use wiki-root
-`Shared/Raw/<source-id>/` only for shared raw source packages. Cite raw
-manifests from compiled pages with footnotes, not YAML.
+`Shared/Raw/<source-id>/` only for shared raw source packages. Domain
+`Sources/` pages are optional and can point to the raw manifest with body
+footnotes.
 Orient on SCHEMA.md, index.md, recent log.md, and relevant pages.
 If Write policy is read-only, do not create or update wiki files.
 If Write policy is write-confirmed, update index.md and insert a newest-first

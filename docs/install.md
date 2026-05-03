@@ -23,11 +23,14 @@ domain. It should create:
 - shared `Calendar/dailynotes/`, `Shared/Raw/`, and `Shared/Templates/`
 - domain `SCHEMA.md`, `index.md`, `log.md`, `Atlas/`, `Cards/`, and `Spaces/`
   under `Domains/<domain>/`
+- optional `Sources/` under `Domains/<domain>/` when a source excerpt or
+  source-specific lens is useful
 
 Existing repos or vaults should be ingested as sources into the shared
 `Shared/Raw/<source-id>/` area plus native domain synthesis under
-`Domains/<domain>/`. Do not keep alternate layouts as long-term LoreForge
-structure.
+`Domains/<domain>/`. Use `Domains/<domain>/Sources/` only when a source is too
+large or source-specific excerpts are useful. Do not keep alternate layouts as
+long-term LoreForge structure.
 
 Create `Domains/<domain>/Extras/` only if the domain needs its own non-source
 attachments.

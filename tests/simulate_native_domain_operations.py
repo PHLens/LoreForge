@@ -91,8 +91,10 @@ def simulate_query(domain: Path) -> str:
     index = (domain / "index.md").read_text()
     log = (domain / "log.md").read_text()
     card = (domain / "Cards" / "expert-domain-wiki.md").read_text()
+    source_note_path = domain / "Sources" / "agent-domain-boundary-source.md"
+    source_note = source_note_path.read_text() if source_note_path.exists() else ""
     manifest = (wiki / "Shared" / "Raw" / "llm-wiki-skill-note" / "manifest.md").read_text()
-    return "\n".join([schema, index, log, card, manifest])
+    return "\n".join([schema, index, log, card, source_note, manifest])
 
 
 def digest_index(values: dict[str, str]) -> str:
@@ -115,8 +117,9 @@ source_url: local boundary test
 source_id: agent-domain-boundary-note
 hash: {raw_hash}
 compiled_pages:
+  - Domains/{domain.name}/Sources/agent-domain-boundary-source.md
   - Domains/{domain.name}/Cards/domain-boundary-discipline.md
-  - Domains/{domain.name}/Cards/expert-domain-wiki.md
+  - Domains/{domain.name}/Cards/agent-domain-boundary-note.md
 artifacts:
   - Shared/Raw/agent-domain-boundary-note/diagram.txt
 ---
@@ -124,6 +127,29 @@ artifacts:
 # Agent Domain Boundary Raw Source
 
 Raw source shared by any domain that needs the boundary note.
+""")
+
+    source_dir = domain / "Sources"
+    source_dir.mkdir(exist_ok=True)
+    source_note = source_dir / "agent-domain-boundary-source.md"
+    source_note.write_text(f"""---
+title: Agent Domain Boundary Source
+created: {TODAY}
+updated: {TODAY}
+type: source
+tags: [wiki, agent, source]
+confidence: medium
+status: active
+contested: false
+contradictions: []
+---
+
+# Agent Domain Boundary Source
+
+This excerpt preserves the stable parts of the raw boundary note for
+[[agent-domain-boundary-note]] and [[domain-boundary-discipline]].[^raw]
+
+[^raw]: [[Shared/Raw/agent-domain-boundary-note/manifest.md]]
 """)
 
     source = domain / "Cards" / "agent-domain-boundary-note.md"
@@ -144,7 +170,7 @@ contradictions: []
 This source describes why [[expert-domain-wiki]] should update only the selected
 domain and why [[domain-boundary-discipline]] belongs in `Cards/`.[^source]
 
-[^source]: [[Shared/Raw/agent-domain-boundary-note/manifest.md]]
+[^source]: [[Sources/agent-domain-boundary-source]]
 """)
 
     card = domain / "Cards" / "domain-boundary-discipline.md"
@@ -164,9 +190,9 @@ contradictions: []
 
 Domain boundary discipline means an expert updates the selected domain after
 orientation and does not write into sibling domains. It connects
-[[expert-domain-wiki]] with the raw manifest.[^source]
+[[expert-domain-wiki]] with the source note.[^source]
 
-[^source]: [[Shared/Raw/agent-domain-boundary-note/manifest.md]]
+[^source]: [[Sources/agent-domain-boundary-source]]
 """)
 
     index = domain / "index.md"
@@ -181,6 +207,12 @@ orientation and does not write into sibling domains. It connects
         "- [[domain-boundary-discipline]] - Selected-domain-only update discipline.\n"
         "- [[expert-domain-wiki]] - Self-contained expert-owned domain wiki.\n",
     )
+    if "## Sources" not in text:
+        text = text.replace("\n## Spaces\n", "\n## Sources\n\n## Spaces\n")
+    text = text.replace(
+        "## Sources\n\n",
+        "## Sources\n- [[agent-domain-boundary-source]] - Optional source excerpt for the boundary note.\n\n",
+    )
     index.write_text(text)
 
     insert_log_entry(
@@ -189,6 +221,7 @@ orientation and does not write into sibling domains. It connects
 ## {TODAY} | ingest | Agent domain boundary note
 - created: Shared/Raw/agent-domain-boundary-note/diagram.txt
 - created: Shared/Raw/agent-domain-boundary-note/manifest.md
+- created: Sources/agent-domain-boundary-source.md
 - created: Cards/domain-boundary-discipline.md
 - created: Cards/agent-domain-boundary-note.md
 - updated: index.md

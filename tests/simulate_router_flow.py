@@ -155,13 +155,13 @@ def main() -> int:
             "- `Shared/Raw/<source-id>/manifest.md` for raw source manifests, hashes, and compiled page metadata\n"
             "- `Shared/Raw/<source-id>/` for source artifacts\n"
             "- `Shared/Templates/` for reusable templates\n\n"
-            "Domain layer:\n\n"
-            "- `Domains/<domain>/Atlas/`, `Cards/`, and `Spaces/` for compiled durable knowledge\n\n"
-            "Compiled pages live in `Domains/<domain>/Atlas/`, `Cards/`, and `Spaces/`. "
-            "Raw source material belongs in `Shared/Raw/<source-id>/`.\n\n"
-            "Create `Domains/<domain>/Extras/` only when the domain needs its own\n"
-            "non-source attachments.\n",
-        )
+        "Domain layer:\n\n"
+        "- `Domains/<domain>/Atlas/`, `Cards/`, `Sources/`, and `Spaces/` for compiled durable knowledge\n\n"
+        "Compiled pages live in `Domains/<domain>/Atlas/`, `Cards/`, `Sources/`, and `Spaces/`. "
+        "Raw source material belongs in `Shared/Raw/<source-id>/`, and `Sources/` is optional for source excerpts.\n\n"
+        "Create `Domains/<domain>/Extras/` only when the domain needs its own\n"
+        "non-source attachments.\n",
+    )
         create_domain(
             wiki,
             "gpu-arch-research",

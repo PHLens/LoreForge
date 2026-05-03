@@ -128,6 +128,7 @@ Domains/<domain>/
   log.md           # Reverse chronological action log, newest entry first
   Atlas/           # Maps of Content (MOCs), emergent thinking views
   Cards/           # Durable concepts, methods, patterns, tradeoffs, comparisons
+  Sources/         # Optional source excerpts or source-specific lenses
   Spaces/          # Durable people, orgs, projects, tools, systems, contexts
 ```
 
@@ -137,10 +138,11 @@ domain. Treat `Shared/Raw/` and `Shared/Templates/` as the shared raw source
 and template infrastructure for the whole wiki. Treat `Calendar/` as
 wiki-level dated personal notes, not as a domain knowledge area.
 
-Do not create a separate source-record layer in the active structure. If an old
-wiki still has one, migrate raw capture material to
-`Shared/Raw/<source-id>/` and fold durable synthesis into `Cards/`, `Atlas/`,
-or `Spaces/`.
+Do not create a wiki-root `Shared/SourceRecords/` layer in the active
+structure. If an old wiki still has one, migrate raw capture material to
+`Shared/Raw/<source-id>/`. Domain `Sources/` is optional and should be used
+only when a domain needs a compact excerpt or source-specific lens over a large
+raw package.
 
 Create `Domains/<domain>/Extras/` only when a domain truly needs local
 non-source attachments.
@@ -160,8 +162,9 @@ When the user specified a domain, **always orient yourself before doing anything
 2. Read `index.md`.
 3. Read the latest 20-30 entries from `log.md`.
 4. Search existing pages for the topic.
-5. Read relevant `Atlas/`, `Cards/`, and `Spaces/` pages; read
-   `Shared/Raw/<source-id>/manifest.md` only when source provenance matters.
+5. Read relevant `Atlas/`, `Cards/`, `Sources/`, and `Spaces/` pages; read
+   `Shared/Raw/<source-id>/manifest.md` when source provenance or full raw
+   context matters.
 
 Only after orientation should you ingest, query, or lint. This prevents:
 
@@ -223,11 +226,13 @@ Domain layer:
 
 - `Domains/<domain>/Atlas/` for durable maps and conceptual views
 - `Domains/<domain>/Cards/` for durable concepts and comparisons
+- `Domains/<domain>/Sources/` for optional source excerpts or source-specific lenses
 - `Domains/<domain>/Spaces/` for durable people, tools, projects, and contexts
 
-Compiled pages live in `Atlas/`, `Cards/`, and `Spaces/`. Raw source material
-belongs in `Shared/Raw/<source-id>/`; compiled pages cite raw manifests with
-body footnotes.
+Raw source material belongs in `Shared/Raw/<source-id>/`. Durable synthesis
+lives in `Atlas/`, `Cards/`, and `Spaces/`. Optional domain source excerpts
+live in `Sources/`. Compiled pages cite raw manifests or domain source notes
+with body footnotes.
 ```
 
 Create `Domains/<domain>/Extras/` only when the domain needs its own
@@ -254,7 +259,8 @@ Adapt to the user's domain. The schema constrains agent behavior and ensures con
 [What this domain covers — e.g., "AI/ML research", "personal health", "startup intelligence"]
 
 ## Language Policy
-- Raw packages preserve the source language by default.
+- Raw packages preserve the source language by default. Optional domain Source
+  notes preserve it too.
 - Extracted Cards, Atlas pages, and Spaces use this domain's configured default note language: `[language]`.
 - If this policy is missing, ask once before creating synthesized pages, then add it to `SCHEMA.md`.
 - Do not translate source material unless the user asks for translation or bilingual notes.
@@ -272,8 +278,9 @@ Adapt to the user's domain. The schema constrains agent behavior and ensures con
 - **Provenance markers:** Use body footnotes, not YAML, for compiled-page
   provenance. Append `[^1]` at the end of paragraphs whose claims come from a
   specific source, and put definitions at the end of the page using wikilinks
-  such as `[^1]: [[Shared/Raw/<source-id>/manifest.md]]`. Single-source pages
-  should still use a footnote for source-backed claims.
+  such as `[^1]: [[Sources/source-note-name]]` or
+  `[^1]: [[Shared/Raw/<source-id>/manifest.md]]`. Single-source pages should
+  still use a footnote for source-backed claims.
 
 ## Frontmatter
 ```yaml
@@ -281,7 +288,7 @@ Adapt to the user's domain. The schema constrains agent behavior and ensures con
 title: Page Title
 created: YYYY-MM-DD
 updated: YYYY-MM-DD
-type: map | concept | space
+type: map | concept | source | space
 tags: []
 confidence: high | medium | low
 status: active | tentative | archived
@@ -359,9 +366,10 @@ relevant Cards or Atlas pages.
 ## Source Capture
 
 Raw source packages live only under `Shared/Raw/<source-id>/`. Domain pages do
-not keep YAML `sources:` links and do not use a separate domain provenance
-layer. Compiled `Cards/`, `Atlas/`, and `Spaces/` pages cite raw manifests
-with body footnotes, not YAML.
+not keep YAML `sources:` links. Optional domain `Sources/` pages are compact
+excerpt notes or source-specific lenses over large raw packages. Compiled
+`Cards/`, `Atlas/`, `Spaces/`, and `Sources/` pages cite raw manifests or
+domain source notes with body footnotes, not YAML.
 
 ### Source Capture Policy
 
@@ -381,12 +389,14 @@ with body footnotes, not YAML.
 - PDFs: download the original PDF to `Shared/Raw/<source-id>/`; create or
   update `manifest.md` with metadata, source hash, compiled pages, limitations,
   and a local PDF link. Extract full text only when needed or asked.
-- Do not create separate domain provenance pages. If a source-specific view is valuable,
-  compile it as a question-driven Card or Atlas page and cite the raw manifest
-  with footnotes.
-- Language: raw packages preserve the source language by default. Synthesized
-  Cards, Atlas pages, and Spaces use the domain default note language from
-  `SCHEMA.md`.
+- Optional domain Source note: create or update `Domains/<domain>/Sources/<source-id>.md`
+  when the raw package is large, when a source-specific excerpt should stay
+  queryable, or when multiple compiled pages need a stable local lens. A source
+  note should preserve source language, link back to the raw manifest, and keep
+  only the extracted slice needed by the domain.
+- Language: raw packages preserve the source language by default. Optional
+  domain Source notes preserve it too. Synthesized Cards, Atlas pages, and
+  Spaces use the domain default note language from `SCHEMA.md`.
 - Durable local paths in raw packages must point to wiki-local files, such as
   `Shared/Raw/...`. Do not put transient extractor paths such as
   `/tmp/topic-research/...` in source metadata; if those paths are useful for
@@ -394,9 +404,9 @@ with body footnotes, not YAML.
 
 ### Built-In Capture Tools
 
-- For web topics, direct links, Zhihu, WeChat, and pages that need browser state,
-  use the bundled `topic-research` skill before writing raw source packages
-  or compiled domain pages.
+- For web topics, direct links, Zhihu, WeChat, and pages that need browser
+  state, use the bundled `topic-research` skill before writing raw source
+  packages, optional domain Source notes, or compiled domain pages.
 - For local documents or exported files, use `convert-to-markdown` when it can
   preserve structure or extract images better than manual conversion.
 - For standard web pages where a lightweight extractor is enough, `defuddle`
@@ -443,7 +453,6 @@ The index is sectioned by type. Each entry is one line: wikilink + summary.
 # Domain Index
 
 > Mechanical inventory. Every active Markdown page under Atlas, Cards, Sources,
-> Mechanical inventory. Every active Markdown page under Atlas, Cards,
 > and indexable Spaces should appear here with a one-line summary.
 > Index Spaces only when tagged `person`, `entity`, `tool`, or `project`.
 > Do not index `Spaces/_archive/` or transient workspace notes.
@@ -452,6 +461,8 @@ The index is sectioned by type. Each entry is one line: wikilink + summary.
 ## Atlas
 
 ## Cards
+
+## Sources
 
 ## Spaces
 ```
@@ -500,6 +511,8 @@ When migrating:
 4. Read from the source without changing it.
 5. Ingest durable material into the native domain structure:
    - raw source packages into `Shared/Raw/<source-id>/`
+   - optional source excerpts into `Domains/<domain>/Sources/<source-id>.md`
+     when the raw package is large or a stable local lens is useful
    - synthesized reusable concepts into `Cards/`
    - emergent thinking views into `Atlas/`
    - people, entities, tools, projects, systems, and contexts into `Spaces/`
@@ -545,8 +558,8 @@ When the user provides a source (URL, file, paste), integrate it into the wiki:
      temporary extractor output directories as source artifacts inside the note.
    - Name the shared source file descriptively:
      `Shared/Raw/karpathy-llm-wiki-2026/manifest.md`
-   - Do not create a separate domain provenance page. If a source-specific view is
-     useful, compile it as a question-driven Card or Atlas page.
+   - Create or update `Domains/<domain>/Sources/karpathy-llm-wiki-2026.md`
+     only when a source-specific excerpt or stable local lens is useful.
 
 3. **Discuss takeaways** with the user — what's interesting, what matters for
    the domain. (Skip this in automated/cron contexts — proceed directly.)
@@ -560,9 +573,9 @@ When the user provides a source (URL, file, paste), integrate it into the wiki:
      in SCHEMA.md (2+ source mentions, or central to one source)
    - **Existing pages:** Add new information, update facts, bump `updated` date.
      When new info contradicts existing content, follow the Update Policy.
-   - **Language:** Raw packages stay in the source language. New Cards, Atlas
-     pages, and Spaces use the domain's configured default note language from
-     `SCHEMA.md`.
+   - **Language:** Raw packages and optional domain Source notes stay in the
+     source language. New Cards, Atlas pages, and Spaces use the domain's
+     configured default note language from `SCHEMA.md`.
    - **Related links:** Put important related pages near the top of Cards and
      Atlas pages with `related:: [[...]]` so readers see the local graph before
      the body.
@@ -570,7 +583,8 @@ When the user provides a source (URL, file, paste), integrate it into the wiki:
      pages via `[[wikilinks]]`. Check that existing pages link back.
    - **Tags:** Only use tags from the taxonomy in `SCHEMA.md`
    - **Provenance:** Use body footnotes, not YAML. Append `[^1]` markers to
-     source-backed claims and define them with raw manifest wikilinks such as
+     source-backed claims and define them with optional source-note or raw
+     manifest wikilinks such as `[^1]: [[Sources/source-note-name]]` or
      `[^1]: [[Shared/Raw/<source-id>/manifest.md]]`.
    - **Confidence:** For opinion-heavy, fast-moving, or single-source claims, set
      `confidence: medium` or `low` in frontmatter. Don't mark `high` unless the
@@ -580,8 +594,8 @@ When the user provides a source (URL, file, paste), integrate it into the wiki:
    - Add new pages to `index.md` under the correct section, alphabetically
    - Update the "Total pages" count and "Last updated" date in index header
    - Insert at the top of `log.md`: `## [YYYY-MM-DD] ingest | Source Title`
-   - List every raw package, Card, Atlas, Space, and other file created or
-     updated in the log entry
+   - List every raw package, optional domain Source note, Card, Atlas, Space,
+     and other file created or updated in the log entry
 
 7. **Report what changed** — list every file created or updated to the user,
    including local image/PDF attachment paths.
@@ -629,9 +643,9 @@ When asked to lint, audit, or run a health-check:
    require manual repair.
 4. **Domain boundary:** Surface wikilinks or path-shaped links that point outside
    the selected domain unless the user explicitly asked for cross-domain work.
-5. **Index completeness:** Every active page under `Atlas/` and `Cards/`
-   should appear in `index.md`. Active `Spaces/` pages should appear only when
-   tagged `person`, `entity`, `tool`, or `project`. Do not require
+5. **Index completeness:** Every active page under `Atlas/`, `Cards/`, and
+   `Sources/` should appear in `index.md`. Active `Spaces/` pages should appear
+   only when tagged `person`, `entity`, `tool`, or `project`. Do not require
    `Spaces/_archive/` or transient workspace notes in the index.
 6. **Frontmatter validation:** Every wiki page must have all required fields
    (title, created, updated, type, tags, status). Tags must be in the taxonomy.
@@ -678,16 +692,17 @@ When content is fully superseded or the domain scope changes:
   Skipping this causes duplicates and missed cross-references.
 - **Always update index.md and log.md** — skipping this makes the wiki degrade. These are the
   navigational backbone.
-- **Don't drop source attachments** — article images, diagrams, PDFs, and other durable source
-  artifacts belong in `Shared/Raw/<source-id>/` and should be linked from the raw
-  package.
-- **Don't duplicate raw sources** — search `Shared/Raw/` before adding a source. Reuse the
-  shared raw package across domains.
+- **Don't drop source attachments** — article images, diagrams, PDFs, and other
+  durable source artifacts belong in `Shared/Raw/<source-id>/` and should be
+  linked from the raw package or optional domain Source note.
+- **Don't duplicate raw sources** — search `Shared/Raw/` before adding a source.
+  Reuse the shared raw package across domains, and add a domain Source note
+  only when its excerpt/lens is actually useful.
 - **Don't make ingest purely mechanical** — start from the user's problem or
   uncertainty, then use raw packages and Cards to lower future cognitive load.
-- **Don't silently translate sources** — raw packages preserve the original
-  language. Use the domain default note language only for synthesized Cards,
-  Atlas pages, and Spaces.
+- **Don't silently translate sources** — raw packages and optional domain
+  Source notes preserve the original language. Use the domain default note
+  language only for synthesized Cards, Atlas pages, and Spaces.
 - **Don't create pages for passing mentions** — follow the Page Thresholds in SCHEMA.md. A name
   appearing once in a footnote doesn't warrant an entity page.
 - **Don't create pages without cross-references** — isolated pages are invisible. Every page must

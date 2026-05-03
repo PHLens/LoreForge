@@ -23,6 +23,7 @@ wiki/
       log.md
       Atlas/
       Cards/
+      Sources/  # optional compiled source excerpts
       Spaces/
 ```
 
@@ -55,6 +56,7 @@ maintained by one expert agent.
 | `log.md` | Reverse chronological action log, newest entry first |
 | `Atlas/` | Maps of Content (MOCs), emergent thinking views |
 | `Cards/` | Durable concepts, methods, patterns, tradeoffs, comparisons |
+| `Sources/` | Optional source excerpts or source-specific lenses for large raw packages |
 | `Spaces/` | Durable non-Card objects, contexts, and archive space |
 | `Extras/` | Optional domain-owned non-source attachments; create only when needed |
 
@@ -66,14 +68,14 @@ Agents should orient before writing:
 2. Read `index.md`.
 3. Read recent `log.md` entries.
 4. Search existing pages for the topic.
-5. Read relevant `Atlas/`, `Cards/`, and `Spaces/` pages.
+5. Read relevant `Atlas/`, `Cards/`, `Sources/`, and `Spaces/` pages.
 
 Routine maintenance writes directly inside the selected domain after
 orientation. There is no staged promotion pipeline in the active core workflow.
 
 Query and ingest should stay question-driven: start from the problem being
-answered, then decide whether the raw package or a durable Card/Atlas/Space
-page is actually warranted.
+answered, then decide whether the raw package, an optional domain Source note,
+or a durable Card/Atlas/Space page is actually warranted.
 
 After substantive changes, update `index.md` when stable pages are created,
 archived, renamed, or materially changed. Insert a concise newest-first
@@ -93,10 +95,10 @@ appropriate to reuse in full. Otherwise keep a faithful structured capture and
 record only concrete limitations.
 
 Compiled domain pages do not carry YAML `sources:` links. Put source-backed
-provenance in body footnotes that point to raw manifests, for example
-`[^1]: [[Shared/Raw/<source-id>/manifest.md]]`. Source metadata should point to
-wiki-local files, not temporary extractor outputs such as
-`/tmp/topic-research/...`.
+provenance in body footnotes that point to raw manifests or domain source
+notes, for example `[^1]: [[Shared/Raw/<source-id>/manifest.md]]` or
+`[^1]: [[Sources/source-note-name]]`. Source metadata should point to wiki-local
+files, not temporary extractor outputs such as `/tmp/topic-research/...`.
 
 ## Boundaries
 
@@ -104,7 +106,8 @@ wiki-local files, not temporary extractor outputs such as
   in the wiki.
 - Do not write across domains unless the user explicitly asks.
 - Do not duplicate the same raw source or PDF under multiple domains.
-- Do not mechanically split every source into a raw package and new Cards.
+- Do not mechanically split every source into a raw package, Source note, and
+  new Cards.
   Start from the question and create durable synthesis only when it reduces
   future work.
 - If `Extras/` exists, do not index it directly.

@@ -5,6 +5,7 @@
 - `Shared/Raw/<source-id>/` is the source-of-truth layer.
 - `Shared/Templates/` is the shared template layer.
 - `Domains/<domain>/Atlas/`, `Cards/`, and `Spaces/` hold compiled durable knowledge.
+- `Domains/<domain>/Sources/` is optional and can hold source excerpts or source-specific lenses.
 - `Calendar/dailynotes/` stays as dated personal notes and daily logs.
 
 ## Raw Package Shape
@@ -27,4 +28,4 @@ Start from the user's question or uncertainty, not from mechanical source decomp
 
 ## Compilation Rule
 
-Create or update Cards, Atlas pages, and Spaces only when the result will be reused. Compiled pages cite raw manifests with body footnotes, not YAML source links.
+Create or update Cards, Atlas pages, Spaces, and optional Source notes only when the result will be reused. Compiled pages cite raw manifests or source notes with body footnotes, not YAML source links.

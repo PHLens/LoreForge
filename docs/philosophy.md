@@ -19,6 +19,7 @@ pamem
 LoreForge wiki instance
   professional knowledge
   raw source packages
+  optional domain source notes
   durable concepts
   maps, indexes, logs
 
@@ -68,6 +69,7 @@ LoreForge
   shared knowledge compounds
   professional concepts become reusable
   shared raw sources avoid duplicate capture
+  optional domain source notes keep large sources queryable
   stable notes remain human-readable
 ```
 
@@ -80,6 +82,7 @@ LoreForge
 | Raw source package | LoreForge wiki `Shared/Raw/<source-id>/` |
 | Raw source artifact | LoreForge wiki `Shared/Raw/<source-id>/` |
 | Reusable template | LoreForge wiki `Shared/Templates/` |
+| Optional domain source note | LoreForge domain `Sources/` note |
 | Durable domain view | LoreForge wiki |
 
 ## Current Design
@@ -89,13 +92,15 @@ LoreForge now follows a small core:
 1. One shared wiki root can contain many domains.
 2. Shared raw sources live in `Shared/Raw/<source-id>/`, and reusable templates
    in `Shared/Templates/`.
-3. One expert agent owns and maintains one domain.
-4. The `loreforge-router` skill handles domain selection and cross-domain
+3. Optional domain source notes live in `Domains/<domain>/Sources/` when a raw
+   package is large or needs a stable excerpt.
+4. One expert agent owns and maintains one domain.
+5. The `loreforge-router` skill handles domain selection and cross-domain
    coordination.
-5. The core `loreforge-wiki` skill handles domain query, ingest, update,
+6. The core `loreforge-wiki` skill handles domain query, ingest, update,
    review, initialization, and Health Checks.
-6. Expert agents write directly after orientation.
-7. Human supervision happens through `log.md`, `index.md`, confidence metadata,
+7. Expert agents write directly after orientation.
+8. Human supervision happens through `log.md`, `index.md`, confidence metadata,
    contradiction records, Health Checks, and git diffs.
 
 The old staged package pipeline is not part of the active core workflow.
@@ -109,8 +114,8 @@ Borrow:
 - **Session orientation**: before operating on a wiki, read schema, indexes, and
   recent meaningful log entries.
 - **Question-driven ingest**: frame source capture around the problem being
-  solved, then decide whether a raw package or durable synthesis is actually
-  needed.
+  solved, then decide whether a raw package, an optional domain Source note, or
+  durable synthesis is actually needed.
 - **Memory/knowledge split**: keep facts, preferences, procedures, and durable
   professional knowledge in separate stores.
 - **Source discipline**: preserve provenance and avoid turning passing mentions
