@@ -6,7 +6,6 @@ type: concept
 tags: [wiki]
 confidence: low
 status: archived
-sources: []
 contested: false
 contradictions: []
 ---

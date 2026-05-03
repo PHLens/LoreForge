@@ -11,8 +11,9 @@ When this skill is used with `loreforge-wiki`, treat its outputs as capture
 inputs. Durable raw source packages belong under the wiki-level
 `Shared/Raw/<source-id>/` directory, with `manifest.md` tracking metadata,
 source hash, compiled page pointers, and artifact links. Domain-specific
-`Sources/` pages are optional compiled notes for special-purpose views. Do not
-leave final wiki notes pointing at `/tmp/topic-research/...`.
+compiled pages should cite those raw manifests with body footnotes, not YAML
+source links. Do not leave final wiki notes pointing at
+`/tmp/topic-research/...`.
 
 ## Environment Setup
 

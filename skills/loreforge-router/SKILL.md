@@ -19,7 +19,7 @@ Always:
 - inspect available domains before choosing
 - keep one expert-owned domain as the write boundary
 - treat raw source packages as shared wiki-root `Shared/Raw/<source-id>/`
-  data, with `Shared/SourceRecords/` kept only for legacy compatibility
+  data
 - use `loreforge-wiki` for domain query, ingest, update, review, and Health Check
 - report routing decisions and uncertainty clearly
 
@@ -108,8 +108,8 @@ only when:
 
 For sources that matter to multiple domains, use one shared raw source package
 in wiki-root `Shared/Raw/<source-id>/`. Each selected domain gets domain-owned
-synthesis and an optional `Domains/<domain>/Sources/` domain Source note only
-when that source-specific compiled note is useful.
+synthesis in `Cards/`, `Atlas/`, or `Spaces/`, with provenance via body
+footnotes, not YAML.
 
 ## Delegation
 
@@ -133,8 +133,8 @@ Write policy: <read-only|write-confirmed>
 Request: <user request>
 
 Stay inside Domains/<domain>/ for domain pages. Use wiki-root
-`Shared/Raw/<source-id>/` only for shared raw source packages. Treat
-`Shared/SourceRecords/` as legacy compatibility only.
+`Shared/Raw/<source-id>/` only for shared raw source packages. Cite raw
+manifests from compiled pages with footnotes, not YAML.
 Orient on SCHEMA.md, index.md, recent log.md, and relevant pages.
 If Write policy is read-only, do not create or update wiki files.
 If Write policy is write-confirmed, update index.md and insert a newest-first

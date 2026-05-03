@@ -6,7 +6,6 @@ type: space
 tags: [workspace]
 confidence: medium
 status: active
-sources: []
 contested: false
 contradictions: []
 ---

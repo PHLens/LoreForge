@@ -52,7 +52,7 @@ def assert_skill_contract() -> None:
         "Set `Write policy: read-only` for query operations",
         "do not create or update wiki files",
         "Shared/Raw/",
-        "domain Source note",
+        "footnotes, not YAML",
     ]
     missing = [item for item in required if item not in skill]
     if missing:
@@ -156,7 +156,9 @@ def main() -> int:
             "- `Shared/Raw/<source-id>/` for source artifacts\n"
             "- `Shared/Templates/` for reusable templates\n\n"
             "Domain layer:\n\n"
-            "- `Domains/<domain>/Sources/` is optional for legacy or special-purpose source notes\n\n"
+            "- `Domains/<domain>/Atlas/`, `Cards/`, and `Spaces/` for compiled durable knowledge\n\n"
+            "Compiled pages live in `Domains/<domain>/Atlas/`, `Cards/`, and `Spaces/`. "
+            "Raw source material belongs in `Shared/Raw/<source-id>/`.\n\n"
             "Create `Domains/<domain>/Extras/` only when the domain needs its own\n"
             "non-source attachments.\n",
         )

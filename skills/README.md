@@ -26,8 +26,8 @@ The core skill follows the LLM Wiki pattern: one expert agent maintains one
 domain by orienting on `SCHEMA.md`, `index.md`, recent `log.md`, and relevant
 pages before writing. Raw source packages live once under wiki-root
 `Shared/Raw/<source-id>/`, with `manifest.md` carrying metadata, source hash,
-and compiled page pointers. Domain `Sources/` pages are optional compiled
-source notes for special-purpose views, not the default ingest output.
+and compiled page pointers. Compiled domain pages cite raw manifests with body
+footnotes, not YAML source links.
 
 Legacy staged workflow skills such as `capture`, `ingest`, `writeback`,
 `promote`, `query`, `lint`, `register`, and `sync` are intentionally removed
@@ -55,8 +55,6 @@ Use `loreforge-wiki` when a user or agent needs to:
 - capture a raw source into `Shared/Raw/<source-id>/manifest.md` with original
   and extracted artifacts, then update the question-relevant compiled pages
 - create or revise durable Cards, Atlas MOCs, or Spaces
-- create an optional domain `Sources/` page only when a source-specific compiled
-  note is useful
 - initialize a new expert-owned domain
 - review or run a Health Check on a domain
 

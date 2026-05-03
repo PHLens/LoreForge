@@ -135,7 +135,6 @@ type: concept
 tags: [wiki, agent, source]
 confidence: medium
 status: active
-sources: ["Shared/Raw/agent-domain-boundary-note/manifest.md"]
 contested: false
 contradictions: []
 ---
@@ -143,9 +142,9 @@ contradictions: []
 # Agent Domain Boundary Note
 
 This source describes why [[expert-domain-wiki]] should update only the selected
-domain and why [[domain-boundary-discipline]] belongs in `Cards/`.
+domain and why [[domain-boundary-discipline]] belongs in `Cards/`.[^source]
 
-Shared raw source: `Shared/Raw/agent-domain-boundary-note/manifest.md`.
+[^source]: [[Shared/Raw/agent-domain-boundary-note/manifest.md]]
 """)
 
     card = domain / "Cards" / "domain-boundary-discipline.md"
@@ -157,7 +156,6 @@ type: concept
 tags: [wiki, agent, concept]
 confidence: medium
 status: active
-sources: ["Shared/Raw/agent-domain-boundary-note/manifest.md"]
 contested: false
 contradictions: []
 ---
@@ -166,7 +164,9 @@ contradictions: []
 
 Domain boundary discipline means an expert updates the selected domain after
 orientation and does not write into sibling domains. It connects
-`Shared/Raw/agent-domain-boundary-note/manifest.md` with [[expert-domain-wiki]].
+[[expert-domain-wiki]] with the raw manifest.[^source]
+
+[^source]: [[Shared/Raw/agent-domain-boundary-note/manifest.md]]
 """)
 
     index = domain / "index.md"

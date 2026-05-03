@@ -22,7 +22,7 @@ REQUIRED_PATHS = [
     "Spaces",
 ]
 
-PAGE_DIRS = ["Atlas", "Cards", "Sources", "Spaces"]
+PAGE_DIRS = ["Atlas", "Cards", "Spaces"]
 REQUIRED_FRONTMATTER = [
     "title",
     "created",
@@ -30,13 +30,11 @@ REQUIRED_FRONTMATTER = [
     "type",
     "tags",
     "status",
-    "sources",
 ]
 INDEXABLE_SPACE_TAGS = {"person", "entity", "tool", "project"}
 EXPECTED_TYPE_BY_DIR = {
     "Atlas": "map",
     "Cards": "concept",
-    "Sources": "source",
     "Spaces": "space",
 }
 
@@ -65,18 +63,53 @@ def frontmatter(text: str) -> dict[str, str] | None:
     if len(parts) < 3:
         return None
     fields: dict[str, str] = {}
-    for line in parts[1].splitlines():
+    lines = parts[1].splitlines()
+    i = 0
+    while i < len(lines):
+        line = lines[i]
         if ":" not in line:
+            i += 1
             continue
         key, value = line.split(":", 1)
-        fields[key.strip()] = value.strip()
+        key = key.strip()
+        value = value.strip()
+        if value == "":
+            block: list[str] = []
+            j = i + 1
+            while j < len(lines):
+                next_line = lines[j]
+                if re.match(r"^[A-Za-z0-9_-]+:\s", next_line):
+                    break
+                if next_line.startswith("- ") or next_line.startswith("  ") or next_line.startswith("\t") or next_line == "":
+                    block.append(next_line)
+                    j += 1
+                    continue
+                break
+            if block:
+                value = "\n".join(block).rstrip()
+                i = j - 1
+        fields[key] = value
+        i += 1
     return fields
 
 
 def list_value(value: str) -> set[str]:
     value = value.strip()
     if not value.startswith("[") or not value.endswith("]"):
-        return set()
+        if not value:
+            return set()
+        items: list[str] = []
+        lines = value.splitlines()
+        if len(lines) > 1 or value.startswith("- "):
+            for line in lines:
+                item = line.strip()
+                if not item:
+                    continue
+                if item.startswith("- "):
+                    item = item[2:].strip()
+                items.extend(part.strip().strip("\"'") for part in item.split(",") if part.strip())
+            return {item for item in items if item}
+        return {item.strip().strip("\"'") for item in value.split(",") if item.strip()}
     inner = value[1:-1].strip()
     if not inner:
         return set()
@@ -270,6 +303,10 @@ def validate_domain(domain: Path) -> list[Issue]:
     log_text = log_path.read_text() if log_path.exists() else ""
     allowed_tags = taxonomy(schema_text)
 
+    sources_dir = domain / "Sources"
+    if sources_dir.exists():
+        issues.append(Issue("unexpected-source-directory", "Sources/", "domain Sources/ is not part of the active structure"))
+
     pages = active_pages(domain)
     archived = archived_pages(domain)
     known_stems = {page.stem for page in pages}
@@ -285,6 +322,9 @@ def validate_domain(domain: Path) -> list[Issue]:
         for field in REQUIRED_FRONTMATTER:
             if field not in fields:
                 issues.append(Issue("missing-frontmatter-field", page_rel, f"missing `{field}`"))
+
+        if "sources" in fields:
+            issues.append(Issue("deprecated-frontmatter-field", page_rel, "frontmatter `sources` is no longer used; move provenance to body footnotes"))
 
         expected = expected_type(page, domain)
         if expected and fields.get("type") != expected:
@@ -409,12 +449,12 @@ def main(argv: list[str]) -> int:
     invalid_expected = {
         "broken-wikilink",
         "cross-domain-link",
-        "missing-frontmatter-field",
         "missing-footnote-definition",
         "missing-index-entry",
         "log-order",
         "orphan-footnote-definition",
         "unknown-tag",
+        "unexpected-source-directory",
     }
 
     ok = run_fixture("valid fixture", valid, set())

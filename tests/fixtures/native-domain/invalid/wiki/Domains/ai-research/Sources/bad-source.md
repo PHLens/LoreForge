@@ -5,7 +5,6 @@ type: source
 tags: [source]
 confidence: medium
 status: active
-sources: []
 contested: false
 contradictions: []
 ---
