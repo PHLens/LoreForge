@@ -104,24 +104,58 @@ def digest_index(values: dict[str, str]) -> str:
 
 def simulate_ingest(domain: Path) -> None:
     wiki = domain.parents[1]
-    raw = wiki / "Shared" / "Raw" / "agent-domain-boundary-note"
+    raw_root = wiki / "Shared" / "Raw"
+    raw_root.mkdir(parents=True, exist_ok=True)
+    flat_clip = raw_root / "agent-domain-boundary-note.md"
+    flat_clip.write_text("# Agent Domain Boundary Raw Source\n\nRaw source shared by any domain that needs the boundary note.\n")
+    raw = raw_root / "agent-domain-boundary-note"
     raw.mkdir(parents=True, exist_ok=True)
-    (raw / "diagram.txt").write_text("test attachment\n")
-    raw_hash = digest_index(digest_tree(domain))
-    (raw / "manifest.md").write_text(f"""---
+    (raw / "original").mkdir(exist_ok=True)
+    flat_clip.rename(raw / "original" / "clip.md")
+    assert not flat_clip.exists()
+    (raw / "assets").mkdir(exist_ok=True)
+    origin = raw / "origin.md"
+    origin.write_text(f"""---
 title: Agent Domain Boundary Raw Source
 created: {TODAY}
 updated: {TODAY}
 type: source
-source_url: local boundary test
+source_type: local note
+source_language: en
+retrieved_at: {TODAY}
+source_description: Local boundary test source
+origin: Shared/Raw/agent-domain-boundary-note/origin.md
+candidate_domains:
+  - ai-research
+compiled_pages: []
+status: captured
+---
+
+# Agent Domain Boundary Raw Source
+
+Raw source shared by any domain that needs the boundary note.
+""")
+    raw_hash = hashlib.sha256(origin.read_bytes()).hexdigest()
+    (raw / "assets" / "diagram.txt").write_text("test attachment\n")
+    (raw / "manifest.md").write_text(f"""---
+title: Agent Domain Boundary Raw Source
 source_id: agent-domain-boundary-note
-hash: {raw_hash}
+source_type: local note
+source_language: en
+retrieved_at: {TODAY}
+source_description: Local boundary test source
+content_hash: {raw_hash}
+origin: Shared/Raw/agent-domain-boundary-note/origin.md
+candidate_domains:
+  - ai-research
 compiled_pages:
   - Domains/{domain.name}/Sources/agent-domain-boundary-source.md
   - Domains/{domain.name}/Cards/domain-boundary-discipline.md
   - Domains/{domain.name}/Cards/agent-domain-boundary-note.md
+status: compiled
 artifacts:
-  - Shared/Raw/agent-domain-boundary-note/diagram.txt
+  - Shared/Raw/agent-domain-boundary-note/original/clip.md
+  - Shared/Raw/agent-domain-boundary-note/assets/diagram.txt
 ---
 
 # Agent Domain Boundary Raw Source
@@ -219,7 +253,10 @@ orientation and does not write into sibling domains. It connects
         domain,
         f"""
 ## {TODAY} | ingest | Agent domain boundary note
-- created: Shared/Raw/agent-domain-boundary-note/diagram.txt
+- created: Shared/Raw/agent-domain-boundary-note.md
+- normalized: Shared/Raw/agent-domain-boundary-note.md -> Shared/Raw/agent-domain-boundary-note/original/clip.md
+- created: Shared/Raw/agent-domain-boundary-note/origin.md
+- created: Shared/Raw/agent-domain-boundary-note/assets/diagram.txt
 - created: Shared/Raw/agent-domain-boundary-note/manifest.md
 - created: Sources/agent-domain-boundary-source.md
 - created: Cards/domain-boundary-discipline.md

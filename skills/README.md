@@ -2,11 +2,11 @@
 
 Core LoreForge operations and bundled helper skills live here.
 
-LoreForge exposes a router skill and one core domain wiki skill:
+LoreForge exposes an optional router skill and one core domain wiki skill:
 
 | Skill | Purpose |
 |---|---|
-| `loreforge-router` | Route unknown-domain or cross-domain query/ingest requests to the right LoreForge domain expert(s) |
+| `loreforge-router` | Optional dispatch layer for unknown-domain, batch, or cross-domain query/ingest requests |
 | `loreforge-wiki` | Query, ingest sources, update durable pages, review, initialize domains, and run Health Checks for expert-owned LoreForge domains |
 
 It also bundles reusable helper skills that a wiki agent can call during
@@ -24,12 +24,12 @@ capture or Obsidian-facing work:
 
 The core skill follows the LLM Wiki pattern: one expert agent maintains one
 domain by orienting on `SCHEMA.md`, `index.md`, recent `log.md`, and relevant
-pages before writing. Raw source packages live once under wiki-root
-`Shared/Raw/<source-id>/`, with `manifest.md` carrying metadata, source hash,
-and compiled page pointers. Optional domain `Sources/` pages can hold excerpts
-or source-specific lenses when a raw package is large. Compiled domain pages
-cite raw manifests or domain source notes with body footnotes, not YAML source
-links.
+pages before writing. Capture writes flat raw clips under wiki-root
+`Shared/Raw/`; ingest normalizes them into `Shared/Raw/<source-id>/` packages,
+with `manifest.md` carrying metadata, source hash, and compiled page pointers.
+Optional domain `Sources/` pages can hold excerpts or source-specific lenses
+when a raw package is large. Compiled domain pages cite raw manifests or domain
+source notes with body footnotes, not YAML source links.
 
 Legacy staged workflow skills such as `capture`, `ingest`, `writeback`,
 `promote`, `query`, `lint`, `register`, and `sync` are intentionally removed
@@ -48,19 +48,25 @@ Use `loreforge-router` when a user or agent needs to:
 
 - decide which domain should handle a request
 - query across domains
-- ingest a source that may belong to multiple domains
+- plan ingest for captured source batches or a source that may belong to
+  multiple domains
 - coordinate bounded domain expert work through `loreforge-wiki`
 
 Use `loreforge-wiki` when a user or agent needs to:
 
 - answer from an existing LoreForge domain
-- capture a raw source into `Shared/Raw/<source-id>/manifest.md` with original
-  and extracted artifacts, then update the question-relevant compiled pages
+- capture a raw source into `Shared/Raw/` as a flat clip, then let ingest
+  normalize it into `Shared/Raw/<source-id>/manifest.md` and the relevant
+  compiled pages
 - create or revise durable Cards, Atlas MOCs, or Spaces
 - create an optional domain `Sources/` page when a source-specific excerpt or
   stable lens is useful
 - initialize a new expert-owned domain
 - review or run a Health Check on a domain
+
+For clear single-domain work, bypass the router and call `loreforge-wiki`
+directly. The router should not capture raw content, normalize raw packages, or
+write domain pages itself.
 
 The skill writes directly after orientation and keeps the domain `index.md` and
 `log.md` current. Human review happens through logs, confidence fields,

@@ -137,13 +137,13 @@ def initialize_domain(wiki: Path, domain_name: str) -> Path:
         wiki / "00_System" / "wiki-layout.md",
         "# Wiki Layout\n\n"
         "Canonical shared layer:\n\n"
-        "- `Shared/Raw/<source-id>/manifest.md` for raw source manifests, hashes, and compiled page metadata\n"
-        "- `Shared/Raw/<source-id>/` for source artifacts\n"
+        "- `Shared/Raw/` for capture-only flat source clips\n"
+        "- `Shared/Raw/<source-id>/` for normalized raw packages and attachments after ingest\n"
         "- `Shared/Templates/` for reusable templates\n\n"
         "Domain layer:\n\n"
         "- `Domains/<domain>/Atlas/`, `Cards/`, `Sources/`, and `Spaces/` for compiled durable knowledge\n\n"
         "Compiled pages live in `Domains/<domain>/Atlas/`, `Cards/`, `Sources/`, and `Spaces/`. "
-        "Raw source material belongs in `Shared/Raw/<source-id>/`, and `Sources/` is optional for source excerpts.\n\n"
+        "Capture writes raw clips into `Shared/Raw/` and stops there; ingest normalizes them into `Shared/Raw/<source-id>/`; `Sources/` is optional for source excerpts.\n\n"
         "Tags are coarse domain classification labels; keep them to 1-3 per page instead of keyword stacks.\n\n"
         "Create `Domains/<domain>/Extras/` only when the domain needs its own\n"
         "non-source attachments.\n",
@@ -186,30 +186,67 @@ def initialize_domain(wiki: Path, domain_name: str) -> Path:
 
 
 def migrate_source(source: Path, domain: Path) -> None:
-    (source / "notes" / "llm-wiki.md").read_text(encoding="utf-8")
+    source_text = (source / "notes" / "llm-wiki.md").read_text(encoding="utf-8")
     wiki = domain.parents[1]
 
-    raw = wiki / "Shared" / "Raw" / "old-obsidian-llm-wiki"
+    raw_root = wiki / "Shared" / "Raw"
+    raw_root.mkdir(parents=True, exist_ok=True)
+    flat_clip = raw_root / "old-obsidian-llm-wiki.md"
+    write(flat_clip, source_text)
+    raw = raw_root / "old-obsidian-llm-wiki"
     raw.mkdir(parents=True, exist_ok=True)
-    (raw / "diagram.png").write_bytes(b"fake image bytes for migration smoke test")
-    raw_hash = digest_index(digest_tree(source))
-
-    write(
-        raw / "manifest.md",
+    (raw / "original").mkdir(exist_ok=True)
+    flat_clip.rename(raw / "original" / "clip.md")
+    assert not flat_clip.exists()
+    (raw / "assets").mkdir(exist_ok=True)
+    origin = raw / "origin.md"
+    origin.write_text(
         f"""---
 title: Old Obsidian LLM Wiki Raw Source
 created: {TODAY}
 updated: {TODAY}
 type: source
+source_type: obsidian-vault
+source_language: en
+retrieved_at: {TODAY}
+source_description: Imported source-language note from the old Obsidian vault
+origin: Shared/Raw/old-obsidian-llm-wiki/origin.md
+candidate_domains:
+  - ai-research
+compiled_pages: []
+status: captured
+---
+
+# Old Obsidian LLM Wiki Raw Source
+
+Imported source-language note from the old Obsidian vault.
+""",
+        encoding="utf-8",
+    )
+    (raw / "assets" / "diagram.png").write_bytes(b"fake image bytes for migration smoke test")
+    raw_hash = hashlib.sha256(origin.read_bytes()).hexdigest()
+
+    write(
+        raw / "manifest.md",
+        f"""---
+title: Old Obsidian LLM Wiki Raw Source
 source_id: old-obsidian-llm-wiki
 source_alias: old-obsidian
-source_path: notes/llm-wiki.md
-hash: {raw_hash}
+source_type: obsidian-vault
+source_language: en
+retrieved_at: {TODAY}
+source_description: Imported source-language note from the old Obsidian vault
+content_hash: {raw_hash}
+origin: Shared/Raw/old-obsidian-llm-wiki/origin.md
+candidate_domains:
+  - ai-research
 compiled_pages:
   - Domains/{domain.name}/Cards/compounding-wiki.md
   - Domains/{domain.name}/Spaces/obsidian.md
+status: compiled
 artifacts:
-  - Shared/Raw/old-obsidian-llm-wiki/diagram.png
+  - Shared/Raw/old-obsidian-llm-wiki/original/clip.md
+  - Shared/Raw/old-obsidian-llm-wiki/assets/diagram.png
 ---
 
 # Old Obsidian LLM Wiki Raw Source
@@ -274,10 +311,13 @@ source manifests.[^source]
     insert_log_entry(
         domain,
         f"""## {TODAY} | ingest | old-obsidian migration
+- created: Shared/Raw/old-obsidian-llm-wiki.md
+- normalized: Shared/Raw/old-obsidian-llm-wiki.md -> Shared/Raw/old-obsidian-llm-wiki/original/clip.md
 - source_alias: old-obsidian
 - import_scope: notes/llm-wiki.md and attachment metadata
+- created: Shared/Raw/old-obsidian-llm-wiki/origin.md
 - created: Shared/Raw/old-obsidian-llm-wiki/manifest.md
-- created: Shared/Raw/old-obsidian-llm-wiki/diagram.png
+- created: Shared/Raw/old-obsidian-llm-wiki/assets/diagram.png
 - created: Cards/compounding-wiki.md
 - created: Spaces/obsidian.md
 - updated: index.md
@@ -388,9 +428,12 @@ default_target_domain = "ai-research"
         manifest = wiki / "Shared" / "Raw" / "old-obsidian-llm-wiki" / "manifest.md"
         assert manifest.exists()
         manifest_text = manifest.read_text(encoding="utf-8")
-        assert "hash:" in manifest_text
+        assert "content_hash:" in manifest_text
         assert "compiled_pages:" in manifest_text
-        assert (wiki / "Shared" / "Raw" / "old-obsidian-llm-wiki" / "diagram.png").exists()
+        assert "origin: Shared/Raw/old-obsidian-llm-wiki/origin.md" in manifest_text
+        assert (wiki / "Shared" / "Raw" / "old-obsidian-llm-wiki" / "original" / "clip.md").exists()
+        assert (wiki / "Shared" / "Raw" / "old-obsidian-llm-wiki" / "origin.md").exists()
+        assert (wiki / "Shared" / "Raw" / "old-obsidian-llm-wiki" / "assets" / "diagram.png").exists()
         assert not (domain / "Sources").exists()
         assert "source_alias: old-obsidian" in (domain / "log.md").read_text(encoding="utf-8")
         if not log_headings(domain)[0].startswith(f"## {TODAY} | ingest |"):
