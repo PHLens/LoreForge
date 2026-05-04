@@ -51,6 +51,16 @@ agent.
 | `Shared/Raw/` | Wiki-root raw source area. Capture writes flat raw clips here; ingest normalizes selected clips into `Shared/Raw/<source-id>/origin.md`, `manifest.md`, original artifacts, extracted artifacts, and any source-specific assets |
 | `Shared/Templates/` | Wiki-root reusable note templates, including diary templates |
 
+## Formula Notation
+
+When wiki content includes equations or derivations, write them in LaTeX:
+
+- use inline math `$...$` for expressions inside prose
+- use display math `$$...$$` for standalone equations
+- avoid plain-text pseudo-notation when the page is meant to be rendered and reviewed
+
+This keeps Obsidian rendering and Markdown diffs consistent across wiki instances.
+
 ## Domain Files
 
 | Path | Purpose |
