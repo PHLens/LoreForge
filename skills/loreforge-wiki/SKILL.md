@@ -2,7 +2,7 @@
 name: loreforge-wiki
 description: Use for LoreForge domain query, capture, ingest, durable updates, review, and Health Checks. One expert owns one domain.
 user-invocable: true
-version: 0.1.4
+version: 0.1.5
 metadata:
   origin: "Inspired by NousResearch Hermes LLM Wiki, MIT"
 ---
@@ -25,6 +25,9 @@ Always:
 - query existing knowledge first
 - update pages directly after orientation
 - keep `index.md` and `log.md` current
+- write equations and derivations with Obsidian-compatible LaTeX: inline math
+  as `$...$`, standalone equations as `$$...$$`, never as plain-text
+  pseudo-notation
 
 ## When This Skill Activates
 
@@ -287,6 +290,8 @@ Adapt to the user's domain. The schema constrains agent behavior and ensures con
 - Put related page links near the top of Cards and Atlas pages as an Obsidian
   inline field, for example `related:: [[concept-a]], [[concept-b]]`, rather
   than burying them in a trailing related-pages section.
+- Write equations and derivations with LaTeX math: use `$...$` for inline
+  expressions and `$$...$$` for standalone equations.
 - **Provenance markers:** Use body footnotes, not YAML, for compiled-page
   provenance. Append `[^1]` at the end of paragraphs whose claims come from a
   specific source, and put definitions at the end of the page using wikilinks
