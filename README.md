@@ -167,26 +167,11 @@ LoreForge wiki instances are local-first and can be configured for `webdav`,
 backend before the first durable write, and existing wikis can add sync behavior
 by updating the machine-local registry and wiki-local sync config.
 
-After every agent-owned wiki edit, WebDAV-backed wikis should run their
-recorded `rclone bisync` flow, git-backed wikis should commit and push, and
-local-only wikis should report that no remote sync ran and warn about data-loss
-risk.
-
-For WebDAV-backed wikis, the recorded commands should be written down exactly:
-
-```bash
-# steady-state sync
-rclone bisync ~/wiki nustore:LoreForgeWiki \
-  --create-empty-src-dirs --resilient --recover --max-lock 2m \
-  --size-only --conflict-resolve path1 --conflict-loser delete \
-  -P -v
-
-# first sync or resync when the local wiki should win
-rclone bisync ~/wiki nustore:LoreForgeWiki \
-  --create-empty-src-dirs --resilient --recover --max-lock 2m \
-  --size-only --conflict-resolve path1 --conflict-loser delete \
-  --resync -P -v
-```
+After every agent-owned wiki edit, WebDAV-backed wikis should run
+`skills/loreforge-wiki/scripts/sync_webdav.sh`, git-backed wikis should commit
+and push, and local-only wikis should report that no remote sync ran and warn
+about data-loss risk. The WebDAV helper owns the exact `rclone bisync` command
+and supports both steady-state sync and first-machine bootstrap/resync.
 
 ## Existing Repos And Vaults
 

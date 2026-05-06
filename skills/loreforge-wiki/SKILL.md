@@ -124,22 +124,9 @@ is configured, ask the user to choose one:
 - `local`: allow local-only mode only after warning that the wiki is not linked
   to remote sync and local machine loss can lose data.
 
-For WebDAV-backed wikis, write the exact commands into the docs and run them
-after every wiki edit:
-
-```bash
-# steady-state sync
-rclone bisync ~/wiki nustore:LoreForgeWiki \
-  --create-empty-src-dirs --resilient --recover --max-lock 2m \
-  --size-only --conflict-resolve path1 --conflict-loser delete \
-  -P -v
-
-# first sync or resync when the local wiki should win
-rclone bisync ~/wiki nustore:LoreForgeWiki \
-  --create-empty-src-dirs --resilient --recover --max-lock 2m \
-  --size-only --conflict-resolve path1 --conflict-loser delete \
-  --resync -P -v
-```
+For WebDAV-backed wikis, use `scripts/sync_webdav.sh` as the canonical helper
+for the actual `rclone bisync` invocation. It supports normal steady-state sync
+and the first-machine bootstrap/resync case where the local wiki should win.
 
 For new wikis, confirm the backend during initialization before the first
 durable write. For existing wikis without sync config, offer to add sync
@@ -149,11 +136,9 @@ file under `00_System/` so the next agent can recover the intended behavior.
 
 After every wiki modification:
 
-- For WebDAV-backed wikis, run the recorded `rclone bisync` flow against the
-  local wiki checkout. The first sync on a new machine may require a bootstrap
-  or `--resync` command that differs from the normal day-to-day command. Use
-  the `--resync` form above when the local copy should be treated as the source
-  of truth for the first bootstrap.
+- For WebDAV-backed wikis, run `scripts/sync_webdav.sh` against the local wiki
+  checkout and configured `remote:path`. Use the helper's bootstrap/resync mode
+  when the local copy should be treated as the source of truth for first sync.
 - For git-backed wikis, run `git add`, commit the wiki changes with a concise
   message, and push to the configured remote.
 - For local-only wikis, report that no remote sync ran and repeat the data-loss

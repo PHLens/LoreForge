@@ -108,30 +108,26 @@ sync_bootstrapped = true
 For `git`, `remote` is the repo URL. For `local`, `remote` is empty and
 `sync_bootstrapped` should be `false`.
 
-Exact WebDAV commands:
+WebDAV command helper:
 
 ```bash
-# steady-state sync
-rclone bisync ~/wiki nustore:LoreForgeWiki \
-  --create-empty-src-dirs --resilient --recover --max-lock 2m \
-  --size-only --conflict-resolve path1 --conflict-loser delete \
-  -P -v
-
-# first sync or resync when the local copy should win
-rclone bisync ~/wiki nustore:LoreForgeWiki \
-  --create-empty-src-dirs --resilient --recover --max-lock 2m \
-  --size-only --conflict-resolve path1 --conflict-loser delete \
-  --resync -P -v
+bash skills/loreforge-wiki/scripts/sync_webdav.sh --wiki ~/wiki --remote nustore:LoreForgeWiki
+bash skills/loreforge-wiki/scripts/sync_webdav.sh --wiki ~/wiki --remote nustore:LoreForgeWiki --resync
 ```
+
+The helper owns the exact `rclone bisync` argv. Use the first form for normal
+steady-state sync and the second form for first sync or recovery when the local
+wiki should win.
 
 ## Post-Write Sync Contract
 
 After any agent-owned wiki edit, run the configured backend flow before
 reporting completion:
 
-- `webdav`: run the documented `rclone bisync` command for the wiki path and
-  configured `remote:path`. If `sync_bootstrapped` is false, use the `--resync`
-  form above after confirming the local wiki should win the first bootstrap.
+- `webdav`: run `skills/loreforge-wiki/scripts/sync_webdav.sh` for the wiki
+  path and configured `remote:path`. If `sync_bootstrapped` is false, use the
+  helper's bootstrap/resync mode after confirming the local wiki should win the
+  first bootstrap.
 - `git`: run `git add`, create a focused commit, and push to the configured
   remote.
 - `local`: do not run sync; report that the wiki remains local-only and repeat

@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import hashlib
 import re
+import subprocess
 import sys
 import tempfile
 import tomllib
@@ -137,16 +138,20 @@ def load_wiki_sync_config(wiki: Path) -> dict:
 
 
 def webdav_bisync_command(wiki: Path, remote: str, *, resync: bool) -> str:
-    command = (
-        "rclone bisync "
-        f"{wiki.as_posix()} {remote} "
-        "--create-empty-src-dirs --resilient --recover --max-lock 2m "
-        "--size-only --conflict-resolve path1 --conflict-loser delete "
-    )
+    script = REPO_ROOT / "skills" / "loreforge-wiki" / "scripts" / "sync_webdav.sh"
+    argv = [
+        "bash",
+        script.as_posix(),
+        "--wiki",
+        wiki.as_posix(),
+        "--remote",
+        remote,
+        "--dry-run",
+    ]
     if resync:
-        command += "--resync "
-    command += "-P -v"
-    return command
+        argv.insert(-1, "--resync")
+    result = subprocess.run(argv, check=True, capture_output=True, text=True)
+    return result.stdout.strip()
 
 
 def post_write_sync_plan(wiki: Path, sync_config: dict, message: str) -> list[str]:
@@ -434,6 +439,8 @@ def assert_valid(domain: Path) -> None:
 def assert_skill_example_is_generic() -> None:
     skill = (REPO_ROOT / "skills" / "loreforge-wiki" / "SKILL.md").read_text(encoding="utf-8")
     readme = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
+    config_doc = (REPO_ROOT / "docs" / "config.md").read_text(encoding="utf-8")
+    sync_script = REPO_ROOT / "skills" / "loreforge-wiki" / "scripts" / "sync_webdav.sh"
     forbidden = ["/home/cambricon", "Nutstore", "OldVault"]
     found = [value for value in forbidden if value in skill]
     if found:
@@ -447,17 +454,37 @@ def assert_skill_example_is_generic() -> None:
         "git",
         "local-only",
         "00_System/loreforge.toml",
-        "rclone bisync ~/wiki nustore:LoreForgeWiki",
-        "--resync -P -v",
+        "scripts/sync_webdav.sh",
     ]:
         if expected not in skill:
             raise AssertionError(f"skill is missing sync guidance: {expected}")
     for expected in [
-        "rclone bisync ~/wiki nustore:LoreForgeWiki",
-        "--resync -P -v",
+        "skills/loreforge-wiki/scripts/sync_webdav.sh",
     ]:
         if expected not in readme:
-            raise AssertionError(f"README is missing exact WebDAV sync command guidance: {expected}")
+            raise AssertionError(f"README is missing WebDAV sync helper guidance: {expected}")
+        if expected not in config_doc:
+            raise AssertionError(f"config docs are missing WebDAV sync helper guidance: {expected}")
+    if not sync_script.exists():
+        raise AssertionError(f"WebDAV sync helper is missing: {sync_script}")
+    normal = webdav_bisync_command(Path("~/wiki"), "nustore:LoreForgeWiki", resync=False)
+    bootstrap = webdav_bisync_command(Path("~/wiki"), "nustore:LoreForgeWiki", resync=True)
+    for expected in [
+        "rclone bisync",
+        "--create-empty-src-dirs",
+        "--resilient",
+        "--recover",
+        "--size-only",
+        "--conflict-resolve path1",
+        "--conflict-loser delete",
+        "-P -v",
+    ]:
+        if expected not in normal:
+            raise AssertionError(f"WebDAV helper normal command is missing {expected}: {normal}")
+    if "--resync" in normal:
+        raise AssertionError(f"WebDAV helper normal command should not include --resync: {normal}")
+    if "--resync" not in bootstrap:
+        raise AssertionError(f"WebDAV helper bootstrap command is missing --resync: {bootstrap}")
     for expected in [".obsidian*", ".obsidian-desktop", ".obsidian-mobile"]:
         if expected not in skill:
             raise AssertionError(f"skill is missing Obsidian profile boundary: {expected}")
