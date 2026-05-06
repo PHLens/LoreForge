@@ -160,6 +160,18 @@ GitHub remote -> local clone -> local query/search/edit -> git synchronization
 
 Agents should use the local clone for search and editing. GitHub is for persistence and cross-machine synchronization, not per-query retrieval.
 
+## Sync Backends
+
+LoreForge wiki instances are local-first and can be configured for `webdav`,
+`git`, or explicit `local` mode. New wiki initialization should confirm the
+backend before the first durable write, and existing wikis can add sync behavior
+by updating the machine-local registry and wiki-local sync config.
+
+After every agent-owned wiki edit, WebDAV-backed wikis should run their
+recorded `rclone bisync` flow, git-backed wikis should commit and push, and
+local-only wikis should report that no remote sync ran and warn about data-loss
+risk.
+
 ## Existing Repos And Vaults
 
 Existing repos or vaults should be treated as sources. Use `loreforge-wiki` to
