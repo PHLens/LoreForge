@@ -136,6 +136,19 @@ def load_wiki_sync_config(wiki: Path) -> dict:
     return tomllib.loads((wiki / "00_System" / "loreforge.toml").read_text(encoding="utf-8"))["sync"]
 
 
+def webdav_bisync_command(wiki: Path, remote: str, *, resync: bool) -> str:
+    command = (
+        "rclone bisync "
+        f"{wiki.as_posix()} {remote} "
+        "--create-empty-src-dirs --resilient --recover --max-lock 2m "
+        "--size-only --conflict-resolve path1 --conflict-loser delete "
+    )
+    if resync:
+        command += "--resync "
+    command += "-P -v"
+    return command
+
+
 def post_write_sync_plan(wiki: Path, sync_config: dict, message: str) -> list[str]:
     backend = sync_config["backend"]
     remote = sync_config.get("remote", "")
@@ -143,13 +156,8 @@ def post_write_sync_plan(wiki: Path, sync_config: dict, message: str) -> list[st
         return [f"local-only: no remote sync ran for {wiki.as_posix()}"]
     if backend == "webdav":
         if not sync_config.get("sync_bootstrapped", False):
-            return [f"bootstrap-required: confirm first WebDAV sync for {remote} before normal rclone bisync"]
-        return [
-            "rclone bisync "
-            f"{wiki.as_posix()} {remote} "
-            "--create-empty-src-dirs --resilient --recover --max-lock 2m "
-            "--size-only --conflict-resolve path1 --conflict-loser delete -P -v"
-        ]
+            return [webdav_bisync_command(wiki, remote, resync=True)]
+        return [webdav_bisync_command(wiki, remote, resync=False)]
     if backend == "git":
         return [
             f"git -C {wiki.as_posix()} add .",
@@ -432,7 +440,15 @@ def assert_skill_example_is_generic() -> None:
     for expected in ["/path/to/loreforge-wiki", "/path/to/source-vault"]:
         if expected not in skill:
             raise AssertionError(f"skill example is missing placeholder path: {expected}")
-    for expected in ['sync = "local"', "webdav", "git", "local-only", "00_System/loreforge.toml"]:
+    for expected in [
+        'sync = "local"',
+        "webdav",
+        "git",
+        "local-only",
+        "00_System/loreforge.toml",
+        "rclone bisync ~/wiki nustore:LoreForgeWiki",
+        "--resync -P -v",
+    ]:
         if expected not in skill:
             raise AssertionError(f"skill is missing sync guidance: {expected}")
     for expected in [".obsidian*", ".obsidian-desktop", ".obsidian-mobile"]:
@@ -529,6 +545,20 @@ def main() -> int:
         assert local_plan == [f"local-only: no remote sync ran for {wiki.as_posix()}"]
         print("PASS initialization: 00_System, Calendar, shared raw layer, wiki layout, and native domain contract created")
 
+        bootstrap_plan = post_write_sync_plan(
+            wiki,
+            {
+                "backend": "webdav",
+                "remote": "nustore:LoreForgeWiki",
+                "sync_bootstrapped": False,
+            },
+            "bootstrap wiki",
+        )
+        assert bootstrap_plan == [
+            webdav_bisync_command(wiki, "nustore:LoreForgeWiki", resync=True)
+        ]
+        print("PASS sync bootstrap: first WebDAV run uses explicit --resync command")
+
         registry_wikis[0].update(
             {
                 "sync": "webdav",
@@ -554,8 +584,7 @@ def main() -> int:
         assert main_wiki["remote"] == "nustore:LoreForgeWiki"
         assert main_wiki["sync_bootstrapped"] is True
         webdav_plan = post_write_sync_plan(wiki, load_wiki_sync_config(wiki), "update compounding card")
-        assert webdav_plan[0].startswith("rclone bisync ")
-        assert "nustore:LoreForgeWiki" in webdav_plan[0]
+        assert webdav_plan == [webdav_bisync_command(wiki, "nustore:LoreForgeWiki", resync=False)]
         print("PASS sync upgrade: existing wiki can be switched to WebDAV and bootstrap state recorded")
 
         named_domain = initialize_domain(
