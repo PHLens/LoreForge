@@ -5,17 +5,36 @@
 #
 # The registry is machine-local. It tells agents where wiki instances live.
 # Actual professional knowledge belongs in the wiki repos, not in this config.
+# Sync backend values:
+#   local  = no remote sync; warn about data-loss risk after wiki edits
+#   webdav = rclone remote:path, for example a Nutstore/WebDAV target
+#   git    = git remote repo URL
 
 default = "cs"
 
 [[wikis]]
 name = "cs"
 path = "/home/phlens/wiki"
-remote = "git@github.com:PHLens/cs-wiki.git"
 description = "Computer science, GPU, ML systems, PyTorch"
+sync = "webdav"
+remote = "nustore:LoreForgeWiki"
+default_domain = "investment"
+sync_bootstrapped = true
 
 [[wikis]]
 name = "example"
 path = "/home/phlens/example-wiki"
-remote = "git@github.com:PHLens/example-wiki.git"
 description = "Example LoreForge wiki instance"
+sync = "git"
+remote = "git@github.com:PHLens/example-wiki.git"
+default_domain = "example"
+sync_bootstrapped = true
+
+[[wikis]]
+name = "scratch"
+path = "/home/phlens/scratch-wiki"
+description = "Local-only scratch wiki"
+sync = "local"
+remote = ""
+default_domain = "notes"
+sync_bootstrapped = false

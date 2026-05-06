@@ -2,7 +2,7 @@
 name: loreforge-wiki
 description: Use for LoreForge domain query, capture, ingest, durable updates, review, and Health Checks. One expert owns one domain.
 user-invocable: true
-version: 0.1.5
+version: 0.1.7
 metadata:
   origin: "Inspired by NousResearch Hermes LLM Wiki, MIT"
 ---
@@ -63,6 +63,10 @@ Resolve the active wiki and domain before reading or writing.
 4. Otherwise use the registry's `default` wiki.
 5. Otherwise fall back to `~/wiki`; before writing there, tell the user.
 
+Treat the local wiki directory as an existing working copy when it is available.
+For LoreForge-style setups, `~/wiki` is the default local repo directory unless
+the user or `WIKI_PATH` says otherwise.
+
 **Domain discovery order:**
 
 1. Use the domain named by the user.
@@ -88,9 +92,10 @@ default = "main"
 name = "main"
 path = "/path/to/loreforge-wiki"
 description = "Personal LoreForge wiki"
-sync = "local"
+sync = "local" # local | webdav | git
 default_domain = "ai-research"
 remote = ""
+sync_bootstrapped = false
 
 [[sources]]
 name = "old-obsidian"
@@ -103,6 +108,47 @@ default_target_domain = "ai-research"
 `[[wikis]]` entries are writable LoreForge wiki roots. `[[sources]]` entries are
 read-only source aliases for repeated imports from existing repos, vaults, or
 folders.
+
+## Sync Workflow
+
+Before creating or updating durable wiki files, resolve the wiki sync backend.
+Use explicit user instructions first, then the selected registry `[[wikis]]`
+entry, then wiki-local config such as `00_System/loreforge.toml`. If no backend
+is configured, ask the user to choose one:
+
+- `webdav`: ask the user to configure `rclone config`, provide the
+  `remote:path` target, and confirm whether first-machine bootstrap has already
+  been completed.
+- `git`: ask for the remote repo URL, ensure the wiki path is a git working
+  copy with that remote, and confirm that commits should be pushed after edits.
+- `local`: allow local-only mode only after warning that the wiki is not linked
+  to remote sync and local machine loss can lose data.
+
+For WebDAV-backed wikis, use `scripts/sync_webdav.sh` as the canonical helper
+for the actual `rclone bisync` invocation. It supports normal steady-state sync
+and the first-machine bootstrap/resync case where the local wiki should win.
+
+For new wikis, confirm the backend during initialization before the first
+durable write. For existing wikis without sync config, offer to add sync
+behavior before making the requested update. Record the chosen backend in the
+machine-local registry and, when possible, in a wiki-local config note or TOML
+file under `00_System/` so the next agent can recover the intended behavior.
+
+After every wiki modification:
+
+- For WebDAV-backed wikis, run `scripts/sync_webdav.sh` against the local wiki
+  checkout and configured `remote:path`. Use the helper's bootstrap/resync mode
+  when the local copy should be treated as the source of truth for first sync.
+- For git-backed wikis, run `git add`, commit the wiki changes with a concise
+  message, and push to the configured remote.
+- For local-only wikis, report that no remote sync ran and repeat the data-loss
+  warning.
+
+Keep local edits in the wiki directory and sync after changes using the
+configured backend.
+
+- If the repo does not document the sync command yet, look for the wiki's sync
+  notes before inventing a new one.
 
 The wiki is just a directory of Markdown files — open it in Obsidian, VS Code,
 or any editor. No database, no special tooling required.
@@ -193,23 +239,30 @@ For large domains(100+ pages), also run a quick search for the topic at hand bef
 When the user asks to create or start a wiki or domain:
 
 1. Resolve the wiki root and domain name using the discovery order above.
-2. Create the wiki root if needed.
-3. Create `00_System/`, `00_System/index.md`, `00_System/domains.md`, and
+2. Confirm the sync backend: `webdav`, `git`, or explicit local-only.
+3. For `webdav`, confirm the `rclone` remote target and whether bootstrap sync
+   is already complete. For `git`, confirm the remote repo URL. For `local`,
+   warn about data-loss risk before continuing.
+4. Create the wiki root if needed.
+5. Create `00_System/`, `00_System/index.md`, `00_System/domains.md`, and
    `00_System/wiki-layout.md` if missing.
-4. Create `Calendar/` and `Calendar/dailynotes/` if missing.
-5. Create `Shared/Raw/` and `Shared/Templates/` if missing.
-6. Create `Domains/<domain>/`.
-7. Create the required domain files and directories above.
-8. Ask for a concise domain description and the default language for extracted
+6. Create or update `00_System/loreforge.toml` or an equivalent sync note with
+   the selected backend.
+7. Create `Calendar/` and `Calendar/dailynotes/` if missing.
+8. Create `Shared/Raw/` and `Shared/Templates/` if missing.
+9. Create `Domains/<domain>/`.
+10. Create the required domain files and directories above.
+11. Ask for a concise domain description and the default language for extracted
    Cards, Atlas pages, and Spaces.
-9. Write `SCHEMA.md` customized to the domain (see template below).
-10. Write `index.md` with sectioned header and `wiki-layout.md` with the
+12. Write `SCHEMA.md` customized to the domain (see template below).
+13. Write `index.md` with sectioned header and `wiki-layout.md` with the
     canonical shared/domain layout summary.
-11. Write initial `log.md` with creation entry.
-12. Add or update the domain row in `00_System/domains.md`.
-13. If the user is setting up a durable local wiki and the registry has no
+14. Write initial `log.md` with creation entry.
+15. Add or update the domain row in `00_System/domains.md`.
+16. If the user is setting up a durable local wiki and the registry has no
     matching `[[wikis]]` entry, offer to add one.
-14. Report the wiki path, domain path, and next useful actions.
+17. Run the configured post-write sync flow, or repeat the local-only warning.
+18. Report the wiki path, domain path, sync backend, and next useful actions.
 
 ### 00_System Minimal Files
 
