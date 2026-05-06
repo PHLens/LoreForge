@@ -63,6 +63,10 @@ Resolve the active wiki and domain before reading or writing.
 4. Otherwise use the registry's `default` wiki.
 5. Otherwise fall back to `~/wiki`; before writing there, tell the user.
 
+Treat the local wiki directory as an existing working copy when it is available.
+For LoreForge-style setups, `~/wiki` is the default local repo directory unless
+the user or `WIKI_PATH` says otherwise.
+
 **Domain discovery order:**
 
 1. Use the domain named by the user.
@@ -103,6 +107,19 @@ default_target_domain = "ai-research"
 `[[wikis]]` entries are writable LoreForge wiki roots. `[[sources]]` entries are
 read-only source aliases for repeated imports from existing repos, vaults, or
 folders.
+
+## Sync Workflow
+
+When the wiki has a configured remote sync backend, keep local edits in the
+wiki directory and sync after changes using the repository's documented
+workflow.
+
+- For Nutstore/WebDAV-backed LoreForge wikis, use the recorded `rclone bisync`
+  flow for the local `~/wiki` checkout.
+- The first sync on a new machine may require a bootstrap or resync command
+  that differs from the normal day-to-day sync command.
+- If the repo does not document the sync command yet, look for the wiki's sync
+  notes before inventing a new one.
 
 The wiki is just a directory of Markdown files — open it in Obsidian, VS Code,
 or any editor. No database, no special tooling required.

@@ -4,6 +4,12 @@ LoreForge can use explicit paths, environment variables, or local config files.
 The core `loreforge-wiki` skill should prefer a user-provided domain path, then
 `WIKI_PATH`, then `~/wiki`.
 
+For LoreForge instances that use `~/wiki` as the local working copy and sync
+through Nutstore/WebDAV, keep the local checkout in that default directory and
+follow the repo's documented sync command. The first sync on a fresh machine
+may require a different bootstrap or resync command than the normal steady-state
+sync.
+
 ## Local Registry
 
 Path:
@@ -51,20 +57,22 @@ The registry is not a knowledge store. Do not put notes, findings, summaries, or
 Wiki-local metadata files are optional. The active core workflow is defined by
 the selected domain's files, not by a copied template.
 
-## GitHub Support
+## Remote Sync Support
 
-GitHub remotes are supported as persistence and sync backends.
+GitHub remotes are supported as persistence and sync backends. Nutstore/WebDAV
+sync backends are also supported where the repo documents them.
 
 Preferred mode:
 
 ```text
-GitHub remote -> local clone -> local read/search/write -> git synchronization
+Remote backend -> local clone -> local read/search/write -> documented sync
 ```
 
 Agents should not query GitHub directly for every answer.
 
-Use normal git workflows for pull/status/commit/push until a smaller sync helper
-is justified.
+Use normal git workflows for GitHub-backed wikis until a smaller sync helper is
+justified. Use the repo's recorded sync command for Nutstore/WebDAV-backed
+wikis; the first sync command may differ from the normal repeat-sync command.
 
 ## Registration
 
