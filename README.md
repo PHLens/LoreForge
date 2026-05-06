@@ -172,6 +172,22 @@ recorded `rclone bisync` flow, git-backed wikis should commit and push, and
 local-only wikis should report that no remote sync ran and warn about data-loss
 risk.
 
+For WebDAV-backed wikis, the recorded commands should be written down exactly:
+
+```bash
+# steady-state sync
+rclone bisync ~/wiki nustore:LoreForgeWiki \
+  --create-empty-src-dirs --resilient --recover --max-lock 2m \
+  --size-only --conflict-resolve path1 --conflict-loser delete \
+  -P -v
+
+# first sync or resync when the local wiki should win
+rclone bisync ~/wiki nustore:LoreForgeWiki \
+  --create-empty-src-dirs --resilient --recover --max-lock 2m \
+  --size-only --conflict-resolve path1 --conflict-loser delete \
+  --resync -P -v
+```
+
 ## Existing Repos And Vaults
 
 Existing repos or vaults should be treated as sources. Use `loreforge-wiki` to

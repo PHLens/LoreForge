@@ -433,6 +433,7 @@ def assert_valid(domain: Path) -> None:
 
 def assert_skill_example_is_generic() -> None:
     skill = (REPO_ROOT / "skills" / "loreforge-wiki" / "SKILL.md").read_text(encoding="utf-8")
+    readme = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
     forbidden = ["/home/cambricon", "Nutstore", "OldVault"]
     found = [value for value in forbidden if value in skill]
     if found:
@@ -451,6 +452,12 @@ def assert_skill_example_is_generic() -> None:
     ]:
         if expected not in skill:
             raise AssertionError(f"skill is missing sync guidance: {expected}")
+    for expected in [
+        "rclone bisync ~/wiki nustore:LoreForgeWiki",
+        "--resync -P -v",
+    ]:
+        if expected not in readme:
+            raise AssertionError(f"README is missing exact WebDAV sync command guidance: {expected}")
     for expected in [".obsidian*", ".obsidian-desktop", ".obsidian-mobile"]:
         if expected not in skill:
             raise AssertionError(f"skill is missing Obsidian profile boundary: {expected}")
