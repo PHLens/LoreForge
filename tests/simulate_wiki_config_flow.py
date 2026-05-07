@@ -117,26 +117,6 @@ def write_registry(home: Path, *, default: str, wikis: list[dict], sources: list
     write(home / ".config" / "loreforge" / "registry.toml", "\n".join(lines).rstrip() + "\n")
 
 
-def write_wiki_sync_config(
-    wiki: Path,
-    *,
-    backend: str,
-    remote: str,
-    sync_bootstrapped: bool,
-) -> None:
-    write(
-        wiki / "00_System" / "loreforge.toml",
-        "[sync]\n"
-        f'backend = "{backend}"\n'
-        f'remote = {toml_quote(remote)}\n'
-        f"sync_bootstrapped = {str(sync_bootstrapped).lower()}\n",
-    )
-
-
-def load_wiki_sync_config(wiki: Path) -> dict:
-    return tomllib.loads((wiki / "00_System" / "loreforge.toml").read_text(encoding="utf-8"))["sync"]
-
-
 def webdav_bisync_command(wiki: Path, remote: str, *, resync: bool) -> str:
     script = REPO_ROOT / "skills" / "loreforge-wiki" / "scripts" / "sync_webdav.sh"
     argv = [
@@ -154,13 +134,13 @@ def webdav_bisync_command(wiki: Path, remote: str, *, resync: bool) -> str:
     return result.stdout.strip()
 
 
-def post_write_sync_plan(wiki: Path, sync_config: dict, message: str) -> list[str]:
-    backend = sync_config["backend"]
-    remote = sync_config.get("remote", "")
+def post_write_sync_plan(wiki: Path, wiki_entry: dict, message: str) -> list[str]:
+    backend = wiki_entry["sync"]
+    remote = wiki_entry.get("remote", "")
     if backend == "local":
         return [f"local-only: no remote sync ran for {wiki.as_posix()}"]
     if backend == "webdav":
-        if not sync_config.get("sync_bootstrapped", False):
+        if not wiki_entry.get("sync_bootstrapped", False):
             return [webdav_bisync_command(wiki, remote, resync=True)]
         return [webdav_bisync_command(wiki, remote, resync=False)]
     if backend == "git":
@@ -209,10 +189,6 @@ def resolve_wiki_and_domain(
 def initialize_domain(
     wiki: Path,
     domain_name: str,
-    *,
-    sync_backend: str = "local",
-    sync_remote: str = "",
-    sync_bootstrapped: bool = False,
 ) -> Path:
     domain = wiki / "Domains" / domain_name
     for directory in [
@@ -225,12 +201,6 @@ def initialize_domain(
         domain / "Spaces",
     ]:
         directory.mkdir(parents=True, exist_ok=True)
-    write_wiki_sync_config(
-        wiki,
-        backend=sync_backend,
-        remote=sync_remote,
-        sync_bootstrapped=sync_bootstrapped,
-    )
 
     write(wiki / "00_System" / "index.md", "# Wiki Index\n\n- Domains: [[domains]]\n")
     write(
@@ -453,7 +423,8 @@ def assert_skill_example_is_generic() -> None:
         "webdav",
         "git",
         "local-only",
-        "00_System/loreforge.toml",
+        "~/.config/loreforge/registry.toml",
+        "machine-local registry",
         "scripts/sync_webdav.sh",
     ]:
         if expected not in skill:
@@ -559,30 +530,25 @@ def main() -> int:
         assert selected_source["default_target_domain"] == "ai-research"
         print("PASS discovery: registry, env override, explicit paths, and source alias resolved")
 
-        domain = initialize_domain(wiki, "ai-research", sync_backend="local")
+        domain = initialize_domain(wiki, "ai-research")
         assert_valid(domain)
         assert (wiki / "00_System" / "index.md").exists()
         assert (wiki / "00_System" / "wiki-layout.md").exists()
-        assert (wiki / "00_System" / "loreforge.toml").exists()
+        assert not (wiki / "00_System" / "loreforge.toml").exists()
         assert (wiki / "Calendar" / "dailynotes").is_dir()
         assert (wiki / "Shared" / "Raw").is_dir()
         assert (wiki / "Shared" / "Templates").is_dir()
         assert not (domain / "Sources").exists()
         assert "Layout: [[wiki-layout]]" in (wiki / "00_System" / "index.md").read_text(encoding="utf-8")
         assert "ai-research" in (wiki / "00_System" / "domains.md").read_text(encoding="utf-8")
-        assert load_wiki_sync_config(wiki) == {
-            "backend": "local",
-            "remote": "",
-            "sync_bootstrapped": False,
-        }
-        local_plan = post_write_sync_plan(wiki, load_wiki_sync_config(wiki), "initial wiki update")
+        local_plan = post_write_sync_plan(wiki, registry_wiki(registry, "main"), "initial wiki update")
         assert local_plan == [f"local-only: no remote sync ran for {wiki.as_posix()}"]
         print("PASS initialization: 00_System, Calendar, shared raw layer, wiki layout, and native domain contract created")
 
         bootstrap_plan = post_write_sync_plan(
             wiki,
             {
-                "backend": "webdav",
+                "sync": "webdav",
                 "remote": "nustore:LoreForgeWiki",
                 "sync_bootstrapped": False,
             },
@@ -606,37 +572,18 @@ def main() -> int:
             wikis=registry_wikis,
             sources=registry_sources,
         )
-        write_wiki_sync_config(
-            wiki,
-            backend="webdav",
-            remote="nustore:LoreForgeWiki",
-            sync_bootstrapped=True,
-        )
         registry = load_registry(home)
         main_wiki = registry_wiki(registry, "main")
         assert main_wiki["sync"] == "webdav"
         assert main_wiki["remote"] == "nustore:LoreForgeWiki"
         assert main_wiki["sync_bootstrapped"] is True
-        webdav_plan = post_write_sync_plan(wiki, load_wiki_sync_config(wiki), "update compounding card")
+        webdav_plan = post_write_sync_plan(wiki, main_wiki, "update compounding card")
         assert webdav_plan == [webdav_bisync_command(wiki, "nustore:LoreForgeWiki", resync=False)]
         print("PASS sync upgrade: existing wiki can be switched to WebDAV and bootstrap state recorded")
 
-        named_domain = initialize_domain(
-            named_wiki,
-            "ml-systems",
-            sync_backend="git",
-            sync_remote="git@github.com:PHLens/named-wiki.git",
-            sync_bootstrapped=True,
-        )
+        named_domain = initialize_domain(named_wiki, "ml-systems")
         assert_valid(named_domain)
-        assert (named_wiki / "00_System" / "loreforge.toml").exists()
-        git_plan = post_write_sync_plan(named_wiki, load_wiki_sync_config(named_wiki), "update systems wiki")
-        expected_git_commit = f"git -C {named_wiki.as_posix()} commit -m 'update systems wiki'"
-        assert git_plan == [
-            f"git -C {named_wiki.as_posix()} add .",
-            expected_git_commit,
-            f"git -C {named_wiki.as_posix()} push",
-        ]
+        assert not (named_wiki / "00_System" / "loreforge.toml").exists()
         registry_wikis[1].update(
             {
                 "sync": "git",
@@ -655,6 +602,13 @@ def main() -> int:
         assert systems_wiki["sync"] == "git"
         assert systems_wiki["remote"] == "git@github.com:PHLens/named-wiki.git"
         assert systems_wiki["sync_bootstrapped"] is True
+        git_plan = post_write_sync_plan(named_wiki, systems_wiki, "update systems wiki")
+        expected_git_commit = f"git -C {named_wiki.as_posix()} commit -m 'update systems wiki'"
+        assert git_plan == [
+            f"git -C {named_wiki.as_posix()} add .",
+            expected_git_commit,
+            f"git -C {named_wiki.as_posix()} push",
+        ]
         print("PASS sync upgrade: existing wiki can be switched to git and commit/push is required")
 
         source_before = digest_tree(source)

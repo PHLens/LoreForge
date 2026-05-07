@@ -165,7 +165,7 @@ Agents should use the local clone for search and editing. GitHub is for persiste
 LoreForge wiki instances are local-first and can be configured for `webdav`,
 `git`, or explicit `local` mode. New wiki initialization should confirm the
 backend before the first durable write, and existing wikis can add sync behavior
-by updating the machine-local registry and wiki-local sync config.
+by updating the machine-local registry entry for that machine.
 
 After every agent-owned wiki edit, WebDAV-backed wikis should run
 `skills/loreforge-wiki/scripts/sync_webdav.sh`, git-backed wikis should commit
