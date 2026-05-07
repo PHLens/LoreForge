@@ -16,14 +16,19 @@ project frame, argument, evaluation plan, or open decision list.
   framework is durable enough to cite later.
 - The update changes a source-backed claim, adds provenance, fixes an error, or
   clarifies the stable viewpoint.
+- The question is simply "what is it" or "what is it useful for" in a reusable
+  sense.
 
 Do not put project-specific commentary, proposal phrasing, personal comments, or
 "how this helps my current paper" text in Cards unless that text is itself a
-durable domain claim.
+durable domain claim. A Card can explain general usefulness; it should not try
+to become a live discussion thread.
 
 ## Use Atlas/MOC When
 
 - The page is a proposal view, project frame, or question-driven synthesis.
+- The page asks for an explicit discussion, interpretation, or stance about a
+  particular problem.
 - The value comes from relating multiple Cards, not from defining one reusable
   concept.
 - The page needs the current argument, interpretation, evaluation questions,

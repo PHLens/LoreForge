@@ -2,7 +2,7 @@
 name: loreforge-wiki
 description: Use for LoreForge domain query, capture, ingest, durable updates, review, and Health Checks. One expert owns one domain.
 user-invocable: true
-version: 0.1.8
+version: 0.1.9
 metadata:
   origin: "Inspired by NousResearch Hermes LLM Wiki, MIT"
 ---
@@ -408,15 +408,18 @@ Use `Atlas/` for question-driven views, proposal/project framing, and MOCs that
 connect multiple reusable pages around a current problem, claim, comparison, or
 decision. An Atlas page is not a mirror of `index.md`; it can contain the
 current argument, interpretation, evaluation questions, open decisions, and
-comments that belong to that view.
+comments that belong to that view. Use Atlas when the user is asking about a
+specific problem, project, proposal, or point of view.
 
 ## Cards
 Use `Cards/` for shared, reusable knowledge objects: durable concepts, methods,
 mechanisms, patterns, tradeoffs, comparisons, and decision frameworks. Update a
 Card when source-backed facts, definitions, viewpoints, corrections, or
-provenance change. Do not put project-specific commentary, proposal framing, or
-"how this helps my current paper" text in Cards; put that synthesis in an
-Atlas/MOC page that links to the reusable Cards.
+provenance change. Cards should answer the stable "what is it" and
+"what is it good for" questions in a reusable way. Do not put
+project-specific commentary, proposal framing, or "how this helps my current
+paper" text in Cards; put that synthesis in an Atlas/MOC page that links to the
+reusable Cards.
 
 For the default concise Card shape and boundary examples, read
 [references/card-atlas-boundary.md](references/card-atlas-boundary.md).

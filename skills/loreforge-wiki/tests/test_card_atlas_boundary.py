@@ -17,6 +17,8 @@ def test_boundary_reference_defines_reusable_cards_and_view_atlas():
     content = BOUNDARY_PATH.read_text()
     assert "Cards are shared knowledge objects" in content
     assert "Atlas/MOC pages are project or view objects" in content
+    assert "what is it useful for" in content
+    assert "A Card can explain general usefulness" in content
     assert "Do not reserve a mandatory proposal section" in content
 
 
