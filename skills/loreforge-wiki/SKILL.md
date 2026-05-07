@@ -2,7 +2,7 @@
 name: loreforge-wiki
 description: Use for LoreForge domain query, capture, ingest, durable updates, review, and Health Checks. One expert owns one domain.
 user-invocable: true
-version: 0.1.7
+version: 0.1.8
 metadata:
   origin: "Inspired by NousResearch Hermes LLM Wiki, MIT"
 ---
@@ -15,7 +15,8 @@ domain.
 LoreForge follows the [LLM Wiki](https://github.com/NousResearch/hermes-agent/blob/main/skills/research/llm-wiki/SKILL.md)
 pattern: capture the raw clip once, normalize it during ingest, keep durable
 knowledge linked, and update it as questions arrive. It adds expert-owned
-domains and Atlas MOCs for preserving evolving conceptual views.
+domains, reusable Cards, and Atlas MOCs for preserving evolving project and
+conceptual views.
 
 When source-layer details matter, read [references/raw-first-wiki.md](references/raw-first-wiki.md).
 
@@ -25,6 +26,8 @@ Always:
 - query existing knowledge first
 - update pages directly after orientation
 - keep `index.md` and `log.md` current
+- keep Cards reusable; put project/proposal-specific synthesis in Atlas/MOC
+  pages
 - write equations and derivations with Obsidian-compatible LaTeX: inline math
   as `$...$`, standalone equations as `$$...$$`, never as plain-text
   pseudo-notation
@@ -399,37 +402,70 @@ prevents tag sprawl.
 reusable thinking view exists.
 
 ## Atlas/MOC Pages
-MOCs is NOT just a collection of cards or a  mirror of `index.md`, it is a place for mental
-squeeze point.When multiple concepts are collected and lots of relations between them, it may be a time
-for creating a MOC. A MOC includes:
-- Tags: [map] for MOCs.
-- Overview: what problem/claim the MOC is trying to discuss
-- Key related concepts and relations/comparison
-- Key idea/comments about these concepts
-- Remaining issues/questions
+Use `Atlas/` for question-driven views, proposal/project framing, and MOCs that
+connect multiple reusable pages around a current problem, claim, comparison, or
+decision. An Atlas page is not a mirror of `index.md`; it can contain the
+current argument, interpretation, evaluation questions, open decisions, and
+comments that belong to that view. Use Atlas when the user is asking about a
+specific problem, project, proposal, or point of view.
+
+When multiple concepts are collected and the useful work is in the relations
+between them, a MOC is the right shape. A useful Atlas/MOC page usually includes:
+
+- Overview: what problem or claim the view is trying to discuss
+- Key related concepts and relationships or comparisons
+- Key ideas or comments about those concepts
+- Remaining issues or questions
 
 ## Cards
-Use `Cards/` for durable synthesized knowledge:
-- concepts
-- methods
-- patterns
-- tradeoffs
-- comparisons
-- reusable decision frameworks
+Cards are shared knowledge objects.
+Use `Cards/` for shared, reusable knowledge objects: durable concepts, methods,
+mechanisms, patterns, tradeoffs, comparisons, and decision frameworks. Update a
+Card when source-backed facts, definitions, viewpoints, corrections, or
+provenance change. Cards should answer the stable "what is it" and
+"what is it good for" questions in a reusable way. Do not put
+project-specific commentary, proposal framing, or "how this helps my current
+paper" text in Cards; put that synthesis in an Atlas/MOC page that links to the
+reusable Cards. The default Card shape is shown in the SCHEMA template below.
 
-### Concept Pages
-One page per concept or topic. Include:
-- Definition / explanation
-- Current state of knowledge
-- Open questions or debates
-- Related concepts ([[wikilinks]])
+Common Card shapes:
 
-### Comparison Pages
-Side-by-side analyses. Include:
-- What is being compared and why
-- Dimensions of comparison (table format preferred)
-- Verdict or synthesis
-- Footnote provenance for source-backed claims
+- Concept pages: definition or explanation, current state of knowledge, open
+  questions or debates, related concepts
+- Comparison pages: what is being compared and why, dimensions of comparison,
+  verdict or synthesis, footnote provenance for source-backed claims
+
+### Default Card Template
+
+```markdown
+---
+title: Page Title
+created: YYYY-MM-DD
+updated: YYYY-MM-DD
+type: concept
+tags: []
+confidence: medium
+status: active
+contested: false
+contradictions: []
+---
+
+related:: [[related-page]]
+
+# Page Title
+
+One-sentence lead.
+
+## Why
+
+## What is
+
+[^1]: [[Shared/Raw/source-id/manifest.md]]
+```
+
+Add optional sections only when needed, such as `## Mechanism`, `## Example`,
+`## Limits`, or `## Open Questions`. Do not reserve a mandatory proposal section
+inside Cards.
 
 ## Extras
 Create domain `Extras/` only for non-source attachments owned by this domain:
