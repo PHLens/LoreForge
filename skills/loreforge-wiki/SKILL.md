@@ -2,7 +2,7 @@
 name: loreforge-wiki
 description: Use for LoreForge domain query, capture, ingest, durable updates, review, and Health Checks. One expert owns one domain.
 user-invocable: true
-version: 0.1.9
+version: 0.1.10
 metadata:
   origin: "Inspired by NousResearch Hermes LLM Wiki, MIT"
 ---
@@ -19,8 +19,6 @@ domains, reusable Cards, and Atlas MOCs for preserving evolving project and
 conceptual views.
 
 When source-layer details matter, read [references/raw-first-wiki.md](references/raw-first-wiki.md).
-When deciding between Cards, Atlas/MOC pages, and reusable Card templates, read
-[references/card-atlas-boundary.md](references/card-atlas-boundary.md).
 
 Always:
 
@@ -412,6 +410,7 @@ comments that belong to that view. Use Atlas when the user is asking about a
 specific problem, project, proposal, or point of view.
 
 ## Cards
+Cards are shared knowledge objects.
 Use `Cards/` for shared, reusable knowledge objects: durable concepts, methods,
 mechanisms, patterns, tradeoffs, comparisons, and decision frameworks. Update a
 Card when source-backed facts, definitions, viewpoints, corrections, or
@@ -419,10 +418,39 @@ provenance change. Cards should answer the stable "what is it" and
 "what is it good for" questions in a reusable way. Do not put
 project-specific commentary, proposal framing, or "how this helps my current
 paper" text in Cards; put that synthesis in an Atlas/MOC page that links to the
-reusable Cards.
+reusable Cards. The default Card shape is shown in the SCHEMA template below.
 
-For the default concise Card shape and boundary examples, read
-[references/card-atlas-boundary.md](references/card-atlas-boundary.md).
+### Default Card Template
+
+```markdown
+---
+title: Page Title
+created: YYYY-MM-DD
+updated: YYYY-MM-DD
+type: concept
+tags: []
+confidence: medium
+status: active
+contested: false
+contradictions: []
+---
+
+related:: [[related-page]]
+
+# Page Title
+
+One-sentence lead.
+
+## Why
+
+## What is
+
+[^1]: [[Shared/Raw/source-id/manifest.md]]
+```
+
+Add optional sections only when needed, such as `## Mechanism`, `## Example`,
+`## Limits`, or `## Open Questions`. Do not reserve a mandatory proposal section
+inside Cards.
 
 ## Extras
 Create domain `Extras/` only for non-source attachments owned by this domain:

@@ -3,26 +3,29 @@ import pathlib
 
 SKILL_DIR = pathlib.Path(__file__).resolve().parent.parent
 SKILL_PATH = SKILL_DIR / "SKILL.md"
-BOUNDARY_PATH = SKILL_DIR / "references" / "card-atlas-boundary.md"
 
 
-def test_skill_links_card_atlas_boundary_reference():
-    """SKILL.md should point agents to the Card / Atlas boundary reference."""
+def test_skill_contains_card_template_in_schema():
+    """SKILL.md should define the Card template directly in the schema template."""
     content = SKILL_PATH.read_text()
-    assert "references/card-atlas-boundary.md" in content
-
-
-def test_boundary_reference_defines_reusable_cards_and_view_atlas():
-    """Boundary reference should preserve the reusable Card vs view Atlas split."""
-    content = BOUNDARY_PATH.read_text()
+    assert "### Default Card Template" in content
     assert "Cards are shared knowledge objects" in content
-    assert "Atlas/MOC pages are project or view objects" in content
-    assert "what is it useful for" in content
-    assert "A Card can explain general usefulness" in content
-    assert "Do not reserve a mandatory proposal section" in content
+    assert "The default Card shape is shown in the SCHEMA template below." in content
+    assert "One-sentence lead." in content
+    assert "[^1]: [[Shared/Raw/source-id/manifest.md]]" in content
+
+
+def test_skill_preserves_card_vs_atlas_split():
+    """SKILL.md should keep Cards reusable and Atlas for problem-specific views."""
+    content = SKILL_PATH.read_text()
+    assert "Use `Cards/` for shared, reusable knowledge objects" in content
+    assert "Use `Atlas/` for question-driven views" in content
+    assert "Cards should answer the stable \"what is it\" and" in content
+    assert "specific problem, project, proposal, or point of view" in content
+    assert "project-specific commentary, proposal framing" in content
 
 
 if __name__ == "__main__":
-    test_skill_links_card_atlas_boundary_reference()
-    test_boundary_reference_defines_reusable_cards_and_view_atlas()
+    test_skill_contains_card_template_in_schema()
+    test_skill_preserves_card_vs_atlas_split()
     print("All Card / Atlas boundary tests passed.")
