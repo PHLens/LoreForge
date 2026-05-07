@@ -81,9 +81,10 @@ DOMAIN_NAME="${DOMAIN_NAME:-<domain>}"
 DOMAIN="$WIKI/Domains/$DOMAIN_NAME"
 ```
 
-`~/.config/loreforge/registry.toml` is machine-local discovery config. It is not
-a knowledge store and should not contain notes, findings, summaries, or agent
-memory.
+`~/.config/loreforge/registry.toml` is the machine-local discovery and sync
+config. It is not a knowledge store and should not contain notes, findings,
+summaries, or agent memory. Keep sync/backend choices there so different
+machines can use different sync modes for the same wiki.
 
 ```toml
 default = "main"
@@ -111,10 +112,10 @@ folders.
 
 ## Sync Workflow
 
-Before creating or updating durable wiki files, resolve the wiki sync backend.
-Use explicit user instructions first, then the selected registry `[[wikis]]`
-entry, then wiki-local config such as `00_System/loreforge.toml`. If no backend
-is configured, ask the user to choose one:
+Before creating or updating durable wiki files, resolve the wiki sync backend
+from the machine-local registry. Use explicit user instructions first, then the
+selected registry `[[wikis]]` entry. If no backend is configured, ask the user
+to choose one:
 
 - `webdav`: ask the user to configure `rclone config`, provide the
   `remote:path` target, and confirm whether first-machine bootstrap has already
@@ -130,9 +131,9 @@ and the first-machine bootstrap/resync case where the local wiki should win.
 
 For new wikis, confirm the backend during initialization before the first
 durable write. For existing wikis without sync config, offer to add sync
-behavior before making the requested update. Record the chosen backend in the
-machine-local registry and, when possible, in a wiki-local config note or TOML
-file under `00_System/` so the next agent can recover the intended behavior.
+behavior in the machine-local registry before making the requested update.
+Record the chosen backend in the machine-local registry so the next agent on
+that machine can recover the intended behavior.
 
 After every wiki modification:
 
@@ -239,15 +240,15 @@ For large domains(100+ pages), also run a quick search for the topic at hand bef
 When the user asks to create or start a wiki or domain:
 
 1. Resolve the wiki root and domain name using the discovery order above.
-2. Confirm the sync backend: `webdav`, `git`, or explicit local-only.
+2. Confirm the sync backend from the machine-local registry:
+   `webdav`, `git`, or explicit local-only.
 3. For `webdav`, confirm the `rclone` remote target and whether bootstrap sync
    is already complete. For `git`, confirm the remote repo URL. For `local`,
    warn about data-loss risk before continuing.
 4. Create the wiki root if needed.
 5. Create `00_System/`, `00_System/index.md`, `00_System/domains.md`, and
    `00_System/wiki-layout.md` if missing.
-6. Create or update `00_System/loreforge.toml` or an equivalent sync note with
-   the selected backend.
+6. Create or update the machine-local registry entry with the selected backend.
 7. Create `Calendar/` and `Calendar/dailynotes/` if missing.
 8. Create `Shared/Raw/` and `Shared/Templates/` if missing.
 9. Create `Domains/<domain>/`.
@@ -259,8 +260,8 @@ When the user asks to create or start a wiki or domain:
     canonical shared/domain layout summary.
 14. Write initial `log.md` with creation entry.
 15. Add or update the domain row in `00_System/domains.md`.
-16. If the user is setting up a durable local wiki and the registry has no
-    matching `[[wikis]]` entry, offer to add one.
+16. If the machine-local registry has no matching `[[wikis]]` entry, offer to
+   add one.
 17. Run the configured post-write sync flow, or repeat the local-only warning.
 18. Report the wiki path, domain path, sync backend, and next useful actions.
 
