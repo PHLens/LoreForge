@@ -2,7 +2,7 @@
 name: loreforge-wiki
 description: Use for LoreForge domain query, capture, ingest, durable updates, review, and Health Checks. One expert owns one domain.
 user-invocable: true
-version: 0.1.10
+version: 0.1.8
 metadata:
   origin: "Inspired by NousResearch Hermes LLM Wiki, MIT"
 ---

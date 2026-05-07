@@ -1,8 +1,8 @@
 """Lint tests for LoreForge wiki Card / Atlas boundary guidance."""
 import pathlib
 
-SKILL_DIR = pathlib.Path(__file__).resolve().parent.parent
-SKILL_PATH = SKILL_DIR / "SKILL.md"
+REPO_ROOT = pathlib.Path(__file__).resolve().parent.parent
+SKILL_PATH = REPO_ROOT / "skills" / "loreforge-wiki" / "SKILL.md"
 
 
 def test_skill_contains_card_template_in_schema():
