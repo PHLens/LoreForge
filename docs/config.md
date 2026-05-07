@@ -73,8 +73,7 @@ the selected domain's files, not by a copied template.
 
 Every new wiki initialization should confirm a sync backend before the first
 durable write. Existing wikis can add or change sync behavior later by updating
-the registry entry and, when available, a wiki-local config file such as
-`00_System/loreforge.toml`.
+the machine-local registry entry for that machine.
 
 Preferred mode:
 
@@ -95,15 +94,6 @@ Supported backends:
   after wiki edits.
 - `local`: no remote sync. This is allowed only after warning the user that the
   wiki is not linked to remote persistence and local machine loss can lose data.
-
-Wiki-local config example:
-
-```toml
-[sync]
-backend = "webdav"
-remote = "nustore:LoreForgeWiki"
-sync_bootstrapped = true
-```
 
 For `git`, `remote` is the repo URL. For `local`, `remote` is empty and
 `sync_bootstrapped` should be `false`.
