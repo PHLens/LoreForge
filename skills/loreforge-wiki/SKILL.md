@@ -409,6 +409,14 @@ current argument, interpretation, evaluation questions, open decisions, and
 comments that belong to that view. Use Atlas when the user is asking about a
 specific problem, project, proposal, or point of view.
 
+When multiple concepts are collected and the useful work is in the relations
+between them, a MOC is the right shape. A useful Atlas/MOC page usually includes:
+
+- Overview: what problem or claim the view is trying to discuss
+- Key related concepts and relationships or comparisons
+- Key ideas or comments about those concepts
+- Remaining issues or questions
+
 ## Cards
 Cards are shared knowledge objects.
 Use `Cards/` for shared, reusable knowledge objects: durable concepts, methods,
@@ -419,6 +427,13 @@ provenance change. Cards should answer the stable "what is it" and
 project-specific commentary, proposal framing, or "how this helps my current
 paper" text in Cards; put that synthesis in an Atlas/MOC page that links to the
 reusable Cards. The default Card shape is shown in the SCHEMA template below.
+
+Common Card shapes:
+
+- Concept pages: definition or explanation, current state of knowledge, open
+  questions or debates, related concepts
+- Comparison pages: what is being compared and why, dimensions of comparison,
+  verdict or synthesis, footnote provenance for source-backed claims
 
 ### Default Card Template
 
