@@ -1,6 +1,6 @@
 {
   "name": "loreforge",
-  "description": "LoreForge provides routing skills, capture tools, and conventions for operating LLM-wiki style expert-owned domain knowledge bases.",
+  "description": "LoreForge provides a main entrypoint, focused workflows, and conventions for operating LLM-wiki style expert-owned domain knowledge bases.",
   "version": "0.1.0",
   "author": {
     "name": "PHLens",

@@ -93,25 +93,25 @@ LoreForge
 LoreForge now follows a small core:
 
 1. One shared wiki root can contain many domains.
-2. Shared raw capture clips live as flat files in `Shared/Raw/`; ingest
-   normalizes selected clips into `Shared/Raw/<source-id>/` packages. Reusable
-   templates live in `Shared/Templates/`.
-3. Optional domain source notes live in `Domains/<domain>/Sources/` when a raw
+2. The `loreforge` main entrypoint handles domain selection, config, capture
+   handoff, batch grouping, and bounded fan-out to domain experts.
+3. Shared raw capture clips live as flat files in `Shared/Raw/`; capture
+   preserves them before ingest normalizes selected clips into
+   `Shared/Raw/<source-id>/` packages. Reusable templates live in
+   `Shared/Templates/`.
+4. Optional domain source notes live in `Domains/<domain>/Sources/` when a raw
    package is large or needs a stable excerpt.
-4. One expert agent owns and maintains one domain.
-5. The optional `loreforge-router` skill handles domain selection, batch
-   grouping, and bounded fan-out to domain experts. It is bypassed for clear
-   single-domain work, and it does not capture raw content, transform sources,
-   normalize packages, or write domain pages itself.
-6. The core `loreforge-wiki` skill handles domain query, ingest, update,
-   review, initialization, and Health Checks.
+5. One expert agent owns and maintains one domain.
+6. The core `loreforge-domain` skill handles domain query, ingest, update, and
+   initialization.
 7. Expert agents write directly after orientation.
 8. Human supervision happens through `log.md`, `index.md`, confidence metadata,
-   contradiction records, Health Checks, and git diffs.
+   contradiction records, checks, and git diffs.
 
 The old staged package pipeline is not part of the active core workflow.
-Migration, domain-management, and sync helpers should be added only when
-repeated use proves they are needed.
+Focused helper workflows may exist for config, capture, checks, and
+import, but they should stay behind the main entrypoint instead of becoming user
+surface area.
 
 ## What To Learn From LLM Wiki Systems
 
@@ -143,9 +143,7 @@ Do not borrow:
 ## Roadmap
 
 1. Stabilize the single-domain expert workflow.
-2. Keep initialization authority in `loreforge-wiki`, not copied wiki templates.
-3. Add focused Health Check fixtures.
-4. Add migration support as raw source ingestion into native domains.
-5. Keep router behavior bounded to domain selection, batch grouping, and
-   delegated expert work; capture and ingest semantics remain in
-   `loreforge-wiki`.
+2. Keep initialization authority in `loreforge-domain`, not copied wiki templates.
+3. Add focused check fixtures.
+4. Keep main entrypoint behavior bounded to domain selection, config, capture handoff,
+   batch grouping, and delegated expert work.

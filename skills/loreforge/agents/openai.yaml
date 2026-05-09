@@ -1,0 +1,4 @@
+interface:
+  display_name: "LoreForge"
+  short_description: "跨 domain 选择、查询与 ingest 调度入口"
+  default_prompt: "Use $loreforge to route this request to the right LoreForge domain expert(s), then delegate domain work through $loreforge-domain."

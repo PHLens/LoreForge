@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""Smoke-test LoreForge wiki config, initialization, and migration flow.
+"""Smoke-test LoreForge wiki config, initialization, and import flow.
 
 The skill owns these behaviors as operating instructions rather than as a
 runtime library. This test makes the expected file effects concrete: registry
 discovery, environment overrides, wiki/domain initialization, and source-only
-migration into a native domain.
+import into a native domain.
 """
 
 from __future__ import annotations
@@ -18,7 +18,7 @@ import tomllib
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(REPO_ROOT / "skills" / "loreforge-wiki" / "scripts"))
+sys.path.insert(0, str(REPO_ROOT / "skills" / "loreforge-domain" / "scripts"))
 
 from validate_native_domain import validate_domain
 
@@ -118,7 +118,7 @@ def write_registry(home: Path, *, default: str, wikis: list[dict], sources: list
 
 
 def webdav_bisync_command(wiki: Path, remote: str, *, resync: bool) -> str:
-    script = REPO_ROOT / "skills" / "loreforge-wiki" / "scripts" / "sync_webdav.sh"
+    script = REPO_ROOT / "skills" / "loreforge-domain" / "scripts" / "sync_webdav.sh"
     argv = [
         "bash",
         script.as_posix(),
@@ -159,7 +159,7 @@ def resolve_wiki_and_domain(
     user_wiki: str | None = None,
     user_domain: str | None = None,
 ) -> tuple[Path, str]:
-    """Model the discovery order documented in loreforge-wiki."""
+    """Model the discovery order documented in loreforge-domain."""
 
     env = env or {}
     if user_wiki:
@@ -259,7 +259,7 @@ def initialize_domain(
     return domain
 
 
-def migrate_source(source: Path, domain: Path) -> None:
+def import_source(source: Path, domain: Path) -> None:
     source_text = (source / "notes" / "llm-wiki.md").read_text(encoding="utf-8")
     wiki = domain.parents[1]
 
@@ -297,7 +297,7 @@ Imported source-language note from the old Obsidian vault.
 """,
         encoding="utf-8",
     )
-    (raw / "assets" / "diagram.png").write_bytes(b"fake image bytes for migration smoke test")
+    (raw / "assets" / "diagram.png").write_bytes(b"fake image bytes for import smoke test")
     raw_hash = hashlib.sha256(origin.read_bytes()).hexdigest()
 
     write(
@@ -384,7 +384,7 @@ source manifests.[^source]
     )
     insert_log_entry(
         domain,
-        f"""## {TODAY} | ingest | old-obsidian migration
+        f"""## {TODAY} | ingest | old-obsidian import
 - created: Shared/Raw/old-obsidian-llm-wiki.md
 - normalized: Shared/Raw/old-obsidian-llm-wiki.md -> Shared/Raw/old-obsidian-llm-wiki/original/clip.md
 - source_alias: old-obsidian
@@ -407,17 +407,27 @@ def assert_valid(domain: Path) -> None:
 
 
 def assert_skill_example_is_generic() -> None:
-    skill = (REPO_ROOT / "skills" / "loreforge-wiki" / "SKILL.md").read_text(encoding="utf-8")
+    wiki_skill = (REPO_ROOT / "skills" / "loreforge-domain" / "SKILL.md").read_text(encoding="utf-8")
+    config_skill = (REPO_ROOT / "skills" / "loreforge-config" / "SKILL.md").read_text(encoding="utf-8")
+    capture_skill = (REPO_ROOT / "skills" / "loreforge-capture" / "SKILL.md").read_text(encoding="utf-8")
     readme = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
     config_doc = (REPO_ROOT / "docs" / "config.md").read_text(encoding="utf-8")
-    sync_script = REPO_ROOT / "skills" / "loreforge-wiki" / "scripts" / "sync_webdav.sh"
+    sync_script = REPO_ROOT / "skills" / "loreforge-domain" / "scripts" / "sync_webdav.sh"
     forbidden = ["/home/cambricon", "Nutstore", "OldVault"]
-    found = [value for value in forbidden if value in skill]
+    found = [value for value in forbidden if value in config_skill or value in capture_skill]
     if found:
         raise AssertionError(f"skill example contains environment-specific values: {found}")
-    for expected in ["/path/to/loreforge-wiki", "/path/to/source-vault"]:
-        if expected not in skill:
-            raise AssertionError(f"skill example is missing placeholder path: {expected}")
+    for expected in ["/path/to/loreforge-wiki", "/path/to/source-vault", "~/.config/loreforge/registry.toml", "sync_bootstrapped", "local | webdav | git"]:
+        if expected not in config_skill:
+            raise AssertionError(f"config skill is missing config guidance: {expected}")
+    for expected in [
+        "Shared/Raw/",
+        "raw clip",
+        "create `Cards/`, `Atlas/`, `Spaces/`, or domain `Sources/`",
+        "route or choose final domain ownership",
+    ]:
+        if expected not in capture_skill:
+            raise AssertionError(f"capture skill is missing capture guidance: {expected}")
     for expected in [
         'sync = "local"',
         "webdav",
@@ -427,10 +437,10 @@ def assert_skill_example_is_generic() -> None:
         "machine-local registry",
         "scripts/sync_webdav.sh",
     ]:
-        if expected not in skill:
+        if expected not in config_skill:
             raise AssertionError(f"skill is missing sync guidance: {expected}")
     for expected in [
-        "skills/loreforge-wiki/scripts/sync_webdav.sh",
+        "skills/loreforge-domain/scripts/sync_webdav.sh",
     ]:
         if expected not in readme:
             raise AssertionError(f"README is missing WebDAV sync helper guidance: {expected}")
@@ -457,7 +467,7 @@ def assert_skill_example_is_generic() -> None:
     if "--resync" not in bootstrap:
         raise AssertionError(f"WebDAV helper bootstrap command is missing --resync: {bootstrap}")
     for expected in [".obsidian*", ".obsidian-desktop", ".obsidian-mobile"]:
-        if expected not in skill:
+        if expected not in wiki_skill:
             raise AssertionError(f"skill is missing Obsidian profile boundary: {expected}")
 
 
@@ -612,9 +622,9 @@ def main() -> int:
         print("PASS sync upgrade: existing wiki can be switched to git and commit/push is required")
 
         source_before = digest_tree(source)
-        migrate_source(source, domain)
+        import_source(source, domain)
         if source_before != digest_tree(source):
-            raise AssertionError("source vault changed during migration")
+            raise AssertionError("source vault changed during import")
         assert_valid(domain)
         manifest = wiki / "Shared" / "Raw" / "old-obsidian-llm-wiki" / "manifest.md"
         assert manifest.exists()
@@ -628,8 +638,8 @@ def main() -> int:
         assert not (domain / "Sources").exists()
         assert "source_alias: old-obsidian" in (domain / "log.md").read_text(encoding="utf-8")
         if not log_headings(domain)[0].startswith(f"## {TODAY} | ingest |"):
-            raise AssertionError("migration log entry was not inserted as newest entry")
-        print("PASS migration: source stayed read-only and target domain remains valid")
+            raise AssertionError("import log entry was not inserted as newest entry")
+        print("PASS import: source stayed read-only and target domain remains valid")
 
     print("wiki config flow smoke test ok")
     return 0

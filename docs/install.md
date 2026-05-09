@@ -3,7 +3,8 @@
 LoreForge has two parts:
 
 1. Framework repo: this repository.
-2. Wiki instance: a separate repository or vault maintained by the `loreforge-wiki` skill.
+2. Wiki instance: a separate repository or vault managed by the LoreForge
+   main entrypoint, `loreforge-config`, and `loreforge-domain`.
 
 ## Create A Wiki Instance
 
@@ -16,8 +17,8 @@ mkdir -p /path/to/my-wiki/00_System \
   /path/to/my-wiki/Shared/Templates
 ```
 
-Then ask an agent with the `loreforge-wiki` skill to initialize the target
-domain. It should create:
+Then ask LoreForge to initialize the target domain. The main entrypoint should
+resolve config and the `loreforge-domain` expert should create:
 
 - `00_System/index.md`, `00_System/domains.md`, and `00_System/wiki-layout.md`
 - shared `Calendar/dailynotes/`, `Shared/Raw/`, and `Shared/Templates/`
@@ -26,15 +27,14 @@ domain. It should create:
 - optional `Sources/` under `Domains/<domain>/` when a source excerpt or
   source-specific lens is useful
 
-Existing repos or vaults should be ingested as sources by first copying raw
-clips into the shared `Shared/Raw/` area, then compiling native domain synthesis
-under `Domains/<domain>/`. Capture should copy the raw clip into `Shared/Raw/`
-as a flat file; ingest should derive a stable source ID, normalize that clip
-into `Shared/Raw/<source-id>/origin.md` plus `manifest.md`, and then compile
-durable notes from that package. Use
-`Domains/<domain>/Sources/` only when a source is too large or source-specific
-excerpts are useful. Do not keep alternate layouts as long-term LoreForge
-structure.
+Existing repos or vaults should be ingested as sources by first capturing raw
+clips into the shared `Shared/Raw/` area, then compiling native domain
+synthesis under `Domains/<domain>/`. Capture should hand the raw clip to the
+main entrypoint's capture workflow; ingest should derive a stable source ID,
+normalize that clip into `Shared/Raw/<source-id>/origin.md` plus `manifest.md`,
+and then compile durable notes from that package. Use `Domains/<domain>/Sources/`
+only when a source is too large or source-specific excerpts are useful. Do not
+keep alternate layouts as long-term LoreForge structure.
 
 Create `Domains/<domain>/Extras/` only if the domain needs its own non-source
 attachments.
@@ -53,7 +53,7 @@ Set `WIKI_PATH` when you want agents to find the wiki without guessing:
 export WIKI_PATH=/path/to/my-wiki
 ```
 
-If unset, `loreforge-wiki` falls back to `~/wiki`.
+If unset, the main entrypoint and `loreforge-config` fall back to `~/wiki`.
 
 ## Install Core Skills
 
@@ -63,10 +63,14 @@ Core and helper skills live in:
 skills/
 ```
 
-Router and core skill:
+Main entrypoint and expert workflows:
 
-- `loreforge-router`
-- `loreforge-wiki`
+- `loreforge`
+- `loreforge-config`
+- `loreforge-capture`
+- `loreforge-check`
+- `loreforge-import`
+- `loreforge-domain`
 
 Bundled helper skills:
 

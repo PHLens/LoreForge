@@ -87,7 +87,7 @@ Query and ingest should stay question-driven: start from the problem being
 answered, then decide whether the raw package, an optional domain Source note,
 or a durable Card/Atlas/Space page is actually warranted.
 
-When several raw clips are present, a router or caller may group them by
+When several raw clips are present, a main entrypoint or caller may group them by
 candidate domain and dispatch bounded parallel ingest jobs. Each domain expert
 still owns normalization, domain page writes, index updates, and log entries for
 its domain.
