@@ -1,8 +1,8 @@
 # Configuration
 
 LoreForge can use explicit paths, environment variables, or local config files.
-The core `loreforge-wiki` skill should prefer a user-provided domain path, then
-`WIKI_PATH`, then `~/wiki`.
+The main entrypoint and `loreforge-config` should prefer a user-provided wiki path,
+then `WIKI_PATH`, then `~/wiki`.
 
 For LoreForge instances that use `~/wiki` as the local working copy and sync
 through Nutstore/WebDAV, keep the local checkout in that default directory and
@@ -101,8 +101,8 @@ For `git`, `remote` is the repo URL. For `local`, `remote` is empty and
 WebDAV command helper:
 
 ```bash
-bash skills/loreforge-wiki/scripts/sync_webdav.sh --wiki ~/wiki --remote nustore:LoreForgeWiki
-bash skills/loreforge-wiki/scripts/sync_webdav.sh --wiki ~/wiki --remote nustore:LoreForgeWiki --resync
+bash skills/loreforge-domain/scripts/sync_webdav.sh --wiki ~/wiki --remote nustore:LoreForgeWiki
+bash skills/loreforge-domain/scripts/sync_webdav.sh --wiki ~/wiki --remote nustore:LoreForgeWiki --resync
 ```
 
 The helper owns the exact `rclone bisync` argv. Use the first form for normal
@@ -114,7 +114,7 @@ wiki should win.
 After any agent-owned wiki edit, run the configured backend flow before
 reporting completion:
 
-- `webdav`: run `skills/loreforge-wiki/scripts/sync_webdav.sh` for the wiki
+- `webdav`: run `skills/loreforge-domain/scripts/sync_webdav.sh` for the wiki
   path and configured `remote:path`. If `sync_bootstrapped` is false, use the
   helper's bootstrap/resync mode after confirming the local wiki should win the
   first bootstrap.
@@ -129,8 +129,7 @@ changes.
 
 ## Registration
 
-Create or update registry entries manually until a smaller domain-management
-helper is justified.
+Create or update registry entries through `loreforge-config`.
 
 First-time manual setup:
 

@@ -7,7 +7,7 @@ description: Research a topic across Chinese and general web sources, gather at 
 
 Use this skill to gather source material for a topic, reuse human-provided browser state when needed, and prepare a source-backed research pack before writing a synthesized report.
 
-When this skill is used with `loreforge-wiki`, treat its outputs as capture
+When this skill is used with `loreforge-domain`, treat its outputs as capture
 inputs. Durable raw source packages belong under the wiki-level
 `Shared/Raw/<source-id>/` directory, with `manifest.md` tracking metadata,
 source hash, compiled page pointers, and artifact links. Domain-specific

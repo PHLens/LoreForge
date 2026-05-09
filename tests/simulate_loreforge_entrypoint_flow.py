@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""Smoke-test the LoreForge router contract.
+"""Smoke-test the LoreForge entrypoint contract.
 
-The router is an optional skill-level dispatch workflow, not a runtime library.
+The entrypoint is a skill-level dispatch workflow, not a runtime library.
 This test keeps the expected behavior concrete: discover domains, choose
 read/write targets, and preserve the rule that durable domain work is delegated
-to loreforge-wiki.
+to loreforge-domain.
 """
 
 from __future__ import annotations
@@ -33,36 +33,32 @@ def write(path: Path, text: str) -> None:
 
 
 def read_skill() -> str:
-    return (REPO_ROOT / "skills" / "loreforge-router" / "SKILL.md").read_text(encoding="utf-8")
+    return (REPO_ROOT / "skills" / "loreforge" / "SKILL.md").read_text(encoding="utf-8")
 
 
 def assert_skill_contract() -> None:
     skill = read_skill()
     required = [
-        "loreforge-wiki",
-        "optional dispatch layer",
-        "one expert-owned domain as the write boundary",
-        "write domain pages directly as the router",
-        "capture raw content, normalize raw packages, or build manifests directly as",
-        "Multiple write matches",
-        "ask before writing multiple domains",
-        ".obsidian*",
-        "delegate initialization to `loreforge-wiki`",
-        "parallel expert review is useful",
-        "Otherwise process selected domains sequentially",
-        "one subagent per selected domain",
-        "max concurrency",
-        "Write policy: <read-only|write-confirmed>",
-        "Set `Write policy: read-only` for query operations",
-        "do not create or update wiki files",
-        "Shared/Raw/",
-        "flat raw capture clips",
-        "footnotes, not YAML",
-        "use `loreforge-wiki` directly",
-    ]
+        "Default LoreForge entrypoint",
+        "loreforge-config",
+        "loreforge-capture",
+        "loreforge-check",
+        "loreforge-import",
+        "loreforge-domain",
+        "Do not ask the user which LoreForge skill to invoke.",
+        "intent classification",
+        "Capture source material only",
+        "post-write sync through `loreforge-config`",
+        "Use `loreforge` as the default user-facing entry point.",
+        "If the operation is unclear and a write would happen, ask one concise question.",
+        "capture if needed, normalize, and compile domain knowledge",
+        "Delegate lint, audit, and check work to `loreforge-check`",
+        "Delegate source discovery and capture planning to `loreforge-import`",
+        "Use loreforge-domain.",
+        ]
     missing = [item for item in required if item not in skill]
     if missing:
-        raise AssertionError(f"router skill is missing required routing contract text: {missing}")
+        raise AssertionError(f"main entrypoint skill is missing required routing contract text: {missing}")
 
 
 def create_domain(wiki: Path, name: str, purpose: str, tags: str, index: str) -> None:
@@ -103,7 +99,7 @@ def operation_for(request: str) -> str:
     lower = request.lower()
     if any(word in lower for word in ["ingest", "import", "source", "paper", "url"]):
         return "ingest"
-    if any(word in lower for word in ["health check", "lint", "audit"]):
+    if any(word in lower for word in ["check", "lint", "audit"]):
         return "review"
     return "query"
 
@@ -139,9 +135,9 @@ def route(wiki: Path, request: str) -> Route:
 
 def main() -> int:
     assert_skill_contract()
-    print("PASS skill contract: router delegates and preserves write boundaries")
+    print("PASS skill contract: main entrypoint delegates and preserves write boundaries")
 
-    with tempfile.TemporaryDirectory(prefix="loreforge-router-") as tmp_raw:
+    with tempfile.TemporaryDirectory(prefix="loreforge-") as tmp_raw:
         wiki = Path(tmp_raw) / "wiki"
         write(
             wiki / "00_System" / "domains.md",
@@ -223,7 +219,7 @@ def main() -> int:
         assert no_match.requires_confirmation is True
         print("PASS no match: asks before creating or forcing a domain")
 
-    print("router flow smoke test ok")
+    print("main entrypoint flow smoke test ok")
     return 0
 
 

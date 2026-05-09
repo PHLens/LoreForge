@@ -31,7 +31,7 @@ raw package changed and whether downstream pages need recompilation.
 ## Batch Routing Rule
 
 Multiple raw clips can be captured first and ingested incrementally later. A
-router or caller may group clips by candidate domain and fan out domain ingest
+main entrypoint or caller may group clips by candidate domain and fan out domain ingest
 passes up to a requested max concurrency. Domain experts still own raw
 normalization, page writes, index updates, and log entries for their domains.
 

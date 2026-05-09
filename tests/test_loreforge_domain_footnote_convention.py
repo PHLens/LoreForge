@@ -3,7 +3,7 @@ import re
 import pathlib
 
 REPO_ROOT = pathlib.Path(__file__).resolve().parent.parent
-SKILL_PATH = REPO_ROOT / "skills" / "loreforge-wiki" / "SKILL.md"
+SKILL_PATH = REPO_ROOT / "skills" / "loreforge-domain" / "SKILL.md"
 
 CARET_FOOTNOTE_RE = re.compile(r"\^\[.*?\]")
 

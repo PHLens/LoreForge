@@ -2,7 +2,7 @@
 """Smoke-test native domain query, ingest, and update boundaries.
 
 The test copies the valid fixture into /tmp, simulates the file effects expected
-from loreforge-wiki operations, and asserts that only the selected domain changes.
+from loreforge-domain operations, and asserts that only the selected domain changes.
 """
 
 from __future__ import annotations
@@ -15,7 +15,7 @@ import tempfile
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(REPO_ROOT / "skills" / "loreforge-wiki" / "scripts"))
+sys.path.insert(0, str(REPO_ROOT / "skills" / "loreforge-domain" / "scripts"))
 
 from validate_native_domain import validate_domain
 
