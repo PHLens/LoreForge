@@ -211,13 +211,12 @@ def initialize_domain(
         wiki / "00_System" / "wiki-layout.md",
         "# Wiki Layout\n\n"
         "Canonical shared layer:\n\n"
-        "- `Shared/Raw/` for capture-only flat source clips\n"
-        "- `Shared/Raw/<source-id>/` for normalized raw packages and attachments after ingest\n"
+        "- `Shared/Raw/<source-id>/` for raw source packages and attachments\n"
         "- `Shared/Templates/` for reusable templates\n\n"
         "Domain layer:\n\n"
         "- `Domains/<domain>/Atlas/`, `Cards/`, `Sources/`, and `Spaces/` for compiled durable knowledge\n\n"
         "Compiled pages live in `Domains/<domain>/Atlas/`, `Cards/`, `Sources/`, and `Spaces/`. "
-        "Capture writes raw clips into `Shared/Raw/` and stops there; ingest normalizes them into `Shared/Raw/<source-id>/`; `Sources/` is optional for source excerpts.\n\n"
+        "Capture writes raw source packages into `Shared/Raw/<source-id>/` and stops there; ingest updates those packages; `Sources/` is optional for source excerpts.\n\n"
         "Tags are coarse domain classification labels; keep them to 1-3 per page instead of keyword stacks.\n\n"
         "Create `Domains/<domain>/Extras/` only when the domain needs its own\n"
         "non-source attachments.\n",
@@ -265,13 +264,10 @@ def import_source(source: Path, domain: Path) -> None:
 
     raw_root = wiki / "Shared" / "Raw"
     raw_root.mkdir(parents=True, exist_ok=True)
-    flat_clip = raw_root / "old-obsidian-llm-wiki.md"
-    write(flat_clip, source_text)
     raw = raw_root / "old-obsidian-llm-wiki"
     raw.mkdir(parents=True, exist_ok=True)
     (raw / "original").mkdir(exist_ok=True)
-    flat_clip.rename(raw / "original" / "clip.md")
-    assert not flat_clip.exists()
+    write(raw / "original" / "clip.md", source_text)
     (raw / "assets").mkdir(exist_ok=True)
     origin = raw / "origin.md"
     origin.write_text(
@@ -385,8 +381,7 @@ source manifests.[^source]
     insert_log_entry(
         domain,
         f"""## {TODAY} | ingest | old-obsidian import
-- created: Shared/Raw/old-obsidian-llm-wiki.md
-- normalized: Shared/Raw/old-obsidian-llm-wiki.md -> Shared/Raw/old-obsidian-llm-wiki/original/clip.md
+- captured: Shared/Raw/old-obsidian-llm-wiki/
 - source_alias: old-obsidian
 - import_scope: notes/llm-wiki.md and attachment metadata
 - created: Shared/Raw/old-obsidian-llm-wiki/origin.md
@@ -422,7 +417,9 @@ def assert_skill_example_is_generic() -> None:
             raise AssertionError(f"config skill is missing config guidance: {expected}")
     for expected in [
         "Shared/Raw/",
-        "raw clip",
+        "raw source package",
+        "origin.md",
+        "manifest.md",
         "create `Cards/`, `Atlas/`, `Spaces/`, or domain `Sources/`",
         "route or choose final domain ownership",
     ]:

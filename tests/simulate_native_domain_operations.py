@@ -106,13 +106,10 @@ def simulate_ingest(domain: Path) -> None:
     wiki = domain.parents[1]
     raw_root = wiki / "Shared" / "Raw"
     raw_root.mkdir(parents=True, exist_ok=True)
-    flat_clip = raw_root / "agent-domain-boundary-note.md"
-    flat_clip.write_text("# Agent Domain Boundary Raw Source\n\nRaw source shared by any domain that needs the boundary note.\n")
     raw = raw_root / "agent-domain-boundary-note"
     raw.mkdir(parents=True, exist_ok=True)
     (raw / "original").mkdir(exist_ok=True)
-    flat_clip.rename(raw / "original" / "clip.md")
-    assert not flat_clip.exists()
+    (raw / "original" / "clip.md").write_text("# Agent Domain Boundary Raw Source\n\nRaw source shared by any domain that needs the boundary note.\n")
     (raw / "assets").mkdir(exist_ok=True)
     origin = raw / "origin.md"
     origin.write_text(f"""---
@@ -253,8 +250,7 @@ orientation and does not write into sibling domains. It connects
         domain,
         f"""
 ## {TODAY} | ingest | Agent domain boundary note
-- created: Shared/Raw/agent-domain-boundary-note.md
-- normalized: Shared/Raw/agent-domain-boundary-note.md -> Shared/Raw/agent-domain-boundary-note/original/clip.md
+- captured: Shared/Raw/agent-domain-boundary-note/
 - created: Shared/Raw/agent-domain-boundary-note/origin.md
 - created: Shared/Raw/agent-domain-boundary-note/assets/diagram.txt
 - created: Shared/Raw/agent-domain-boundary-note/manifest.md

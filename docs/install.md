@@ -28,13 +28,13 @@ resolve config and the `loreforge-domain` expert should create:
   source-specific lens is useful
 
 Existing repos or vaults should be ingested as sources by first capturing raw
-clips into the shared `Shared/Raw/` area, then compiling native domain
-synthesis under `Domains/<domain>/`. Capture should hand the raw clip to the
-main entrypoint's capture workflow; ingest should derive a stable source ID,
-normalize that clip into `Shared/Raw/<source-id>/origin.md` plus `manifest.md`,
-and then compile durable notes from that package. Use `Domains/<domain>/Sources/`
-only when a source is too large or source-specific excerpts are useful. Do not
-keep alternate layouts as long-term LoreForge structure.
+source packages under the shared `Shared/Raw/<source-id>/` area, then compiling
+native domain synthesis under `Domains/<domain>/`. Capture should derive a
+stable source ID, write `origin.md` plus `manifest.md`, and stop before domain
+synthesis. Ingest should update that same package and compile durable notes from
+it. Use `Domains/<domain>/Sources/` only when a source is too large or
+source-specific excerpts are useful. Do not keep alternate layouts as long-term
+LoreForge structure.
 
 Create `Domains/<domain>/Extras/` only if the domain needs its own non-source
 attachments.

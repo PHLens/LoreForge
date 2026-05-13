@@ -313,6 +313,16 @@ def validate_raw_packages(wiki: Path) -> list[Issue]:
     if not raw_root.exists():
         return issues
 
+    for raw_child in sorted(raw_root.iterdir()):
+        if raw_child.is_file():
+            issues.append(
+                Issue(
+                    "unexpected-raw-file",
+                    rel(raw_child, wiki),
+                    "raw sources must live in Shared/Raw/<source-id>/ packages",
+                )
+            )
+
     for package in sorted(path for path in raw_root.iterdir() if path.is_dir()):
         manifest_path = package / "manifest.md"
         origin_path = package / "origin.md"
@@ -610,6 +620,7 @@ def main(argv: list[str]) -> int:
         "orphan-footnote-definition",
         "raw-content-hash-mismatch",
         "raw-source-id-mismatch",
+        "unexpected-raw-file",
         "tag-sprawl",
         "unknown-tag",
     }

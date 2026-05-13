@@ -26,13 +26,11 @@ Always:
    - `[[sources]]` alias from the registry.
 2. Resolve the target wiki with `loreforge-config`.
 3. Inspect the source structure enough to identify candidate material.
-4. Capture source material into `Shared/Raw/` as raw clips.
-5. Route captured clips by candidate domain.
+4. Capture source material into `Shared/Raw/<source-id>/` raw packages.
+5. Route captured packages by candidate domain.
 6. Delegate each domain ingest to `loreforge-domain`.
 7. Ensure each domain expert:
-   - derives stable source IDs
-   - normalizes clips into `Shared/Raw/<source-id>/origin.md` and
-     `manifest.md`
+   - updates `Shared/Raw/<source-id>/origin.md` and `manifest.md`
    - writes optional domain `Sources/` excerpts only when useful
    - updates `Cards/`, `Atlas/`, `Spaces/`, `index.md`, and `log.md`
 

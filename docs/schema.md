@@ -11,7 +11,6 @@ wiki/
     dailynotes/
   Shared/
     Raw/
-      clip-or-source-title.*  # capture-only flat raw clips before ingest
       <source-id>/
         origin.md
         manifest.md
@@ -32,11 +31,10 @@ wiki/
 
 `00_System/` is the wiki-level operating surface. It typically contains
 `index.md`, `domains.md`, and `wiki-layout.md`. `Calendar/` stores dated
-personal notes such as daily notes. `Shared/Raw/` stores flat capture-only clips
-first and normalized source packages under `Shared/Raw/<source-id>/` after
-ingest. `Shared/Templates/` stores reusable templates once for the whole wiki.
-Each `Domains/<domain>/` is a self-contained LLM Wiki maintained by one expert
-agent.
+personal notes such as daily notes. `Shared/Raw/` stores one raw source package
+per source under `Shared/Raw/<source-id>/`. `Shared/Templates/` stores reusable
+templates once for the whole wiki. Each `Domains/<domain>/` is a self-contained
+LLM Wiki maintained by one expert agent.
 
 ## Calendar Files
 
@@ -48,7 +46,7 @@ agent.
 
 | Path | Purpose |
 |---|---|
-| `Shared/Raw/` | Wiki-root raw source area. Capture writes flat raw clips here; ingest normalizes selected clips into `Shared/Raw/<source-id>/origin.md`, `manifest.md`, original artifacts, extracted artifacts, and any source-specific assets |
+| `Shared/Raw/` | Wiki-root raw source area. Capture writes `Shared/Raw/<source-id>/origin.md` and `manifest.md`; ingest updates the same package with candidate domains, compiled page pointers, original artifacts, extracted artifacts, and any source-specific assets |
 | `Shared/Templates/` | Wiki-root reusable note templates, including diary templates |
 
 ## Domain Files
@@ -79,18 +77,18 @@ Agents should orient before writing domain pages:
 
 Routine maintenance writes directly inside the selected domain after
 orientation. There is no staged promotion pipeline in the active core workflow.
-Capture-only writes may create or refresh flat files under `Shared/Raw/` after
-the wiki root is resolved; compiled domain updates still require orientation
-first.
+Capture-only writes may create or refresh raw packages under
+`Shared/Raw/<source-id>/` after the wiki root is resolved; compiled domain
+updates still require orientation first.
 
 Query and ingest should stay question-driven: start from the problem being
 answered, then decide whether the raw package, an optional domain Source note,
 or a durable Card/Atlas/Space page is actually warranted.
 
-When several raw clips are present, a main entrypoint or caller may group them by
-candidate domain and dispatch bounded parallel ingest jobs. Each domain expert
-still owns normalization, domain page writes, index updates, and log entries for
-its domain.
+When several raw packages are present, a main entrypoint or caller may group
+them by candidate domain and dispatch bounded parallel ingest jobs. Each domain
+expert still owns package updates, domain page writes, index updates, and log
+entries for its domain.
 
 After substantive changes, update `index.md` when stable pages are created,
 archived, renamed, or materially changed. Insert a concise newest-first
@@ -99,17 +97,16 @@ previous newest entry.
 
 ## Source Capture
 
-Raw source clips preserve the source language by default. Capture writes raw
-clip files directly under `Shared/Raw/`. Ingest derives a stable `source-id`,
-normalizes each selected clip into `Shared/Raw/<source-id>/`, and adds
-`origin.md` for the raw clip/transcription plus `manifest.md` with the source
-metadata, `content_hash`, `compiled_pages`, `candidate_domains`, capture notes,
-and links to the original and extracted artifacts. For text articles, blogs,
-docs, and pasted text, keep title, author/publisher, dates, canonical URL,
-headings, links, and local image references. Prefer complete transcription when
-the material is user-provided, local, permissively licensed, public domain, or
-otherwise appropriate to reuse in full. Otherwise keep a faithful structured
-capture and record only concrete limitations.
+Raw source packages preserve the source language by default. Capture derives a
+stable `source-id`, writes `origin.md` for the source text/transcription, and
+writes `manifest.md` with source metadata, `content_hash`, `compiled_pages`,
+`candidate_domains`, capture notes, and links to original and extracted
+artifacts. For text articles, blogs, docs, and pasted text, keep title,
+author/publisher, dates, canonical URL, headings, links, and local image
+references. Prefer complete transcription when the material is user-provided,
+local, permissively licensed, public domain, or otherwise appropriate to reuse
+in full. Otherwise keep a faithful structured capture and record only concrete
+limitations.
 
 Compiled domain pages do not carry YAML `sources:` links. Put source-backed
 provenance in body footnotes that point to raw manifests or domain source
@@ -124,8 +121,8 @@ files, not temporary extractor outputs such as `/tmp/topic-research/...`.
 - Do not write across domains unless the user explicitly asks.
 - Do not duplicate the same raw source or PDF under multiple domains.
 - Do not treat capture and ingest as the same action.
-- Do not mechanically split every source into a raw package, Source note, and
-  new Cards.
+- Do not mechanically split every source into a domain Source note and new
+  Cards.
   Start from the question and create durable synthesis only when it reduces
   future work.
 - If `Extras/` exists, do not index it directly.
