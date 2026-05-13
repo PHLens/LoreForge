@@ -67,8 +67,10 @@ wiki/
     Raw/
       <source-id>/
         manifest.md
+        origin.md
         original/
         extracted/
+        assets/
     Templates/
   Domains/
     <domain>/
@@ -88,9 +90,10 @@ querying, ingesting, updating, reviewing, or running a Check.
 `Extras/` is optional for a domain and only used when the domain truly needs
 its own non-source attachments.
 
-`Shared/Raw/<source-id>/` stores the canonical raw source package: a
-`manifest.md` with metadata, source hash, compiled page pointers, and links to
-original/extracted artifacts. `Shared/Templates/` stores reusable wiki
+`Shared/Raw/<source-id>/` stores the canonical raw source package:
+`origin.md` keeps the agent-readable source text, and `manifest.md` keeps
+metadata, source hash, compiled page pointers, and links to original/extracted
+artifacts. `Shared/Templates/` stores reusable wiki
 templates. `Domains/<domain>/Sources/` is optional and can hold source excerpts
 or source-specific lenses when the raw package is large. `Cards/`, `Atlas/`,
 and `Spaces/` hold the durable synthesis and cite raw manifests or domain
@@ -106,7 +109,7 @@ editing:
 |---|---|
 | `loreforge` | Default main entrypoint for config, capture, ingest, lint, init, import, query, and cross-domain coordination |
 | `loreforge-config` | Resolve wiki location, registry, sync backend, and post-write sync |
-| `loreforge-capture` | Preserve raw clips under `Shared/Raw/` without compiling domain pages |
+| `loreforge-capture` | Preserve raw source packages under `Shared/Raw/<source-id>/` without compiling domain pages |
 | `loreforge-check` | Lint, audit, and structural checks for raw packages and native domains |
 | `loreforge-import` | Treat existing repos, vaults, folders, and exports as source material |
 | `loreforge-domain` | Query, ingest synthesis, update durable pages, and initialize expert-owned domains |

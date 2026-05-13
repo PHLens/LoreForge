@@ -13,8 +13,8 @@ Build and maintain a persistent, compounding Markdown wiki for one expert-owned
 domain.
 
 LoreForge follows the [LLM Wiki](https://github.com/NousResearch/hermes-agent/blob/main/skills/research/llm-wiki/SKILL.md)
-pattern: capture the raw clip once, normalize it during ingest, keep durable
-knowledge linked, and update it as questions arrive. It adds expert-owned
+pattern: capture the raw source package once, compile it during ingest, keep
+durable knowledge linked, and update it as questions arrive. It adds expert-owned
 domains, reusable Cards, and Atlas MOCs for preserving evolving project and
 conceptual views.
 
@@ -90,8 +90,8 @@ wiki/
   00_System/       # Wiki-level entrypoints, shared protocols, views, and domain registry
   Calendar/        # Date-based notes such as daily notes
     dailynotes/    # Default daily-note folder
-  Shared/          # Raw source clips and reusable templates
-    Raw/           # Raw clip files first, then normalized origin.md/manifest.md packages
+  Shared/          # Raw source packages and reusable templates
+    Raw/           # Raw source packages with origin.md and manifest.md
     Templates/     # Wiki-level reusable note templates, such as diary templates
   Domains/         # Expert-owned domain wiki collection
     <domain>/      # One domain maintained by one expert agent
@@ -116,9 +116,8 @@ wiki-level dated personal notes, not as a domain knowledge area.
 
 Do not create a wiki-root `Shared/SourceRecords/` layer in the active
 structure. If an old wiki still has one, import raw capture material to
-`Shared/Raw/`. Capture writes the raw clip only. Ingest later derives a
-source-id and normalizes that clip into `Shared/Raw/<source-id>/origin.md` and
-`manifest.md`. Domain `Sources/` is
+`Shared/Raw/`. Capture derives a source-id and writes
+`Shared/Raw/<source-id>/origin.md` plus `manifest.md`. Domain `Sources/` is
 optional and should be used only when a domain needs a compact excerpt or
 source-specific lens over a large raw package.
 
@@ -127,9 +126,9 @@ non-source attachments.
 
 Orient, query, ingest, and update inside the selected domain. Apply delegated
 domain page fixes from checks when requested. DO NOT write across
-domains unless the user explicitly asks. During ingest, normalize the clip into
-`origin.md` and `manifest.md` under `Shared/Raw/<source-id>/`, then compile
-reusable knowledge from them. Only write `Calendar/` or `Shared/Templates/`
+domains unless the user explicitly asks. During ingest, update the raw package
+under `Shared/Raw/<source-id>/`, then compile reusable knowledge from it. Only
+write `Calendar/` or `Shared/Templates/`
 when the user explicitly asks for daily-note, diary, calendar, or reusable
 template work.
 
@@ -143,8 +142,7 @@ When the user specified a domain, **always orient yourself before doing anything
 4. Search existing pages for the topic.
 5. Read relevant `Atlas/`, `Cards/`, `Sources/`, and `Spaces/` pages; read
    `Shared/Raw/<source-id>/manifest.md` when provenance matters, and read
-   `origin.md` or the raw clip file directly only when the compiled layers are
-   insufficient or ingest has not normalized the clip yet.
+   `origin.md` directly only when the compiled layers are insufficient.
 
 Only after orientation should you ingest, query, or update. This orientation
 prevents:
@@ -197,8 +195,7 @@ each domain's `SCHEMA.md`.
 
 Canonical shared layer:
 
-- `Shared/Raw/` for capture-only flat source clips
-- `Shared/Raw/<source-id>/` for normalized raw packages and attachments after ingest
+- `Shared/Raw/<source-id>/` for raw source packages and attachments
 - `Shared/Templates/` for reusable templates
 
 Domain layer:
@@ -208,9 +205,9 @@ Domain layer:
 - `Domains/<domain>/Sources/` for optional source excerpts or source-specific lenses
 - `Domains/<domain>/Spaces/` for durable people, tools, projects, and contexts
 
-Capture writes raw source clips into `Shared/Raw/` and stops there. Ingest
-normalizes flat clips into `Shared/Raw/<source-id>/`. Durable synthesis lives
-in `Atlas/`, `Cards/`, and `Spaces/`. Optional domain source excerpts live in
+Capture writes raw source packages into `Shared/Raw/<source-id>/` and stops
+there. Ingest updates those packages and compiles durable synthesis into
+`Atlas/`, `Cards/`, and `Spaces/`. Optional domain source excerpts live in
 `Sources/`. Compiled pages cite raw manifests or domain source notes with body
 footnotes.
 ```
@@ -388,9 +385,8 @@ relevant Cards or Atlas pages.
 
 ## Source Capture
 
-Raw capture clips live as flat files under `Shared/Raw/` until ingest
-normalizes them into packages under `Shared/Raw/<source-id>/`. Domain pages do
-not keep YAML `sources:` links. Optional domain `Sources/` pages are compact
+Raw source packages live under `Shared/Raw/<source-id>/`. Domain pages do not
+keep YAML `sources:` links. Optional domain `Sources/` pages are compact
 excerpt notes or source-specific lenses over large raw packages. Compiled
 `Cards/`, `Atlas/`, `Spaces/`, and `Sources/` pages cite raw manifests or
 domain source notes with body footnotes, not YAML.
@@ -398,10 +394,10 @@ domain source notes with body footnotes, not YAML.
 ### Source Capture Policy
 
 - Preserve the shared raw source before synthesizing cards.
-- Capture writes the raw clip only. It does not create Cards, Atlas pages,
-  Spaces, source-id directories, `origin.md`, or `manifest.md`.
-- Ingest normalizes the clip into `Shared/Raw/<source-id>/origin.md` and
-  `Shared/Raw/<source-id>/manifest.md`.
+- Capture writes the raw source package only. It does not create Cards, Atlas
+  pages, Spaces, or domain `Sources/` pages.
+- Ingest updates the package under `Shared/Raw/<source-id>/` and compiles
+  durable domain pages from it.
 - The manifest should record title, canonical URL or source description,
   retrieval date, source type, source language, `content_hash`, `origin`,
   `candidate_domains`, `compiled_pages`, status, and local artifact pointers.
@@ -414,7 +410,7 @@ domain source notes with body footnotes, not YAML.
   concrete capture limitation matters.
 - Article images/diagrams, PDFs, and other attachments belong in the raw
   package directory with clear local references from `origin.md` and the
-  manifest once ingest has normalized the clip.
+  manifest.
 - Optional domain Source note: create or update `Domains/<domain>/Sources/<source-id>.md`
   only when the raw package is large, when a source-specific excerpt should stay
   queryable, or when multiple compiled pages need a stable local lens. A source

@@ -51,7 +51,7 @@ def assert_skill_contract() -> None:
         "post-write sync through `loreforge-config`",
         "Use `loreforge` as the default user-facing entry point.",
         "If the operation is unclear and a write would happen, ask one concise question.",
-        "capture if needed, normalize, and compile domain knowledge",
+        "capture if needed, update raw package metadata, and compile domain knowledge",
         "Delegate lint, audit, and check work to `loreforge-check`",
         "Delegate source discovery and capture planning to `loreforge-import`",
         "Use loreforge-domain.",
@@ -156,13 +156,12 @@ def main() -> int:
             wiki / "00_System" / "wiki-layout.md",
             "# Wiki Layout\n\n"
             "Canonical shared layer:\n\n"
-            "- `Shared/Raw/` for capture-only flat source clips\n"
-            "- `Shared/Raw/<source-id>/` for normalized raw packages and attachments after ingest\n"
+            "- `Shared/Raw/<source-id>/` for raw source packages and attachments\n"
             "- `Shared/Templates/` for reusable templates\n\n"
         "Domain layer:\n\n"
         "- `Domains/<domain>/Atlas/`, `Cards/`, `Sources/`, and `Spaces/` for compiled durable knowledge\n\n"
         "Compiled pages live in `Domains/<domain>/Atlas/`, `Cards/`, `Sources/`, and `Spaces/`. "
-        "Capture writes raw clips into `Shared/Raw/` and stops there; ingest normalizes them into `Shared/Raw/<source-id>/`; `Sources/` is optional for source excerpts.\n\n"
+        "Capture writes raw source packages into `Shared/Raw/<source-id>/` and stops there; ingest updates those packages; `Sources/` is optional for source excerpts.\n\n"
         "Create `Domains/<domain>/Extras/` only when the domain needs its own\n"
         "non-source attachments.\n",
     )

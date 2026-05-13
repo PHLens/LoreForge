@@ -16,4 +16,4 @@ status: captured
 
 # Bad Capture
 
-This raw clip has a deliberately mismatched manifest hash.
+This raw package has a deliberately mismatched manifest hash.

@@ -21,9 +21,9 @@ Always:
 ## Checks
 
 1. **Raw package integrity**
-   - Flat capture-only files under `Shared/Raw/` are allowed.
-   - For normalized `Shared/Raw/<source-id>/` packages, check that
-     `origin.md` and `manifest.md` exist together.
+   - `Shared/Raw/` entries should be source package directories.
+   - Each `Shared/Raw/<source-id>/` package must include `origin.md` and
+     `manifest.md` together.
    - Verify `content_hash` when present.
    - Verify local artifact pointers and `compiled_pages`.
 

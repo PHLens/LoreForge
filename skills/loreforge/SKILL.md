@@ -29,7 +29,7 @@ It delegates durable work to focused workflows:
 | Workflow | Use For |
 |---|---|
 | `loreforge-config` | wiki discovery, registry edits, init config, sync backend, post-write sync |
-| `loreforge-capture` | URL/file/paste/doc/research pack -> raw clip under `Shared/Raw/` |
+| `loreforge-capture` | URL/file/paste/doc/research pack -> raw package under `Shared/Raw/<source-id>/` |
 | `loreforge-domain` | one expert-owned domain's query, ingest synthesis, update, and domain initialization |
 | `loreforge-check` | lint, audit, structural checks, raw package integrity, validator execution |
 | `loreforge-import` | existing repo/vault/folder/export -> source capture and native domain ingest |
@@ -42,8 +42,7 @@ keep the user-facing command simple.
 - resolve the active wiki before writing
 - inspect available domains before choosing write targets
 - keep each domain expert inside one `Domains/<domain>/` boundary
-- treat raw source clips and normalized raw packages as shared wiki-root
-  `Shared/Raw/` data
+- treat raw source packages as shared wiki-root `Shared/Raw/` data
 - gate writes that affect multiple domains, initialize new domains, or convert
   existing repos in place
 - report domains consulted, domains written, changed files, conflicts, and
@@ -52,7 +51,7 @@ keep the user-facing command simple.
 ## Do Not
 
 - write domain pages directly as the entrypoint
-- normalize raw packages, build manifests, or create Cards/Atlas/Spaces directly
+- update raw packages, build manifests, or create Cards/Atlas/Spaces directly
 - merge cross-domain answers without domain attribution
 - update multiple domains unless the user requested it or approved the plan
 - ingest editor state such as `.obsidian*`
@@ -65,7 +64,7 @@ Map user intent to one operation:
 - `config`: configure registry, sync backend, or wiki location
 - `init`: create a wiki or domain
 - `capture`: preserve source material only
-- `ingest`: capture if needed, normalize, and compile domain knowledge
+- `ingest`: capture if needed, update raw package metadata, and compile domain knowledge
 - `query`: answer from existing wiki knowledge
 - `update`: revise durable domain pages
 - `lint`: lint, audit, review, or structural check
@@ -132,22 +131,22 @@ updates, report the selected wiki, default domain, backend, and next action.
 1. Resolve the wiki root.
 2. Delegate source preservation to `loreforge-capture`.
 3. Capture source material only.
-4. Stop after raw clip creation. Do not route or compile unless the user asked
-   for ingest.
+4. Stop after raw package creation. Do not route or compile unless the user
+   asked for ingest.
 
 ### Ingest
 
 1. Inspect source metadata enough to route.
-2. If no raw clip exists, delegate capture to `loreforge-capture`.
+2. If no raw package exists, delegate capture to `loreforge-capture`.
 3. Select a primary target domain.
 4. If secondary domains look relevant, list them and ask before writing there.
-5. Delegate normalization and domain synthesis to a `loreforge-domain` expert for
-   each approved domain.
+5. Delegate package metadata updates and domain synthesis to a
+   `loreforge-domain` expert for each approved domain.
 6. Run post-write sync through `loreforge-config`.
 
-For sources that matter to multiple domains, reuse the same `Shared/Raw/` clip
-or normalized package. Do not reuse one domain's pages as another domain's
-source of truth.
+For sources that matter to multiple domains, reuse the same
+`Shared/Raw/<source-id>/` package. Do not reuse one domain's pages as another
+domain's source of truth.
 
 ### Query
 
@@ -187,7 +186,7 @@ Write policy: <read-only|write-confirmed>
 Request: <user request>
 
 Stay inside Domains/<domain>/ for domain pages.
-Use Shared/Raw/ only for raw clips and normalized raw packages.
+Use Shared/Raw/ only for raw source packages.
 Orient on SCHEMA.md, index.md, recent log.md, and relevant pages.
 If Write policy is read-only, do not create or update wiki files.
 If Write policy is write-confirmed, update index.md and insert a newest-first log.md entry.
@@ -216,7 +215,7 @@ After delegated work, report:
 
 - domains consulted
 - domains written
-- raw clips or packages used
+- raw packages used
 - files changed per domain
 - sync result
 - conflicts or low-confidence areas
