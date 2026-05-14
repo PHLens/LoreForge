@@ -2,7 +2,7 @@
 name: loreforge-capture
 description: Internal LoreForge workflow for turning URLs, files, pasted text, documents, or research outputs into raw source packages under Shared/Raw without compiling domain pages. Use before ingest when a source must be preserved first.
 user-invocable: false
-version: 0.1.0
+version: 0.2.0
 ---
 
 # LoreForge Capture

@@ -2,7 +2,7 @@
 name: loreforge-config
 description: Internal LoreForge workflow for resolving wiki location, initializing config, choosing sync backends, and running post-write sync. Use when LoreForge needs init/config/registry/sync handling before or after wiki edits.
 user-invocable: false
-version: 0.1.0
+version: 0.2.0
 ---
 
 # LoreForge Config

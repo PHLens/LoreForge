@@ -8,7 +8,7 @@
       "name": "loreforge",
       "source": "./",
       "description": "LoreForge provides a main entrypoint, focused workflows, and conventions for operating LLM-wiki style expert-owned domain knowledge bases.",
-      "version": "0.1.0"
+      "version": "0.2.0"
     }
   ]
 }

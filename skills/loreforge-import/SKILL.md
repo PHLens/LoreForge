@@ -2,7 +2,7 @@
 name: loreforge-import
 description: Internal LoreForge workflow for treating existing repos, Obsidian vaults, folders, and exports as source material and importing useful knowledge into native LoreForge domains.
 user-invocable: false
-version: 0.1.0
+version: 0.2.0
 ---
 
 # LoreForge Import

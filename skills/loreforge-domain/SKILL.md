@@ -2,7 +2,7 @@
 name: loreforge-domain
 description: Domain expert workflow for one LoreForge domain. Use for delegated domain query, ingest synthesis, durable updates, and domain initialization after the LoreForge main entrypoint has resolved config, capture, routing, and write policy.
 user-invocable: true
-version: 0.1.8
+version: 0.2.0
 metadata:
   origin: "Inspired by NousResearch Hermes LLM Wiki, MIT"
 ---
