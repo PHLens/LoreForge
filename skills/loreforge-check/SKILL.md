@@ -2,7 +2,7 @@
 name: loreforge-check
 description: Internal LoreForge workflow for linting, auditing, and structural checks across LoreForge raw packages and native domains. Use when asked to lint, audit, validate, or review a wiki/domain.
 user-invocable: false
-version: 0.1.0
+version: 0.2.0
 ---
 
 # LoreForge Check
