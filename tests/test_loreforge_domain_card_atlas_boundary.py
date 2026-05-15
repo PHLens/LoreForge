@@ -10,9 +10,18 @@ def test_skill_contains_card_template_in_schema():
     content = SKILL_PATH.read_text()
     assert "### Default Card Template" in content
     assert "Cards are shared knowledge objects" in content
-    assert "The default Card shape is shown in the SCHEMA template below." in content
-    assert "One-sentence lead." in content
+    assert "The default Card shape is" in content
+    assert "shown in the SCHEMA template below." in content
+    assert "One-sentence direct definition or problem statement." in content
     assert "[^1]: [[Shared/Raw/source-id/manifest.md]]" in content
+    assert "## Writing Style" in content
+    assert "Write Cards like concise wiki/reference entries" in content
+    assert "## Knowledge links" not in content
+    assert "**Knowledge links:**" in content
+    assert "semantic wiki" in content
+    assert "[[kv-cache-memory-hierarchy|KV cache hierarchy]]" in content
+    assert "Do not cite Cards with" in content
+    assert "source-style footnote markers" in content
 
 
 def test_skill_preserves_card_vs_atlas_split():
@@ -27,7 +36,16 @@ def test_skill_preserves_card_vs_atlas_split():
     assert "Common Card shapes:" in content
     assert "Concept pages: definition or explanation" in content
     assert "Comparison pages: what is being compared and why" in content
-    assert "project-specific commentary, proposal framing" in content
+    assert "project-specific" in content
+    assert "commentary, proposal framing" in content
+    assert "Avoid repeated page" in content
+    assert "self-description" in content
+    assert "proposal evidence" in content
+    assert "project support" in content
+    assert "Prefer direct" in content
+    assert '"not X but Y" phrasing' in content
+    assert "weave `[[wikilinks]]` into the relevant sentence" in content
+    assert "reference-list style citation" in content
 
 
 if __name__ == "__main__":
