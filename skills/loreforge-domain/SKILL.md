@@ -249,10 +249,12 @@ Adapt to the user's domain. The schema constrains agent behavior and ensures con
 - When updating a page, always bump the `updated` date
 - Every new page must be added to `index.md` under the correct section
 - Every action must be inserted into `log.md` as the newest entry
-- Optional `related:: [[concept-a]], [[concept-b]]` fields may be used near the
-  top of Cards or Atlas pages as a light navigation seed when the relationship
-  is not yet expressed naturally in the body. Do not add `related::` by
-  default, and do not use it as a substitute for semantic in-body wikilinks.
+- Optional `related:: [[concept-a]], [[concept-b|Readable label]]` fields may
+  be used near the top of Cards or Atlas pages as a light navigation seed for
+  relevant pages that are not naturally mentioned in the body. Use aliases when
+  the page title would be awkward in context. Do not add `related::` by default,
+  do not repeat links already expressed naturally in the body, and do not use it
+  as a substitute for semantic in-body wikilinks.
 - Write equations and derivations with LaTeX math: use `$...$` for inline
   expressions and `$$...$$` for standalone equations.
 - **Provenance markers:** Use body footnotes, not YAML, for compiled-page

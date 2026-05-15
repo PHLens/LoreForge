@@ -22,8 +22,12 @@ def test_skill_contains_card_template_in_schema():
     assert "[[kv-cache-memory-hierarchy|KV cache hierarchy]]" in content
     assert "Do not cite Cards with" in content
     assert "source-style footnote markers" in content
-    assert "Do not add `related::` by" in content
-    assert "default, and do not use it as a substitute" in content
+    assert "related:: [[concept-a]], [[concept-b|Readable label]]" in content
+    assert "not naturally mentioned in the body" in content
+    assert "Use aliases when" in content
+    assert "do not repeat links already expressed naturally in the body" in content
+    assert "Do not add `related::` by default" in content
+    assert "do not use it" in content
     assert "Body wikilinks are preferred" in content
     assert "related:: [[related-page]]" not in content
 
