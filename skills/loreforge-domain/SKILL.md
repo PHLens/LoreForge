@@ -260,6 +260,26 @@ Adapt to the user's domain. The schema constrains agent behavior and ensures con
   such as `[^1]: [[Sources/source-note-name]]` or
   `[^1]: [[Shared/Raw/<source-id>/manifest.md]]`. Single-source pages should
   still use a footnote for source-backed claims.
+- **Knowledge links:** Links to Cards, Atlas pages, and Spaces are semantic wiki
+  links, not provenance markers. Insert them naturally where the concept is
+  used, and use aliases when needed for readable prose, e.g.
+  `[[kv-cache-memory-hierarchy|KV cache hierarchy]]`. Do not cite Cards with
+  source-style footnote markers or append mechanical Card references at the end
+  of paragraphs.
+
+## Writing Style
+- Write Cards like concise wiki/reference entries: define the concept, describe
+  the mechanism, name constraints, give examples, and link related pages.
+- Avoid Card self-description such as "this Card/page explains..." unless the
+  page's role itself is the subject.
+- Avoid framing Cards as proposal evidence, project support, or current-view
+  commentary. Put that synthesis in Atlas/MOC pages that link to reusable Cards.
+- Prefer direct positive descriptions over repeated "not X but Y" framing.
+  Use negative contrast only when it prevents a specific misconception.
+- Atlas/MOC pages may carry project framing, current arguments, open decisions,
+  and commentary about how reusable Cards connect. When an Atlas/MOC refers to
+  Cards, weave `[[wikilinks]]` into the relevant sentence instead of making a
+  reference-list style citation.
 
 ## Frontmatter
 ```yaml
@@ -328,10 +348,17 @@ Use `Cards/` for shared, reusable knowledge objects: durable concepts, methods,
 mechanisms, patterns, tradeoffs, comparisons, and decision frameworks. Update a
 Card when source-backed facts, definitions, viewpoints, corrections, or
 provenance change. Cards should answer the stable "what is it" and
-"what is it good for" questions in a reusable way. Do not put
-project-specific commentary, proposal framing, or "how this helps my current
-paper" text in Cards; put that synthesis in an Atlas/MOC page that links to the
-reusable Cards. The default Card shape is shown in the SCHEMA template below.
+"what is it good for" questions in a reusable way.
+
+Write Cards like concise wiki/reference entries. Prefer direct definitions,
+mechanisms, constraints, examples, and open questions. Avoid repeated page
+self-description such as "this Card/page explains..." and avoid framing Cards
+as proposal evidence, project support, or current-view commentary. Prefer direct
+positive descriptions over repeated "not X but Y" phrasing; use negative
+contrast only when it prevents a specific misconception. Put project-specific
+commentary, proposal framing, or "how this helps my current paper" synthesis in
+an Atlas/MOC page that links to the reusable Cards. The default Card shape is
+shown in the SCHEMA template below.
 
 Common Card shapes:
 
@@ -359,7 +386,7 @@ related:: [[related-page]]
 
 # Page Title
 
-One-sentence lead.
+One-sentence direct definition or problem statement.
 
 ## Why
 
