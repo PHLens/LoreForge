@@ -249,9 +249,10 @@ Adapt to the user's domain. The schema constrains agent behavior and ensures con
 - When updating a page, always bump the `updated` date
 - Every new page must be added to `index.md` under the correct section
 - Every action must be inserted into `log.md` as the newest entry
-- Put related page links near the top of Cards and Atlas pages as an Obsidian
-  inline field, for example `related:: [[concept-a]], [[concept-b]]`, rather
-  than burying them in a trailing related-pages section.
+- Optional `related:: [[concept-a]], [[concept-b]]` fields may be used near the
+  top of Cards or Atlas pages as a light navigation seed when the relationship
+  is not yet expressed naturally in the body. Do not add `related::` by
+  default, and do not use it as a substitute for semantic in-body wikilinks.
 - Write equations and derivations with LaTeX math: use `$...$` for inline
   expressions and `$$...$$` for standalone equations.
 - **Provenance markers:** Use body footnotes, not YAML, for compiled-page
@@ -265,7 +266,8 @@ Adapt to the user's domain. The schema constrains agent behavior and ensures con
   used, and use aliases when needed for readable prose, e.g.
   `[[kv-cache-memory-hierarchy|KV cache hierarchy]]`. Do not cite Cards with
   source-style footnote markers or append mechanical Card references at the end
-  of paragraphs.
+  of paragraphs. Body wikilinks are preferred over maintaining a broad
+  `related::` list.
 
 ## Writing Style
 - Write Cards like concise wiki/reference entries: define the concept, describe
@@ -381,8 +383,6 @@ status: active
 contested: false
 contradictions: []
 ---
-
-related:: [[related-page]]
 
 # Page Title
 

@@ -22,6 +22,10 @@ def test_skill_contains_card_template_in_schema():
     assert "[[kv-cache-memory-hierarchy|KV cache hierarchy]]" in content
     assert "Do not cite Cards with" in content
     assert "source-style footnote markers" in content
+    assert "Do not add `related::` by" in content
+    assert "default, and do not use it as a substitute" in content
+    assert "Body wikilinks are preferred" in content
+    assert "related:: [[related-page]]" not in content
 
 
 def test_skill_preserves_card_vs_atlas_split():
