@@ -107,9 +107,9 @@ LoreForge now follows a small core:
    contradiction records, checks, and git diffs.
 
 The old staged package pipeline is not part of the active core workflow.
-Focused helper workflows may exist for config, capture, checks, and
-import, but they should stay behind the main entrypoint instead of becoming user
-surface area.
+Focused helper workflows may exist for config, capture, paper-specific ingest,
+work-item records, checks, and import, but they should stay behind the main
+entrypoint instead of becoming user surface area.
 
 ## What To Learn From LLM Wiki Systems
 

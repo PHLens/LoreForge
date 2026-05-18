@@ -59,7 +59,7 @@ LLM Wiki maintained by one expert agent.
 | `Atlas/` | Maps of Content (MOCs), emergent thinking views |
 | `Cards/` | Durable concepts, methods, patterns, tradeoffs, comparisons |
 | `Sources/` | Optional source excerpts or source-specific lenses for large raw packages |
-| `Spaces/` | Durable non-Card objects, contexts, and archive space |
+| `Spaces/` | Durable non-Card objects, contexts, projects, work items, and archive space |
 | `Extras/` | Optional domain-owned non-source attachments; create only when needed |
 
 Tags are stable classification labels, not keyword dumps. Prefer 1-3 tags per
@@ -84,6 +84,11 @@ updates still require orientation first.
 Query and ingest should stay question-driven: start from the problem being
 answered, then decide whether the raw package, an optional domain Source note,
 or a durable Card/Atlas/Space page is actually warranted.
+
+Durable project work items belong in domain `Spaces/projects/` or the domain's
+schema-defined equivalent. They should summarize problem background, solution,
+bug diagnosis, verification, and status, not preserve chat transcripts or
+command-by-command logs.
 
 When several raw packages are present, a main entrypoint or caller may group
 them by candidate domain and dispatch bounded parallel ingest jobs. Each domain
