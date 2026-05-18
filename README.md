@@ -182,11 +182,14 @@ LoreForge wiki instances are local-first and can be configured for `rclone`,
 backend before the first durable write, and existing wikis can add sync behavior
 by updating the machine-local registry entry for that machine.
 
-After every agent-owned wiki edit, rclone-backed wikis should run
-`skills/loreforge-domain/scripts/sync_rclone.sh`, git-backed wikis should commit
-and push, and local-only wikis should report that no remote sync ran and warn
-about data-loss risk. The rclone helper owns the exact `rclone bisync` command
-and supports WebDAV, SFTP, and other rclone remotes through one backend.
+For rclone-backed wikis, remote is authoritative by default: run
+`skills/loreforge-domain/scripts/sync_rclone.sh --mode pull` before reading or
+editing, then run the same helper with `--mode push` after agent-owned edits.
+Use `--mode bootstrap` only when the local copy should intentionally seed the
+remote on first sync or recovery. Git-backed wikis should commit and push, and
+local-only wikis should report that no remote sync ran and warn about data-loss
+risk. The rclone helper supports WebDAV, SFTP, and other rclone remotes through
+one backend.
 
 ## Existing Repos And Vaults
 

@@ -75,6 +75,9 @@ DOMAIN="$WIKI/Domains/$DOMAIN_NAME"
 `~/.config/loreforge/registry.toml` and sync backend choices are owned by
 `loreforge-config`. After this skill writes durable wiki files, return the file
 change summary so the main entrypoint or `loreforge-config` can run post-write sync.
+For rclone-backed wikis, the caller should pull the configured remote before
+this skill orients on domain files and push after this skill reports its local
+changes. Do not run a bidirectional sync from this domain workflow.
 
 The wiki is just a directory of Markdown files — open it in Obsidian, VS Code,
 or any editor. No database, no special tooling required.

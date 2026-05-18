@@ -16,6 +16,8 @@ Always:
 - treat `~/.config/loreforge/registry.toml` as discovery/sync config only
 - never store notes, summaries, user preferences, task state, or agent memory in
   the registry
+- for rclone-backed wikis, pull remote before reading or writing, then push
+  after agent-owned edits
 - run the configured post-write sync after agent-owned wiki edits
 
 ## Resolve Wiki And Domain
@@ -78,11 +80,18 @@ Do not require example paths to be real. Keep docs and examples generic.
 
 ## Post-Write Sync
 
+For rclone-backed wikis, the remote is the source of truth. Before reading or
+writing, run:
+
+```bash
+bash skills/loreforge-domain/scripts/sync_rclone.sh --wiki <wiki> --remote <remote> --mode pull
+```
+
 After any agent-owned wiki edit:
 
 - `rclone`: run `skills/loreforge-domain/scripts/sync_rclone.sh` with the wiki
-  path and configured `remote:path`. Use bootstrap/resync mode only when the
-  local copy should seed the remote on the first sync.
+  path, configured `remote:path`, and `--mode push`. Use `--mode bootstrap`
+  only when the local copy should seed the remote on the first sync or recovery.
 - `git`: run `git add`, make a focused commit in the wiki repo, and push.
 - `local`: report that the wiki remains local-only, no remote sync ran, and
   repeat the data-loss warning.
