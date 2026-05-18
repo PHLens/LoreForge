@@ -93,6 +93,7 @@ wiki/
   00_System/       # Wiki-level entrypoints, shared protocols, views, and domain registry
   Calendar/        # Date-based notes such as daily notes
     dailynotes/    # Default daily-note folder
+    weeklynotes/   # Default weekly planning folder
   Shared/          # Raw source packages and reusable templates
     Raw/           # Raw source packages with origin.md and manifest.md
     Templates/     # Wiki-level reusable note templates, such as diary templates
@@ -132,8 +133,8 @@ domain page fixes from checks when requested. DO NOT write across
 domains unless the user explicitly asks. During ingest, update the raw package
 under `Shared/Raw/<source-id>/`, then compile reusable knowledge from it. Only
 write `Calendar/` or `Shared/Templates/`
-when the user explicitly asks for daily-note, diary, calendar, or reusable
-template work.
+when the user explicitly asks for daily-note, weekly-note, diary, calendar,
+planning, or reusable template work.
 
 ## Resuming an Existing Domain (CRITICAL — do this every session)
 
@@ -164,18 +165,69 @@ When delegated to create or start a wiki or domain:
 1. Create the wiki root if needed.
 2. Create `00_System/`, `00_System/index.md`, `00_System/domains.md`, and
    `00_System/wiki-layout.md` if missing.
-3. Create `Calendar/` and `Calendar/dailynotes/` if missing.
+3. Create `Calendar/`, `Calendar/dailynotes/`, and `Calendar/weeklynotes/` if
+   missing.
 4. Create `Shared/Raw/` and `Shared/Templates/` if missing.
-5. Create `Domains/<domain>/`.
-6. Create the required domain files and directories above.
-7. Ask for a concise domain description and the default language for extracted
+5. Create the minimal `Shared/Templates/weekly.md` below if missing. Preserve
+   an existing weekly template unless the user explicitly asks to rewrite it.
+6. Create `Domains/<domain>/`.
+7. Create the required domain files and directories above.
+8. Ask for a concise domain description and the default language for extracted
    Cards, Atlas pages, and Spaces.
-8. Write `SCHEMA.md` customized to the domain (see template below).
-9. Write `index.md` with sectioned header and `wiki-layout.md` with the
+9. Write `SCHEMA.md` customized to the domain (see template below).
+10. Write `index.md` with sectioned header and `wiki-layout.md` with the
    canonical shared/domain layout summary.
-10. Write initial `log.md` with creation entry.
-11. Add or update the domain row in `00_System/domains.md`.
-12. Return the file change summary so the main entrypoint can run post-write sync.
+11. Write initial `log.md` with creation entry.
+12. Add or update the domain row in `00_System/domains.md`.
+13. Return the file change summary so the main entrypoint can run post-write sync.
+
+### Shared Templates
+
+Weekly templates are human-facing Obsidian notes. Users may freely customize
+their headings and review style; LoreForge should require only the template
+path, not a strict template body.
+
+`Shared/Templates/weekly.md`:
+
+```markdown
+---
+date: "{{date:gggg-[W]ww}}"
+type: weekly
+tags:
+  - weekly
+---
+
+# {{title}}
+
+## Focus
+
+## This Week
+
+- [ ]
+
+## Daily Notes
+
+- [[{{monday:YYYY-MM-DD}}|Mon]]
+- [[{{tuesday:YYYY-MM-DD}}|Tue]]
+- [[{{wednesday:YYYY-MM-DD}}|Wed]]
+- [[{{thursday:YYYY-MM-DD}}|Thu]]
+- [[{{friday:YYYY-MM-DD}}|Fri]]
+- [[{{saturday:YYYY-MM-DD}}|Sat]]
+- [[{{sunday:YYYY-MM-DD}}|Sun]]
+
+## Risks / Blockers
+
+-
+
+## Decisions
+
+-
+
+## Review
+
+- Done:
+- Carry forward:
+```
 
 ### 00_System Minimal Files
 

@@ -13,6 +13,7 @@ Create a wiki root:
 ```bash
 mkdir -p /path/to/my-wiki/00_System \
   /path/to/my-wiki/Calendar/dailynotes \
+  /path/to/my-wiki/Calendar/weeklynotes \
   /path/to/my-wiki/Shared/Raw \
   /path/to/my-wiki/Shared/Templates
 ```
@@ -21,7 +22,10 @@ Then ask LoreForge to initialize the target domain. The main entrypoint should
 resolve config and the `loreforge-domain` expert should create:
 
 - `00_System/index.md`, `00_System/domains.md`, and `00_System/wiki-layout.md`
-- shared `Calendar/dailynotes/`, `Shared/Raw/`, and `Shared/Templates/`
+- shared `Calendar/dailynotes/`, `Calendar/weeklynotes/`, `Shared/Raw/`, and
+  `Shared/Templates/`
+- shared templates: `Shared/Templates/weekly.md` for weekly planning and
+  review; diary templates may be added by the wiki's Obsidian profile
 - domain `SCHEMA.md`, `index.md`, `log.md`, `Atlas/`, `Cards/`, and `Spaces/`
   under `Domains/<domain>/`
 - optional `Sources/` under `Domains/<domain>/` when a source excerpt or
@@ -69,6 +73,7 @@ Main entrypoint and expert workflows:
 - `loreforge-config`
 - `loreforge-capture`
 - `loreforge-paper`
+- `plan-docomposer`
 - `loreforge-work-item`
 - `loreforge-check`
 - `loreforge-import`
@@ -87,8 +92,8 @@ Bundled helper skills:
 Install them into the target agent environment using that environment's skill installation mechanism.
 Keep `loreforge` as the user-facing entrypoint; the other LoreForge skills are
 internal workflows that the entrypoint delegates to when the request needs
-config, capture, paper-specific ingest, work-item records, checks, import, or
-domain writes.
+config, capture, paper-specific ingest, Calendar planning, work-item records,
+checks, import, or domain writes.
 
 ### Helper Runtime Setup
 
