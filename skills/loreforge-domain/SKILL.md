@@ -432,6 +432,20 @@ Do not mix the paper workflow into ordinary single-source ingest. If a paper
 request reaches this skill without paper-specific context, read
 `skills/loreforge-paper/SKILL.md` before writing the domain page.
 
+### Work Item Handoff
+
+Project work items have their own workflow in `loreforge-work-item`. When this
+domain skill receives a work-item handoff, follow the domain boundary and
+schema while applying the work-item shape: problem background, desired behavior,
+solution, implementation details, bug diagnosis and fixes, verification,
+current status, and follow-ups.
+
+Work-item pages are durable project records, not activity logs. Do not save
+chat transcripts, command-by-command chronology, raw CI logs, or temporary task
+state. If a work-item request reaches this skill without work-item-specific
+context, read `skills/loreforge-work-item/SKILL.md` before writing the domain
+page.
+
 ### Single-Source Ingest Style
 
 Single-source ingest covers non-paper source material such as articles, docs,

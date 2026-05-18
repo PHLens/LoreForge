@@ -1,6 +1,6 @@
 ---
 name: loreforge
-description: Default LoreForge entrypoint for capture, ingest, query, lint, init, config, import, and cross-domain coordination. Resolves intent, config, domains, write gates, and subagent fan-out before delegating to focused workflows and loreforge-domain experts.
+description: Default LoreForge entrypoint for capture, ingest, query, lint, init, config, import, work-item records, and cross-domain coordination. Resolves intent, config, domains, write gates, and subagent fan-out before delegating to focused workflows and loreforge-domain experts.
 user-invocable: true
 version: 0.2.0
 ---
@@ -9,8 +9,8 @@ version: 0.2.0
 
 Use this skill as the default user-facing entry point for LoreForge. The user
 should be able to paste a link, file path, source, or command such as capture,
-ingest, lint, init, config, import, query, or update without choosing a lower
-level skill.
+ingest, lint, init, config, import, query, update, or work-item without choosing
+a lower level skill.
 
 Use `loreforge` as the default user-facing entry point. Other LoreForge skills
 are internal workflows; do not ask the user to choose them.
@@ -32,6 +32,7 @@ It delegates durable work to focused workflows:
 | `loreforge-config` | wiki discovery, registry edits, init config, sync backend, post-write sync |
 | `loreforge-capture` | URL/file/paste/doc/research pack -> raw package under `Shared/Raw/<source-id>/` |
 | `loreforge-paper` | paper-specific capture/ingest flow for arXiv, DOI, PDF, preprint, conference paper, or paper-like technical report |
+| `loreforge-work-item` | project, Jira, issue, MR/PR, bugfix, CI failure, and implementation records under domain `Spaces/projects/` |
 | `loreforge-domain` | one expert-owned domain's query, ingest synthesis, update, and domain initialization |
 | `loreforge-check` | lint, audit, structural checks, raw package integrity, validator execution |
 | `loreforge-import` | existing repo/vault/folder/export -> source capture and native domain ingest |
@@ -69,6 +70,8 @@ Map user intent to one operation:
 - `ingest`: capture if needed, update raw package metadata, and compile domain knowledge
 - `query`: answer from existing wiki knowledge
 - `update`: revise durable domain pages
+- `work-item`: create or update a durable project, Jira, issue, MR/PR, bugfix,
+  CI failure, implementation, or verification record
 - `lint`: lint, audit, review, or structural check
 - `import`: treat an existing repo, vault, folder, or export as source material
 
@@ -159,6 +162,21 @@ domain's source of truth.
 2. Delegate read-only query work to `loreforge-domain`.
 3. Synthesize the final answer with domain/page attribution.
 4. Do not save cross-domain synthesis unless the user asks.
+
+### Work Item
+
+Use this path when the user asks to save current project work, a Jira/issue, an
+MR/PR, a bugfix, a CI failure, implementation details, verification status, or a
+work item under `Spaces/projects/`.
+
+1. Select one primary domain for the project/system.
+2. Delegate work-item shaping and bounded domain write guidance to
+   `loreforge-work-item`.
+3. Let the domain expert create or update the project/work-item Space under the
+   selected domain.
+4. Preserve diagrams or source artifacts under `Shared/Raw/` only when they add
+   durable context.
+5. Run post-write sync through `loreforge-config`.
 
 ### Update
 

@@ -40,14 +40,20 @@ def read_paper_skill() -> str:
     return (REPO_ROOT / "skills" / "loreforge-paper" / "SKILL.md").read_text(encoding="utf-8")
 
 
+def read_work_item_skill() -> str:
+    return (REPO_ROOT / "skills" / "loreforge-work-item" / "SKILL.md").read_text(encoding="utf-8")
+
+
 def assert_skill_contract() -> None:
     skill = read_skill()
     paper_skill = read_paper_skill()
+    work_item_skill = read_work_item_skill()
     required = [
         "Default LoreForge entrypoint",
         "loreforge-config",
         "loreforge-capture",
         "loreforge-paper",
+        "loreforge-work-item",
         "loreforge-check",
         "loreforge-import",
         "loreforge-domain",
@@ -59,6 +65,7 @@ def assert_skill_contract() -> None:
         "If the operation is unclear and a write would happen, ask one concise question.",
         "capture if needed, update raw package metadata, and compile domain knowledge",
         "delegate the paper-specific workflow to",
+        "Delegate work-item shaping and bounded domain write guidance to",
         "Delegate lint, audit, and check work to `loreforge-check`",
         "Delegate source discovery and capture planning to `loreforge-import`",
         "Use loreforge-domain.",
@@ -85,6 +92,23 @@ def assert_skill_contract() -> None:
     missing_paper = [item for item in paper_required if item not in paper_skill]
     if missing_paper:
         raise AssertionError(f"paper workflow skill is missing required contract text: {missing_paper}")
+    work_item_required = [
+        "Work-item notes are durable project records, not activity logs.",
+        "project work, feature work, Jira, issue, task, bugfix, CI failure",
+        "Spaces/projects",
+        "Domains/<domain>/Spaces/projects/<project>/<work-item>.md",
+        "Problem Background",
+        "Solution",
+        "Bug Diagnosis And Fixes",
+        "Verification",
+        "Do not save chat transcripts",
+        "Attach diagrams or artifacts only in the section that explains them",
+        "Use Shared/Raw/ only for diagrams, logs, screenshots, or source artifacts",
+        "Domain Handoff Prompt",
+    ]
+    missing_work_item = [item for item in work_item_required if item not in work_item_skill]
+    if missing_work_item:
+        raise AssertionError(f"work-item workflow skill is missing required contract text: {missing_work_item}")
 
 
 def create_domain(wiki: Path, name: str, purpose: str, tags: str, index: str) -> None:
@@ -123,6 +147,11 @@ def tokens(text: str) -> set[str]:
 
 def operation_for(request: str) -> str:
     lower = request.lower()
+    request_tokens = tokens(request)
+    work_item_phrases = ["work item", "project note", "spaces/projects", "ci failure"]
+    work_item_tokens = {"jira", "mr", "pr", "bugfix"}
+    if any(phrase in lower for phrase in work_item_phrases) or request_tokens & work_item_tokens:
+        return "work-item"
     if any(word in lower for word in ["ingest", "import", "source", "paper", "url"]):
         return "ingest"
     if any(word in lower for word in ["check", "lint", "audit"]):
@@ -243,6 +272,12 @@ def main() -> int:
         assert no_match.primary is None
         assert no_match.requires_confirmation is True
         print("PASS no match: asks before creating or forcing a domain")
+
+        work_item = route(wiki, "create a work item for PyTorch compiler runtime CI failure")
+        assert work_item.operation == "work-item"
+        assert work_item.primary == "ml-systems"
+        assert work_item.requires_confirmation is False
+        print("PASS work item: routes durable project records to the matching domain")
 
     print("main entrypoint flow smoke test ok")
     return 0
