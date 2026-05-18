@@ -44,7 +44,7 @@ writeback router, task board, memory system, or source ingest workflow.
 4. **Project into daily notes**
    - Write only the next 1-3 days by default.
    - Put 1-3 actionable TODOs per day.
-   - Each TODO should include a plan tag such as `[plan/stateful-llm]`, a verb, an artifact, and a done condition.
+   - Each TODO should include a verb, an artifact, and a done condition.
 
 5. **Review and re-plan**
    - At weekly review time, compare outcomes against completed daily notes.
@@ -86,6 +86,23 @@ Before editing notes:
 - Treat daily-note links as navigation. Put concrete day-level actions in the
   linked daily note `## TODO` sections instead of duplicating them in the weekly
   note.
+
+## Writing Style
+
+- Write note content for the human who will read and edit it later.
+- Daily notes are execution surfaces: use short factual memos and concrete
+  TODOs only.
+- Do not write agent reasoning, process narration, detailed explanations, or
+  "why I chose this structure" text into daily notes.
+- Keep daily `## Memos` to brief context, usually one line. Put rationale,
+  tradeoffs, risks, and review criteria in the weekly note or linked project
+  page when they are useful.
+- TODOs should be imperative and artifact-oriented: verb, object, done
+  condition. Avoid abstract tasks such as "research X" without an output.
+- Do not add synthetic namespace tags such as `[plan/stateful-llm]` unless the
+  user or existing note convention explicitly asks for them.
+- Do not mention the skill, routing, validator behavior, or internal planning
+  mechanics inside the notes.
 
 ## Output Contract
 
