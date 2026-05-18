@@ -101,15 +101,16 @@ source notes through body footnotes, not YAML source links.
 
 ## Skills
 
-LoreForge exposes one user entrypoint, focused internal workflows, one domain
-expert skill, and helper skills used during source capture and Obsidian-facing
-editing:
+LoreForge exposes one user entrypoint, focused internal workflows, a
+paper-specific workflow, one domain expert skill, and helper skills used during
+source capture and Obsidian-facing editing:
 
 | Skill | Purpose |
 |---|---|
 | `loreforge` | Default main entrypoint for config, capture, ingest, lint, init, import, query, and cross-domain coordination |
 | `loreforge-config` | Resolve wiki location, registry, sync backend, and post-write sync |
 | `loreforge-capture` | Preserve raw source packages under `Shared/Raw/<source-id>/` without compiling domain pages |
+| `loreforge-paper` | Route paper-specific capture/ingest for arXiv, DOI, PDF, preprints, conference papers, and paper-like technical reports |
 | `loreforge-check` | Lint, audit, and structural checks for raw packages and native domains |
 | `loreforge-import` | Treat existing repos, vaults, folders, and exports as source material |
 | `loreforge-domain` | Query, ingest synthesis, update durable pages, and initialize expert-owned domains |
@@ -121,10 +122,12 @@ editing:
 | `json-canvas` | Create and edit JSON Canvas files |
 | `obsidian-bases` | Create and edit Obsidian Bases files |
 
-The main entrypoint owns domain selection, config, capture handoff, and cross-domain
-coordination. `loreforge-domain` owns durable domain writes. Helper skills
-produce capture input or Obsidian-specific artifacts; they should not replace
-routing, domain orientation, index, log, and check workflow.
+The main entrypoint owns domain selection, config, capture handoff, and
+cross-domain coordination. `loreforge-paper` owns the paper-specific ingest
+shape before bounded domain handoff. `loreforge-domain` owns durable domain
+writes. Helper skills produce capture input or Obsidian-specific artifacts;
+they should not replace routing, domain orientation, index, log, and check
+workflow.
 
 The previous Obsidian `wiki` adapter layout is not bundled. Existing Obsidian
 vaults can still be used as sources, and LoreForge wiki instances can still be
@@ -138,7 +141,7 @@ The plugin layer is intentionally thin:
 
 - expose the `loreforge` main entrypoint
 - expose `loreforge-config`, `loreforge-capture`, `loreforge-check`,
-  `loreforge-import`, and `loreforge-domain`
+  `loreforge-paper`, `loreforge-import`, and `loreforge-domain`
 - provide boundary instructions for when to use LoreForge
 - keep actual knowledge in separate wiki instances
 - recover after context compaction from domain `SCHEMA.md`, `index.md`,
