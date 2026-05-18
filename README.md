@@ -169,6 +169,21 @@ Plugin metadata lives in:
 .claude-plugin/marketplace.json
 ```
 
+## Component Contract
+
+External orchestrators can inspect LoreForge through a read-only component
+surface documented in `docs/component-contract.md`:
+
+```bash
+python3 skills/loreforge-domain/scripts/loreforge_component.py status --json
+python3 skills/loreforge-domain/scripts/loreforge_component.py validate --wiki /path/to/wiki --all-domains --json
+python3 skills/loreforge-domain/scripts/loreforge_component.py init --wiki /path/to/wiki --domain ai-research --json
+```
+
+This surface is for doctor/status/proposal checks. It does not write registry
+files, wiki notes, domains, sync state, or fixes; actual LoreForge writes remain
+owned by the LoreForge skills.
+
 ## GitHub-Backed Wikis
 
 LoreForge supports wiki instances backed by GitHub repositories.

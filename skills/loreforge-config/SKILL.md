@@ -97,3 +97,19 @@ After any agent-owned wiki edit:
   repeat the data-loss warning.
 
 If sync fails, report the failure and leave the local edits intact.
+
+## External Doctor Surface
+
+For Noesis or other read-only orchestration checks, expose LoreForge through
+the component adapter instead of letting external tools write LoreForge config
+or wiki files:
+
+```bash
+python3 skills/loreforge-domain/scripts/loreforge_component.py status --json
+python3 skills/loreforge-domain/scripts/loreforge_component.py validate --wiki <wiki> --all-domains --json
+python3 skills/loreforge-domain/scripts/loreforge_component.py init --wiki <wiki> --domain <domain> --json
+```
+
+`status` and `validate` are read-only checks. `init` is proposal-only and
+returns intended actions plus registry shape; actual writes still go through
+the LoreForge init/config workflow.
