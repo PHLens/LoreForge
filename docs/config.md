@@ -141,3 +141,16 @@ First-time manual setup:
 mkdir -p ~/.config/loreforge
 cp templates/config/registry.toml ~/.config/loreforge/registry.toml
 ```
+
+## External Doctor Surface
+
+External orchestrators should use the read-only component adapter for
+availability and validation checks:
+
+```bash
+python3 skills/loreforge-domain/scripts/loreforge_component.py status --json
+python3 skills/loreforge-domain/scripts/loreforge_component.py validate --wiki /path/to/wiki --all-domains --json
+```
+
+See `docs/component-contract.md` for the full JSON contract. This adapter does
+not write config, modify wiki files, run sync, or fix validation issues.
