@@ -104,6 +104,11 @@ def assert_skill_contract() -> None:
         "Do not save chat transcripts",
         "Attach diagrams or artifacts only in the section that explains them",
         "Use Shared/Raw/ only for diagrams, logs, screenshots, or source artifacts",
+        "Link And Citation Style",
+        "Use one or a small number of source footnotes for source-backed claims",
+        "Weave concepts, systems, modules, files, failures, fixes, and related work",
+        "Avoid standalone \"related Cards\" or \"related pages\" tables",
+        "Prefer direct positive descriptions.",
         "Domain Handoff Prompt",
     ]
     missing_work_item = [item for item in work_item_required if item not in work_item_skill]

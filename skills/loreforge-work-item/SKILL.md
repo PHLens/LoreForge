@@ -107,9 +107,43 @@ Use only sections that have substance. Common sections:
 Prefer durable explanation over process narration. Do not write "I did X, then
 I did Y" unless the sequence itself explains the root cause or risk.
 
+Do not include editor/process narration such as:
+
+- "this should be a work-item note"
+- "I am adding this to the wiki"
+- "the page should live in X"
+- "I attached this because..."
+
+If a placement or attachment decision matters for maintainers, put it in
+`log.md`, not in the work-item page body.
+
 Frontmatter follows the domain schema. Work-item pages are usually `type:
 space`; tags should use the domain taxonomy and stay coarse, such as `project`
 or a schema-defined equivalent.
+
+## Link And Citation Style
+
+- Use one or a small number of source footnotes for source-backed claims when a
+  Jira, issue, MR, PR, design doc, CI log, or raw artifact is the dominant
+  source. Avoid ending every paragraph with the same footnote unless the source
+  boundary would otherwise become ambiguous.
+- Weave concepts, systems, modules, files, failures, fixes, and related work
+  items into prose with `[[wiki|readable alias]]` at the point where they are
+  used.
+- Relate the work item to existing Cards, Atlas pages, Spaces, and prior work
+  items by naming the shared problem or solution pattern: boundary detection,
+  replay determinism, backend comparison, serialization shape, concurrency,
+  CI environment drift, sync behavior, schema migration, etc.
+- Avoid standalone "related Cards" or "related pages" tables whose main purpose
+  is bookkeeping. Tables are acceptable only when they carry real analysis,
+  such as comparing symptoms, root causes, implementation options, or
+  verification coverage.
+- Prefer direct positive descriptions. Use "not X but Y" contrast only when it
+  prevents a concrete misconception, and remove repeated contrastive phrasing
+  before handoff.
+- For cross-domain conceptual links, use explicit path-qualified wikilinks such
+  as `[[Domains/gpu-arch-research/Cards/simt-core-pipeline|SIMT core
+  pipeline]]` when the target exists in the same wiki.
 
 ## Domain Handoff Prompt
 
@@ -128,6 +162,7 @@ Stay inside Domains/<domain>/ for domain pages.
 Use Shared/Raw/ only for diagrams, logs, screenshots, or source artifacts that need preservation.
 Orient on SCHEMA.md, index.md, recent log.md, existing project/work-item pages, and relevant Cards/Atlas/Spaces.
 Write the page as a durable problem/solution/debug/verification record, not a chronology or chat transcript.
+Use natural `[[wiki|alias]]` links for related concepts, systems, modules, failures, fixes, and similar work items.
 Put attachments in the section where they support the explanation.
 Update index.md when creating or materially changing an indexable Space.
 Insert one concise newest-first log.md entry.
