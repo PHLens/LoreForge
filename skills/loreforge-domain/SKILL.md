@@ -420,25 +420,30 @@ excerpt notes or source-specific lenses over large raw packages. Compiled
 `Cards/`, `Atlas/`, `Spaces/`, and `Sources/` pages cite raw manifests or
 domain source notes with body footnotes, not YAML.
 
-### Paper And Single-Source Ingest Style
+### Paper Ingest Flow
 
-When ingesting a paper or one important source into a domain page:
+Papers have their own ingest shape. Do not collapse paper ingest into ordinary
+single-source ingest.
 
-- Keep the page about the source's durable content: problem, mechanism,
-  assumptions, results, limits, and reusable implications. Do not include
-  editor/process narration such as "this is more suitable as a paper note" or
-  "I am linking this to the wiki".
-- Use one or a small number of source footnotes for source-backed claims.
-  Single-source pages should not end every paragraph with the same footnote
-  unless the source boundary would otherwise become ambiguous.
-- Weave concept links into the prose with `[[wiki|readable alias]]` at the point
-  where the concept is used. Prefer links to existing Cards, Atlas pages, and
-  Spaces that share a problem, mechanism, or solution pattern. Avoid separate
-  mechanical comparison tables whose only purpose is to list related pages.
-- Link related papers or problem-solving cases by explaining the shared idea,
-  such as similar state movement, scheduling, locality, determinism, resource
-  allocation, or debugging constraints. Do not merely attach a "related cards"
-  list.
+When ingesting a paper:
+
+- Capture the paper as raw source first, including bibliographic metadata,
+  canonical URL/DOI/arXiv ID when available, original PDF or HTML, extracted
+  text, and extraction limitations.
+- Compile the paper into a page that records the paper's problem, mechanism,
+  assumptions, results, evaluation signal, limits, and reusable implications.
+  Do not include editor/process narration such as "this is more suitable as a
+  paper note" or "I am linking this to the wiki".
+- Use one or a small number of source footnotes for source-backed claims when
+  the paper is the dominant source. Avoid ending every paragraph with the same
+  footnote unless the source boundary would otherwise become ambiguous.
+- Weave concepts, methods, principles, and mechanisms into the prose with
+  `[[wiki|readable alias]]` at the point where they are used.
+- Relate the paper to existing papers, Cards, Atlas pages, and Spaces by naming
+  the shared research problem or solution pattern, such as state movement,
+  scheduling, locality, determinism, resource allocation, numerical
+  reproducibility, or debugging constraints. Avoid separate mechanical
+  comparison tables whose only purpose is to list related pages.
 - Prefer direct positive descriptions. Use "not X but Y" contrast only when it
   prevents a concrete misconception, and remove repeated contrastive phrasing
   before validation handoff.
@@ -446,6 +451,22 @@ When ingesting a paper or one important source into a domain page:
   as `[[Domains/gpu-arch-research/Cards/simt-core-pipeline|SIMT core
   pipeline]]` when the target exists in the same wiki. The domain validator
   accepts existing wiki-local path targets and rejects unsafe paths.
+
+### Single-Source Ingest Style
+
+Single-source ingest covers non-paper source material such as articles, docs,
+transcripts, reports, local notes, or web pages. Its goal is to preserve the
+source and compile the useful domain slice, not to force a paper-shaped review.
+
+- Decide whether the source should become a compact `Sources/<source-id>.md`
+  lens, update existing Cards/Atlas/Spaces, or create a new durable page.
+- Keep the synthesized page about reusable domain knowledge. Do not include
+  editor/process narration.
+- Use source footnotes where claims depend on that source, but avoid repeated
+  identical footnotes when the source boundary is already clear.
+- Weave semantic `[[wikilinks]]` into prose for concepts already represented in
+  the wiki. Use direct positive descriptions and avoid mechanical related-link
+  lists.
 
 ### Source Capture Policy
 
