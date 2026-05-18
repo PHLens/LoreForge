@@ -13,7 +13,7 @@ single-source ingest.
 This skill owns the paper-specific process:
 
 - paper identity and bibliographic metadata
-- raw paper capture requirements
+- raw paper capture requirements and artifact-size policy
 - paper note shape
 - contribution, mechanism, evaluation, and limit extraction
 - related paper / similar problem links
@@ -48,9 +48,11 @@ pages, use the generic source ingest path in `loreforge-domain`.
 
 2. **Capture**
    - If no raw package exists, delegate raw preservation to `loreforge-capture`.
-   - The raw package should preserve bibliographic metadata, canonical URL,
-     DOI/arXiv ID when available, original PDF/HTML, extracted text, extraction
-     method, hash, and concrete limitations.
+   - Use the paper artifact policy below. A paper raw package must preserve
+     bibliographic metadata, canonical URL, DOI/arXiv ID when available,
+     agent-readable extracted text or structured notes, extraction method,
+     content hash, and concrete limitations. It does not need to store a PDF
+     binary by default.
    - Capture-only requests stop after raw package creation unless the user also asks for ingest.
 
 3. **Route**
@@ -74,6 +76,37 @@ pages, use the generic source ingest path in `loreforge-domain`.
    - Run configured post-write sync through `loreforge-config`.
    - Report raw packages used, domain pages changed, validation, sync result,
      and unresolved confidence limits.
+
+## Paper Artifact Policy
+
+Paper capture is metadata-and-text first. Do not save every PDF into the wiki
+by default; otherwise `Shared/Raw/` grows quickly and sync becomes expensive.
+
+Required for paper raw packages:
+
+- `manifest.md` with title, authors when available, venue/source, canonical URL,
+  DOI/arXiv/OpenReview ID when available, `origin`, `content_hash`,
+  `candidate_domains`, `compiled_pages`, `status`, artifacts, and limitations.
+- `origin.md` with agent-readable paper text, abstract-plus-notes, or a
+  structured extraction sufficient for the requested capture/ingest.
+- Concrete extraction provenance: tool or method, retrieval date, source URL,
+  and missing sections/figures/tables if extraction is incomplete.
+
+Optional artifacts:
+
+- Save `original/<paper>.pdf` only when the user explicitly asks to archive the
+  PDF, the source is local/user-provided, the URL is unstable or access-gated,
+  the paper is likely to disappear, figure/table fidelity is required, or
+  exact page-level audit is part of the task.
+- Save HTML snapshots, screenshots, or figure assets only when they materially
+  improve reproducibility or later reuse.
+- If a PDF is not saved, record the canonical URL and identifier in the
+  manifest and list the omission in `limitations`, such as `PDF binary not
+  archived; retrieve from canonical_url/arxiv_id if page-level audit is needed`.
+
+When the user says only "capture paper" or "ingest paper", prefer the compact
+policy unless they also ask to archive originals, preserve attachments, work
+offline, or support exact visual/page audit.
 
 ## Paper Page Shape
 

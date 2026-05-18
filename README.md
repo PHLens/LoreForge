@@ -93,7 +93,11 @@ its own non-source attachments.
 `Shared/Raw/<source-id>/` stores the canonical raw source package:
 `origin.md` keeps the agent-readable source text, and `manifest.md` keeps
 metadata, source hash, compiled page pointers, and links to original/extracted
-artifacts. `Shared/Templates/` stores reusable wiki
+artifacts when those artifacts are stored. `original/`, `extracted/`, and
+`assets/` are optional package subdirectories, not mandatory storage quotas.
+Paper capture should default to compact metadata-and-text preservation and
+archive PDF binaries only when the user asks or exact/offline audit requires
+the original. `Shared/Templates/` stores reusable wiki
 templates. `Domains/<domain>/Sources/` is optional and can hold source excerpts
 or source-specific lenses when the raw package is large. `Cards/`, `Atlas/`,
 and `Spaces/` hold the durable synthesis and cite raw manifests or domain

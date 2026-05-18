@@ -58,7 +58,9 @@ Shared/Raw/<source-id>/
 ```
 
 Only `manifest.md` and `origin.md` are required. Create `original/`,
-`extracted/`, and `assets/` only when useful.
+`extracted/`, and `assets/` only when useful. Paper workflows should default
+to compact metadata-and-text capture rather than archiving every PDF binary;
+see `loreforge-paper` for the paper-specific artifact policy.
 
 Use `origin.md` for the canonical agent-readable source text. Preserve the
 source language, title, headings, links, and concrete capture limitations. For
