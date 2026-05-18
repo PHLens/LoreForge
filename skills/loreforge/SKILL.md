@@ -30,6 +30,7 @@ It delegates durable work to focused workflows:
 |---|---|
 | `loreforge-config` | wiki discovery, registry edits, init config, sync backend, post-write sync |
 | `loreforge-capture` | URL/file/paste/doc/research pack -> raw package under `Shared/Raw/<source-id>/` |
+| `loreforge-paper` | paper-specific capture/ingest flow for arXiv, DOI, PDF, preprint, conference paper, or paper-like technical report |
 | `loreforge-domain` | one expert-owned domain's query, ingest synthesis, update, and domain initialization |
 | `loreforge-check` | lint, audit, structural checks, raw package integrity, validator execution |
 | `loreforge-import` | existing repo/vault/folder/export -> source capture and native domain ingest |
@@ -137,12 +138,15 @@ updates, report the selected wiki, default domain, backend, and next action.
 ### Ingest
 
 1. Inspect source metadata enough to route.
-2. If no raw package exists, delegate capture to `loreforge-capture`.
-3. Select a primary target domain.
-4. If secondary domains look relevant, list them and ask before writing there.
-5. Delegate package metadata updates and domain synthesis to a
+2. If the source is a paper, DOI, arXiv link, PDF paper, conference preprint,
+   or paper-like technical report, delegate the paper-specific workflow to
+   `loreforge-paper`.
+3. If no raw package exists, delegate non-paper capture to `loreforge-capture`.
+4. Select a primary target domain.
+5. If secondary domains look relevant, list them and ask before writing there.
+6. Delegate package metadata updates and domain synthesis to a
    `loreforge-domain` expert for each approved domain.
-6. Run post-write sync through `loreforge-config`.
+7. Run post-write sync through `loreforge-config`.
 
 For sources that matter to multiple domains, reuse the same
 `Shared/Raw/<source-id>/` package. Do not reuse one domain's pages as another

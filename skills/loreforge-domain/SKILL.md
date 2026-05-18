@@ -420,37 +420,17 @@ excerpt notes or source-specific lenses over large raw packages. Compiled
 `Cards/`, `Atlas/`, `Spaces/`, and `Sources/` pages cite raw manifests or
 domain source notes with body footnotes, not YAML.
 
-### Paper Ingest Flow
+### Paper Ingest Handoff
 
-Papers have their own ingest shape. Do not collapse paper ingest into ordinary
-single-source ingest.
+Papers have their own workflow in `loreforge-paper`. When this domain skill
+receives a paper handoff, follow the domain boundary and schema while applying
+the paper-specific shape from `loreforge-paper`: paper identity, problem,
+mechanism, assumptions, evaluation signal, limits, reusable implications,
+natural concept links, and related paper/problem cases.
 
-When ingesting a paper:
-
-- Capture the paper as raw source first, including bibliographic metadata,
-  canonical URL/DOI/arXiv ID when available, original PDF or HTML, extracted
-  text, and extraction limitations.
-- Compile the paper into a page that records the paper's problem, mechanism,
-  assumptions, results, evaluation signal, limits, and reusable implications.
-  Do not include editor/process narration such as "this is more suitable as a
-  paper note" or "I am linking this to the wiki".
-- Use one or a small number of source footnotes for source-backed claims when
-  the paper is the dominant source. Avoid ending every paragraph with the same
-  footnote unless the source boundary would otherwise become ambiguous.
-- Weave concepts, methods, principles, and mechanisms into the prose with
-  `[[wiki|readable alias]]` at the point where they are used.
-- Relate the paper to existing papers, Cards, Atlas pages, and Spaces by naming
-  the shared research problem or solution pattern, such as state movement,
-  scheduling, locality, determinism, resource allocation, numerical
-  reproducibility, or debugging constraints. Avoid separate mechanical
-  comparison tables whose only purpose is to list related pages.
-- Prefer direct positive descriptions. Use "not X but Y" contrast only when it
-  prevents a concrete misconception, and remove repeated contrastive phrasing
-  before validation handoff.
-- For cross-domain conceptual links, use explicit path-qualified wikilinks such
-  as `[[Domains/gpu-arch-research/Cards/simt-core-pipeline|SIMT core
-  pipeline]]` when the target exists in the same wiki. The domain validator
-  accepts existing wiki-local path targets and rejects unsafe paths.
+Do not mix the paper workflow into ordinary single-source ingest. If a paper
+request reaches this skill without paper-specific context, read
+`skills/loreforge-paper/SKILL.md` before writing the domain page.
 
 ### Single-Source Ingest Style
 
