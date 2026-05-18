@@ -3,14 +3,14 @@ set -euo pipefail
 
 usage() {
   cat <<'EOF'
-Usage: sync_webdav.sh --remote <remote:path> [--wiki <path>] [--resync] [--dry-run]
+Usage: sync_rclone.sh --remote <remote:path> [--wiki <path>] [--resync] [--dry-run]
 
-Run LoreForge's canonical WebDAV rclone bisync flow.
+Run LoreForge's canonical rclone bisync flow.
 
 Options:
   --wiki <path>       Local wiki checkout. Defaults to WIKI_PATH or ~/wiki.
-  --remote <target>   rclone remote:path target, for example nustore:LoreForgeWiki.
-  --resync            Use for first sync or recovery when the local wiki should win.
+  --remote <target>   rclone remote:path target, for example wiki-sftp:LoreForgeWiki.
+  --resync            Use for first sync or recovery after confirming the local wiki should seed the remote.
   --dry-run           Print the rclone command without running it.
   -h, --help          Show this help.
 EOF
@@ -77,11 +77,12 @@ cmd=(
   --recover
   --max-lock
   2m
-  --size-only
+  --compare
+  size,modtime
   --conflict-resolve
-  path1
+  none
   --conflict-loser
-  delete
+  num
 )
 
 if [[ "$resync" -eq 1 ]]; then

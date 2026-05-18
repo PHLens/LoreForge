@@ -121,13 +121,13 @@ def write_registry(home: Path, *, default: str, wikis: list[dict], sources: list
     write(home / ".config" / "loreforge" / "registry.toml", "\n".join(lines).rstrip() + "\n")
 
 
-def webdav_bisync_command(wiki: Path, remote: str, *, resync: bool) -> str:
-    script = REPO_ROOT / "skills" / "loreforge-domain" / "scripts" / "sync_webdav.sh"
+def rclone_bisync_command(wiki: Path | str, remote: str, *, resync: bool) -> str:
+    script = REPO_ROOT / "skills" / "loreforge-domain" / "scripts" / "sync_rclone.sh"
     argv = [
         "bash",
         script.as_posix(),
         "--wiki",
-        wiki.as_posix(),
+        wiki.as_posix() if isinstance(wiki, Path) else wiki,
         "--remote",
         remote,
         "--dry-run",
@@ -138,38 +138,21 @@ def webdav_bisync_command(wiki: Path, remote: str, *, resync: bool) -> str:
     return result.stdout.strip()
 
 
-def scp_publish_command(wiki: Path, remote: str) -> list[str]:
-    script = REPO_ROOT / "skills" / "loreforge-domain" / "scripts" / "sync_scp.sh"
-    argv = [
-        "bash",
-        script.as_posix(),
-        "--wiki",
-        wiki.as_posix(),
-        "--remote",
-        remote,
-        "--dry-run",
-    ]
-    result = subprocess.run(argv, check=True, capture_output=True, text=True)
-    return result.stdout.strip().splitlines()
-
-
 def post_write_sync_plan(wiki: Path, wiki_entry: dict, message: str) -> list[str]:
     backend = wiki_entry["sync"]
     remote = wiki_entry.get("remote", "")
     if backend == "local":
         return [f"local-only: no remote sync ran for {wiki.as_posix()}"]
-    if backend == "webdav":
+    if backend == "rclone":
         if not wiki_entry.get("sync_bootstrapped", False):
-            return [webdav_bisync_command(wiki, remote, resync=True)]
-        return [webdav_bisync_command(wiki, remote, resync=False)]
+            return [rclone_bisync_command(wiki, remote, resync=True)]
+        return [rclone_bisync_command(wiki, remote, resync=False)]
     if backend == "git":
         return [
             f"git -C {wiki.as_posix()} add .",
             f"git -C {wiki.as_posix()} commit -m {message!r}",
             f"git -C {wiki.as_posix()} push",
         ]
-    if backend == "scp":
-        return scp_publish_command(wiki, remote)
     raise AssertionError(f"unknown sync backend: {backend}")
 
 
@@ -428,12 +411,12 @@ def assert_skill_example_is_generic() -> None:
     capture_skill = (REPO_ROOT / "skills" / "loreforge-capture" / "SKILL.md").read_text(encoding="utf-8")
     readme = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
     config_doc = (REPO_ROOT / "docs" / "config.md").read_text(encoding="utf-8")
-    sync_script = REPO_ROOT / "skills" / "loreforge-domain" / "scripts" / "sync_webdav.sh"
+    sync_script = REPO_ROOT / "skills" / "loreforge-domain" / "scripts" / "sync_rclone.sh"
     forbidden = ["/home/cambricon", "Nutstore", "OldVault"]
     found = [value for value in forbidden if value in config_skill or value in capture_skill]
     if found:
         raise AssertionError(f"skill example contains environment-specific values: {found}")
-    for expected in ["/path/to/loreforge-wiki", "/path/to/source-vault", "~/.config/loreforge/registry.toml", "sync_bootstrapped", "local | webdav | git | scp"]:
+    for expected in ["/path/to/loreforge-wiki", "/path/to/source-vault", "~/.config/loreforge/registry.toml", "sync_bootstrapped", "local | rclone | git"]:
         if expected not in config_skill:
             raise AssertionError(f"config skill is missing config guidance: {expected}")
     for expected in [
@@ -448,57 +431,49 @@ def assert_skill_example_is_generic() -> None:
             raise AssertionError(f"capture skill is missing capture guidance: {expected}")
     for expected in [
         'sync = "local"',
-        "webdav",
+        "rclone",
         "git",
-        "scp",
         "local-only",
         "~/.config/loreforge/registry.toml",
         "machine-local registry",
-        "scripts/sync_webdav.sh",
-        "scripts/sync_scp.sh",
+        "scripts/sync_rclone.sh",
     ]:
         if expected not in config_skill:
             raise AssertionError(f"skill is missing sync guidance: {expected}")
     for expected in [
-        "skills/loreforge-domain/scripts/sync_webdav.sh",
-        "skills/loreforge-domain/scripts/sync_scp.sh",
+        "skills/loreforge-domain/scripts/sync_rclone.sh",
     ]:
         if expected not in readme:
             raise AssertionError(f"README is missing sync helper guidance: {expected}")
         if expected not in config_doc:
             raise AssertionError(f"config docs are missing sync helper guidance: {expected}")
     if not sync_script.exists():
-        raise AssertionError(f"WebDAV sync helper is missing: {sync_script}")
-    scp_script = REPO_ROOT / "skills" / "loreforge-domain" / "scripts" / "sync_scp.sh"
-    if not scp_script.exists():
-        raise AssertionError(f"SCP sync helper is missing: {scp_script}")
-    normal = webdav_bisync_command(Path("~/wiki"), "nustore:LoreForgeWiki", resync=False)
-    bootstrap = webdav_bisync_command(Path("~/wiki"), "nustore:LoreForgeWiki", resync=True)
+        raise AssertionError(f"rclone sync helper is missing: {sync_script}")
+    if (REPO_ROOT / "skills" / "loreforge-domain" / "scripts" / "sync_scp.sh").exists():
+        raise AssertionError("SCP helper should not exist; use rclone SFTP instead")
+    if (REPO_ROOT / "skills" / "loreforge-domain" / "scripts" / "sync_webdav.sh").exists():
+        raise AssertionError("WebDAV helper should not exist; use the generic rclone helper instead")
+    normal = rclone_bisync_command("~/wiki", "wiki-webdav:LoreForgeWiki", resync=False)
+    bootstrap = rclone_bisync_command("~/wiki", "wiki-webdav:LoreForgeWiki", resync=True)
+    sftp = rclone_bisync_command("~/wiki", "wiki-sftp:LoreForgeWiki", resync=False)
     for expected in [
         "rclone bisync",
         "--create-empty-src-dirs",
         "--resilient",
         "--recover",
-        "--size-only",
-        "--conflict-resolve path1",
-        "--conflict-loser delete",
+        "--compare size\\,modtime",
+        "--conflict-resolve none",
+        "--conflict-loser num",
         "-P -v",
     ]:
         if expected not in normal:
-            raise AssertionError(f"WebDAV helper normal command is missing {expected}: {normal}")
+            raise AssertionError(f"rclone helper normal command is missing {expected}: {normal}")
     if "--resync" in normal:
-        raise AssertionError(f"WebDAV helper normal command should not include --resync: {normal}")
+        raise AssertionError(f"rclone helper normal command should not include --resync: {normal}")
     if "--resync" not in bootstrap:
-        raise AssertionError(f"WebDAV helper bootstrap command is missing --resync: {bootstrap}")
-    scp_commands = scp_publish_command(Path("~/wiki"), "user@example.com:/srv/wiki")
-    if len(scp_commands) != 2:
-        raise AssertionError(f"SCP helper should emit ssh mkdir and scp commands: {scp_commands}")
-    for expected in ["ssh user@example.com", "mkdir\\ -p", "/srv/wiki"]:
-        if expected not in scp_commands[0]:
-            raise AssertionError(f"SCP helper mkdir command is missing {expected}: {scp_commands[0]}")
-    for expected in ["scp -r", "/wiki/.", "user@example.com:/srv/wiki"]:
-        if expected not in scp_commands[1]:
-            raise AssertionError(f"SCP helper copy command is missing {expected}: {scp_commands[1]}")
+        raise AssertionError(f"rclone helper bootstrap command is missing --resync: {bootstrap}")
+    if "wiki-sftp:LoreForgeWiki" not in sftp:
+        raise AssertionError(f"rclone helper should support SFTP rclone remotes: {sftp}")
     for expected in [".obsidian*", ".obsidian-desktop", ".obsidian-mobile"]:
         if expected not in wiki_skill:
             raise AssertionError(f"skill is missing Obsidian profile boundary: {expected}")
@@ -591,21 +566,21 @@ def main() -> int:
         bootstrap_plan = post_write_sync_plan(
             wiki,
             {
-                "sync": "webdav",
-                "remote": "nustore:LoreForgeWiki",
+                "sync": "rclone",
+                "remote": "wiki-webdav:LoreForgeWiki",
                 "sync_bootstrapped": False,
             },
             "bootstrap wiki",
         )
         assert bootstrap_plan == [
-            webdav_bisync_command(wiki, "nustore:LoreForgeWiki", resync=True)
+            rclone_bisync_command(wiki, "wiki-webdav:LoreForgeWiki", resync=True)
         ]
-        print("PASS sync bootstrap: first WebDAV run uses explicit --resync command")
+        print("PASS sync bootstrap: first rclone run uses explicit --resync command")
 
         registry_wikis[0].update(
             {
-                "sync": "webdav",
-                "remote": "nustore:LoreForgeWiki",
+                "sync": "rclone",
+                "remote": "wiki-webdav:LoreForgeWiki",
                 "sync_bootstrapped": True,
             }
         )
@@ -617,12 +592,12 @@ def main() -> int:
         )
         registry = load_registry(home)
         main_wiki = registry_wiki(registry, "main")
-        assert main_wiki["sync"] == "webdav"
-        assert main_wiki["remote"] == "nustore:LoreForgeWiki"
+        assert main_wiki["sync"] == "rclone"
+        assert main_wiki["remote"] == "wiki-webdav:LoreForgeWiki"
         assert main_wiki["sync_bootstrapped"] is True
-        webdav_plan = post_write_sync_plan(wiki, main_wiki, "update compounding card")
-        assert webdav_plan == [webdav_bisync_command(wiki, "nustore:LoreForgeWiki", resync=False)]
-        print("PASS sync upgrade: existing wiki can be switched to WebDAV and bootstrap state recorded")
+        rclone_plan = post_write_sync_plan(wiki, main_wiki, "update compounding card")
+        assert rclone_plan == [rclone_bisync_command(wiki, "wiki-webdav:LoreForgeWiki", resync=False)]
+        print("PASS sync upgrade: existing wiki can use a WebDAV rclone remote")
 
         named_domain = initialize_domain(named_wiki, "ml-systems")
         assert_valid(named_domain)
@@ -656,8 +631,8 @@ def main() -> int:
 
         registry_wikis[1].update(
             {
-                "sync": "scp",
-                "remote": "user@example.com:/srv/loreforge-wiki",
+                "sync": "rclone",
+                "remote": "wiki-sftp:LoreForgeWiki",
                 "sync_bootstrapped": True,
             }
         )
@@ -669,14 +644,12 @@ def main() -> int:
         )
         registry = load_registry(home)
         systems_wiki = registry_wiki(registry, "systems")
-        assert systems_wiki["sync"] == "scp"
-        assert systems_wiki["remote"] == "user@example.com:/srv/loreforge-wiki"
+        assert systems_wiki["sync"] == "rclone"
+        assert systems_wiki["remote"] == "wiki-sftp:LoreForgeWiki"
         assert systems_wiki["sync_bootstrapped"] is True
-        scp_plan = post_write_sync_plan(named_wiki, systems_wiki, "publish systems wiki")
-        assert scp_plan == scp_publish_command(named_wiki, "user@example.com:/srv/loreforge-wiki")
-        assert "ssh user@example.com" in scp_plan[0]
-        assert f"{named_wiki.as_posix()}/." in scp_plan[1]
-        print("PASS sync upgrade: existing wiki can be switched to scp and published to a remote path")
+        sftp_plan = post_write_sync_plan(named_wiki, systems_wiki, "sync systems wiki")
+        assert sftp_plan == [rclone_bisync_command(named_wiki, "wiki-sftp:LoreForgeWiki", resync=False)]
+        print("PASS sync upgrade: existing wiki can use an SFTP rclone remote")
 
         source_before = digest_tree(source)
         import_source(source, domain)
