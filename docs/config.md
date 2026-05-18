@@ -7,7 +7,7 @@ then `WIKI_PATH`, then `~/wiki`.
 For LoreForge instances that use `~/wiki` as the local working copy and sync
 through rclone, keep the local checkout in that default directory and follow
 the configured sync command. The first sync on a fresh machine may require a
-different bootstrap or resync command than the normal steady-state sync.
+bootstrap command only after confirming the local wiki should seed the remote.
 
 ## Local Registry
 
@@ -86,9 +86,10 @@ Supported backends:
 
 - `rclone`: user configures `rclone config`, then provides an `rclone`
   `remote:path`, for example `wiki-webdav:LoreForgeWiki` or
-  `wiki-sftp:LoreForgeWiki`. The first sync on a new machine may need a
-  bootstrap or `--resync` flow; normal repeat sync should use the recorded
-  `rclone bisync` command.
+  `wiki-sftp:LoreForgeWiki`. Normal reads and writes are remote-first: pull the
+  remote before editing, then push local edits back. The first sync on a new
+  machine may need an explicit bootstrap flow after confirming the local wiki
+  should seed the remote.
 - `git`: user provides a remote repo URL. Initialize or clone the wiki as a git
   working copy, set the remote, then run `git add`, `git commit`, and `git push`
   after wiki edits.
@@ -101,14 +102,15 @@ For `local`, `remote` is empty and `sync_bootstrapped` should be `false`.
 rclone command helper:
 
 ```bash
-bash skills/loreforge-domain/scripts/sync_rclone.sh --wiki ~/wiki --remote wiki-webdav:LoreForgeWiki
-bash skills/loreforge-domain/scripts/sync_rclone.sh --wiki ~/wiki --remote wiki-sftp:LoreForgeWiki
-bash skills/loreforge-domain/scripts/sync_rclone.sh --wiki ~/wiki --remote wiki-sftp:LoreForgeWiki --resync
+bash skills/loreforge-domain/scripts/sync_rclone.sh --wiki ~/wiki --remote wiki-webdav:LoreForgeWiki --mode pull
+bash skills/loreforge-domain/scripts/sync_rclone.sh --wiki ~/wiki --remote wiki-webdav:LoreForgeWiki --mode push
+bash skills/loreforge-domain/scripts/sync_rclone.sh --wiki ~/wiki --remote wiki-sftp:LoreForgeWiki --mode bootstrap
 ```
 
-The helper owns the exact `rclone bisync` argv. Use the first form for normal
-steady-state sync and the second form for first sync or recovery after
-confirming the local wiki should seed the remote.
+The helper owns the exact `rclone sync` argv. Use `--mode pull` before reading
+or editing a rclone-backed wiki, `--mode push` after successful local edits, and
+`--mode bootstrap` only for first sync or recovery after confirming the local
+wiki should seed the remote.
 
 ## Post-Write Sync Contract
 
@@ -116,9 +118,10 @@ After any agent-owned wiki edit, run the configured backend flow before
 reporting completion:
 
 - `rclone`: run `skills/loreforge-domain/scripts/sync_rclone.sh` for the wiki
-  path and configured `remote:path`. If `sync_bootstrapped` is false, use the
-  helper's bootstrap/resync mode after confirming the local wiki should seed
-  the first bootstrap.
+  path and configured `remote:path` with `--mode pull` before editing and
+  `--mode push` after editing. If `sync_bootstrapped` is false, use
+  `--mode bootstrap` only after confirming the local wiki should seed the
+  remote.
 - `git`: run `git add`, create a focused commit, and push to the configured
   remote.
 - `local`: do not run sync; report that the wiki remains local-only and repeat

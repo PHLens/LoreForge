@@ -3,23 +3,31 @@ set -euo pipefail
 
 usage() {
   cat <<'EOF'
-Usage: sync_rclone.sh --remote <remote:path> [--wiki <path>] [--resync] [--dry-run]
+Usage: sync_rclone.sh --remote <remote:path> [--wiki <path>] [--mode pull|push|bootstrap] [--delete-excluded] [--dry-run]
 
-Run LoreForge's canonical rclone bisync flow.
+Run LoreForge's canonical rclone sync flow.
+
+Default mode is remote-first pull. Agents should run pull before reading or
+editing a rclone-backed wiki, then run push only after successful local edits.
 
 Options:
-  --wiki <path>       Local wiki checkout. Defaults to WIKI_PATH or ~/wiki.
-  --remote <target>   rclone remote:path target, for example wiki-sftp:LoreForgeWiki.
-  --resync            Use for first sync or recovery after confirming the local wiki should seed the remote.
-  --dry-run           Print the rclone command without running it.
-  -h, --help          Show this help.
+  --wiki <path>          Local wiki checkout. Defaults to WIKI_PATH or ~/wiki.
+  --remote <target>      rclone remote:path target, for example wiki-sftp:LoreForgeWiki.
+  --mode pull            Remote -> local. This is the default and treats remote as authoritative.
+  --mode push            Local -> remote. Use only after pulling first and completing local edits.
+  --mode bootstrap       Local -> remote for first sync or recovery after confirming local should seed remote.
+  --resync               Deprecated alias for --mode bootstrap.
+  --delete-excluded      Pass --delete-excluded to rclone sync.
+  --dry-run              Print the rclone command without running it.
+  -h, --help             Show this help.
 EOF
 }
 
 wiki="${WIKI_PATH:-~/wiki}"
 remote=""
-resync=0
+mode="pull"
 dry_run=0
+delete_excluded=0
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -33,8 +41,17 @@ while [[ $# -gt 0 ]]; do
       remote="$2"
       shift 2
       ;;
+    --mode)
+      [[ $# -ge 2 ]] || { echo "missing value for --mode" >&2; exit 2; }
+      mode="$2"
+      shift 2
+      ;;
     --resync)
-      resync=1
+      mode="bootstrap"
+      shift
+      ;;
+    --delete-excluded)
+      delete_excluded=1
       shift
       ;;
     --dry-run)
@@ -58,35 +75,42 @@ if [[ -z "$remote" ]]; then
   exit 2
 fi
 
-case "$wiki" in
-  "~")
-    wiki="$HOME"
+case "$mode" in
+  pull|push|bootstrap)
     ;;
-  "~/"*)
-    wiki="$HOME/${wiki#~/}"
+  *)
+    echo "--mode must be one of: pull, push, bootstrap" >&2
+    exit 2
     ;;
 esac
 
+if [[ "$wiki" == "~" ]]; then
+  wiki="$HOME"
+elif [[ "$wiki" == "~/"* ]]; then
+  wiki="$HOME/${wiki#"~/"}"
+fi
+
+src="$remote"
+dst="$wiki"
+if [[ "$mode" == "push" || "$mode" == "bootstrap" ]]; then
+  src="$wiki"
+  dst="$remote"
+fi
+
 cmd=(
   rclone
-  bisync
-  "$wiki"
-  "$remote"
+  sync
+  "$src"
+  "$dst"
   --create-empty-src-dirs
-  --resilient
-  --recover
-  --max-lock
-  2m
-  --compare
-  size,modtime
-  --conflict-resolve
-  none
-  --conflict-loser
-  num
+  --exclude
+  ".obsidian*/**"
+  --exclude
+  ".obsidian*"
 )
 
-if [[ "$resync" -eq 1 ]]; then
-  cmd+=(--resync)
+if [[ "$delete_excluded" -eq 1 ]]; then
+  cmd+=(--delete-excluded)
 fi
 
 cmd+=(-P -v)

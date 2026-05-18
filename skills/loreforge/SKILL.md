@@ -82,7 +82,8 @@ when ambiguity matters.
 ## Resolve Wiki And Domains
 
 For all operations, use `loreforge-config` rules to resolve the wiki root and
-sync backend. Read:
+sync backend. For rclone-backed wikis, pull the configured remote before
+reading domain files or writing local changes. Read:
 
 1. `00_System/domains.md`
 2. `00_System/index.md` and `00_System/wiki-layout.md` if present
