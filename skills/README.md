@@ -2,8 +2,9 @@
 
 Core LoreForge operations and bundled helper skills live here.
 
-LoreForge exposes one user entrypoint, focused internal workflows, a
-paper-specific workflow, and one domain expert skill:
+LoreForge exposes one user entrypoint plus focused internal workflows. Agents
+should start from `loreforge`; the entrypoint delegates to paper, capture,
+config, check, import, and domain workflows only when needed.
 
 | Skill | Purpose |
 |---|---|

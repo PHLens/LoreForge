@@ -43,8 +43,6 @@ LoreForge/
 ├── .claude-plugin/            # Claude plugin metadata
 ├── README.md
 ├── docs/                     # Philosophy, schema, install guidance
-├── hooks.json                # Optional runtime hooks for LoreForge routing reminders
-├── scripts/                  # Runtime hook scripts
 ├── templates/config/          # Optional local registry example
 └── skills/                   # LoreForge entrypoint, domain skill, and helper skills
 ```
@@ -103,9 +101,9 @@ source notes through body footnotes, not YAML source links.
 
 ## Skills
 
-LoreForge exposes one user entrypoint, focused internal workflows, a
-paper-specific workflow, one domain expert skill, and helper skills used during
-source capture and Obsidian-facing editing:
+LoreForge exposes one user-facing entrypoint plus focused internal workflows.
+Agents should start from `loreforge`; the entrypoint opens paper, capture,
+config, check, import, and domain workflows only when they are needed.
 
 | Skill | Purpose |
 |---|---|
@@ -142,10 +140,9 @@ LoreForge can be installed as a Codex or Claude plugin.
 The plugin layer is intentionally thin:
 
 - expose the `loreforge` main entrypoint
-- expose `loreforge-config`, `loreforge-capture`, `loreforge-check`,
-  `loreforge-paper`, `loreforge-import`, and `loreforge-domain`
-- optionally install `hooks.json` so later prompts that look like LoreForge
-  work re-anchor on the public entrypoint and workflow routing
+- keep `loreforge-config`, `loreforge-capture`, `loreforge-check`,
+  `loreforge-paper`, `loreforge-import`, and `loreforge-domain` available as
+  internal workflows for the entrypoint
 - provide boundary instructions for when to use LoreForge
 - keep actual knowledge in separate wiki instances
 - recover after context compaction from domain `SCHEMA.md`, `index.md`,

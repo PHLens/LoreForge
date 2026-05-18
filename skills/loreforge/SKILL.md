@@ -12,7 +12,8 @@ should be able to paste a link, file path, source, or command such as capture,
 ingest, lint, init, config, import, query, or update without choosing a lower
 level skill.
 
-Use `loreforge` as the default user-facing entry point.
+Use `loreforge` as the default user-facing entry point. Other LoreForge skills
+are internal workflows; do not ask the user to choose them.
 
 This skill owns:
 
