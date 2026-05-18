@@ -43,6 +43,8 @@ LoreForge/
 ├── .claude-plugin/            # Claude plugin metadata
 ├── README.md
 ├── docs/                     # Philosophy, schema, install guidance
+├── hooks.json                # Optional runtime hooks for LoreForge routing reminders
+├── scripts/                  # Runtime hook scripts
 ├── templates/config/          # Optional local registry example
 └── skills/                   # LoreForge entrypoint, domain skill, and helper skills
 ```
@@ -142,6 +144,8 @@ The plugin layer is intentionally thin:
 - expose the `loreforge` main entrypoint
 - expose `loreforge-config`, `loreforge-capture`, `loreforge-check`,
   `loreforge-paper`, `loreforge-import`, and `loreforge-domain`
+- optionally install `hooks.json` so later prompts that look like LoreForge
+  work re-anchor on the public entrypoint and workflow routing
 - provide boundary instructions for when to use LoreForge
 - keep actual knowledge in separate wiki instances
 - recover after context compaction from domain `SCHEMA.md`, `index.md`,

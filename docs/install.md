@@ -126,5 +126,18 @@ Claude plugin metadata:
 .claude-plugin/marketplace.json
 ```
 
+Runtime hook metadata:
+
+```text
+hooks.json
+scripts/loreforge-prompt-hook.sh
+```
+
+`hooks.json` is optional but recommended for runtimes that support Codex-style
+hooks. It adds a `UserPromptSubmit` hook that detects LoreForge-like prompts and
+injects a compact routing reminder to use the public `loreforge` entrypoint,
+plus a `SessionStart` hook for startup/resume/compact refresh. The hook does
+not mutate wiki files; it only returns additional context.
+
 The plugin contains framework guidance and skills only. Actual wiki knowledge
 stays in separate wiki instances.
