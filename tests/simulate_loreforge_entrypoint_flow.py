@@ -36,12 +36,18 @@ def read_skill() -> str:
     return (REPO_ROOT / "skills" / "loreforge" / "SKILL.md").read_text(encoding="utf-8")
 
 
+def read_paper_skill() -> str:
+    return (REPO_ROOT / "skills" / "loreforge-paper" / "SKILL.md").read_text(encoding="utf-8")
+
+
 def assert_skill_contract() -> None:
     skill = read_skill()
+    paper_skill = read_paper_skill()
     required = [
         "Default LoreForge entrypoint",
         "loreforge-config",
         "loreforge-capture",
+        "loreforge-paper",
         "loreforge-check",
         "loreforge-import",
         "loreforge-domain",
@@ -52,6 +58,7 @@ def assert_skill_contract() -> None:
         "Use `loreforge` as the default user-facing entry point.",
         "If the operation is unclear and a write would happen, ask one concise question.",
         "capture if needed, update raw package metadata, and compile domain knowledge",
+        "delegate the paper-specific workflow to",
         "Delegate lint, audit, and check work to `loreforge-check`",
         "Delegate source discovery and capture planning to `loreforge-import`",
         "Use loreforge-domain.",
@@ -59,6 +66,17 @@ def assert_skill_contract() -> None:
     missing = [item for item in required if item not in skill]
     if missing:
         raise AssertionError(f"main entrypoint skill is missing required routing contract text: {missing}")
+    paper_required = [
+        "Paper ingest is a distinct workflow.",
+        "loreforge-capture",
+        "loreforge-domain",
+        "ordinary articles, blogs, docs, transcripts, reports, local notes, or web",
+        "Paper Page Shape",
+        "Domain Handoff Prompt",
+    ]
+    missing_paper = [item for item in paper_required if item not in paper_skill]
+    if missing_paper:
+        raise AssertionError(f"paper workflow skill is missing required contract text: {missing_paper}")
 
 
 def create_domain(wiki: Path, name: str, purpose: str, tags: str, index: str) -> None:

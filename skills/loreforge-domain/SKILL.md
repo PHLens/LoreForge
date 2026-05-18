@@ -420,6 +420,34 @@ excerpt notes or source-specific lenses over large raw packages. Compiled
 `Cards/`, `Atlas/`, `Spaces/`, and `Sources/` pages cite raw manifests or
 domain source notes with body footnotes, not YAML.
 
+### Paper Ingest Handoff
+
+Papers have their own workflow in `loreforge-paper`. When this domain skill
+receives a paper handoff, follow the domain boundary and schema while applying
+the paper-specific shape from `loreforge-paper`: paper identity, problem,
+mechanism, assumptions, evaluation signal, limits, reusable implications,
+natural concept links, and related paper/problem cases.
+
+Do not mix the paper workflow into ordinary single-source ingest. If a paper
+request reaches this skill without paper-specific context, read
+`skills/loreforge-paper/SKILL.md` before writing the domain page.
+
+### Single-Source Ingest Style
+
+Single-source ingest covers non-paper source material such as articles, docs,
+transcripts, reports, local notes, or web pages. Its goal is to preserve the
+source and compile the useful domain slice, not to force a paper-shaped review.
+
+- Decide whether the source should become a compact `Sources/<source-id>.md`
+  lens, update existing Cards/Atlas/Spaces, or create a new durable page.
+- Keep the synthesized page about reusable domain knowledge. Do not include
+  editor/process narration.
+- Use source footnotes where claims depend on that source, but avoid repeated
+  identical footnotes when the source boundary is already clear.
+- Weave semantic `[[wikilinks]]` into prose for concepts already represented in
+  the wiki. Use direct positive descriptions and avoid mechanical related-link
+  lists.
+
 ### Source Capture Policy
 
 - Preserve the shared raw source before synthesizing cards.

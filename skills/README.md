@@ -2,14 +2,16 @@
 
 Core LoreForge operations and bundled helper skills live here.
 
-LoreForge exposes one user entrypoint, focused internal workflows, and one
-domain expert skill:
+LoreForge exposes one user entrypoint plus focused internal workflows. Agents
+should start from `loreforge`; the entrypoint delegates to paper, capture,
+config, check, import, and domain workflows only when needed.
 
 | Skill | Purpose |
 |---|---|
 | `loreforge` | Default user entrypoint for config, capture, ingest, lint, init, import, query, and cross-domain coordination |
 | `loreforge-config` | Resolve wiki location, registry, sync backend, and post-write sync |
 | `loreforge-capture` | Preserve raw clips under `Shared/Raw/` without compiling domain pages |
+| `loreforge-paper` | Route paper-specific capture/ingest for arXiv, DOI, PDF, preprints, conference papers, and paper-like technical reports |
 | `loreforge-check` | Lint, audit, and structural checks for raw packages and native domains |
 | `loreforge-import` | Treat existing repos, vaults, folders, and exports as source material |
 | `loreforge-domain` | Query, ingest synthesis, update durable pages, and initialize expert-owned domains |
@@ -28,18 +30,20 @@ capture or Obsidian-facing work:
 | `obsidian-bases` | Create and edit Obsidian Bases files |
 
 The `loreforge` skill owns intent classification, config/sync resolution,
-source capture handoff, domain routing, write gates, and subagent fan-out. The domain
-skill follows the LLM Wiki pattern: one expert agent maintains one domain by
-orienting on `SCHEMA.md`, `index.md`, recent `log.md`, and relevant pages
-before writing. Raw clips are preserved separately, and compiled domain pages
-cite raw manifests or domain source notes with body footnotes, not YAML source
-links.
+source capture handoff, domain routing, write gates, and subagent fan-out.
+`loreforge-paper` owns paper-specific page shape and related-work linking
+before bounded domain handoff. The domain skill follows the LLM Wiki pattern:
+one expert agent maintains one domain by orienting on `SCHEMA.md`, `index.md`,
+recent `log.md`, and relevant pages before writing. Raw clips are preserved
+separately, and compiled domain pages cite raw manifests or domain source notes
+with body footnotes, not YAML source links.
 
 ## Core Workflow
 
 Use `loreforge` as the default user-facing entry point.
 Use `loreforge-config` when location or sync needs to be resolved.
 Use `loreforge-capture` when a source should be preserved without synthesis.
+Use `loreforge-paper` when the source is a paper or paper-like technical report.
 Use `loreforge-check` when the user asks for linting, audit, validation, or checks.
 Use `loreforge-import` when an existing repo, vault, folder, or export should
 be treated as source material.

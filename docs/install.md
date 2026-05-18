@@ -68,6 +68,7 @@ Main entrypoint and expert workflows:
 - `loreforge`
 - `loreforge-config`
 - `loreforge-capture`
+- `loreforge-paper`
 - `loreforge-check`
 - `loreforge-import`
 - `loreforge-domain`
@@ -83,6 +84,9 @@ Bundled helper skills:
 - `obsidian-bases`
 
 Install them into the target agent environment using that environment's skill installation mechanism.
+Keep `loreforge` as the user-facing entrypoint; the other LoreForge skills are
+internal workflows that the entrypoint delegates to when the request needs
+config, capture, paper-specific ingest, checks, import, or domain writes.
 
 ### Helper Runtime Setup
 
