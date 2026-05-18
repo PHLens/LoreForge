@@ -87,6 +87,21 @@ Before editing notes:
   linked daily note `## TODO` sections instead of duplicating them in the weekly
   note.
 
+## Writing Style
+
+- Write note content for the human who will read and edit it later.
+- Daily notes are execution surfaces: use short factual memos and concrete
+  TODOs only.
+- Do not write agent reasoning, process narration, detailed explanations, or
+  "why I chose this structure" text into daily notes.
+- Keep daily `## Memos` to brief context, usually one line. Put rationale,
+  tradeoffs, risks, and review criteria in the weekly note or linked project
+  page when they are useful.
+- TODOs should be imperative and artifact-oriented: verb, object, done
+  condition. Avoid abstract tasks such as "research X" without an output.
+- Do not mention the skill, routing, validator behavior, or internal planning
+  mechanics inside the notes.
+
 ## Output Contract
 
 When drafting in chat, return:
