@@ -206,6 +206,7 @@ def initialize_domain(
     for directory in [
         wiki / "00_System",
         wiki / "Calendar" / "dailynotes",
+        wiki / "Calendar" / "weeklynotes",
         wiki / "Shared" / "Raw",
         wiki / "Shared" / "Templates",
         domain / "Atlas",
@@ -223,6 +224,7 @@ def initialize_domain(
         wiki / "00_System" / "wiki-layout.md",
         "# Wiki Layout\n\n"
         "Canonical shared layer:\n\n"
+        "- `Calendar/dailynotes/` and `Calendar/weeklynotes/` for dated personal notes and planning\n"
         "- `Shared/Raw/<source-id>/` for raw source packages and attachments\n"
         "- `Shared/Templates/` for reusable templates\n\n"
         "Domain layer:\n\n"
@@ -239,6 +241,47 @@ def initialize_domain(
         "| Domain | Purpose | Default Language | Expert | Status |\n"
         "|---|---|---|---|---|\n"
         f"| {domain_name} | Test research domain | zh | test expert | active |\n",
+    )
+    write(
+        wiki / "Shared" / "Templates" / "weekly.md",
+        """---
+date: "{{date:gggg-[W]ww}}"
+type: weekly
+tags:
+  - weekly
+---
+
+# {{title}}
+
+## Focus
+
+## This Week
+
+- [ ]
+
+## Daily Notes
+
+- [[{{monday:YYYY-MM-DD}}|Mon]]
+- [[{{tuesday:YYYY-MM-DD}}|Tue]]
+- [[{{wednesday:YYYY-MM-DD}}|Wed]]
+- [[{{thursday:YYYY-MM-DD}}|Thu]]
+- [[{{friday:YYYY-MM-DD}}|Fri]]
+- [[{{saturday:YYYY-MM-DD}}|Sat]]
+- [[{{sunday:YYYY-MM-DD}}|Sun]]
+
+## Risks / Blockers
+
+-
+
+## Decisions
+
+-
+
+## Review
+
+- Done:
+- Carry forward:
+""",
     )
     write(
         domain / "SCHEMA.md",
@@ -563,8 +606,11 @@ def main() -> int:
         assert (wiki / "00_System" / "wiki-layout.md").exists()
         assert not (wiki / "00_System" / "loreforge.toml").exists()
         assert (wiki / "Calendar" / "dailynotes").is_dir()
+        assert (wiki / "Calendar" / "weeklynotes").is_dir()
         assert (wiki / "Shared" / "Raw").is_dir()
         assert (wiki / "Shared" / "Templates").is_dir()
+        weekly_template = wiki / "Shared" / "Templates" / "weekly.md"
+        assert weekly_template.exists()
         assert not (domain / "Sources").exists()
         assert "Layout: [[wiki-layout]]" in (wiki / "00_System" / "index.md").read_text(encoding="utf-8")
         assert "ai-research" in (wiki / "00_System" / "domains.md").read_text(encoding="utf-8")

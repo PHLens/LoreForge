@@ -63,6 +63,7 @@ wiki/
     ...
   Calendar/
     dailynotes/
+    weeklynotes/
   Shared/
     Raw/
       <source-id>/
@@ -97,25 +98,28 @@ artifacts when those artifacts are stored. `original/`, `extracted/`, and
 `assets/` are optional package subdirectories, not mandatory storage quotas.
 Paper capture should default to compact metadata-and-text preservation and
 archive PDF binaries only when the user asks or exact/offline audit requires
-the original. `Shared/Templates/` stores reusable wiki
-templates. `Domains/<domain>/Sources/` is optional and can hold source excerpts
-or source-specific lenses when the raw package is large. `Cards/`, `Atlas/`,
-and `Spaces/` hold the durable synthesis and cite raw manifests or domain
-source notes through body footnotes, not YAML source links.
+the original. `Calendar/dailynotes/` and `Calendar/weeklynotes/` hold dated
+personal planning notes when the wiki role is asked to decompose goals into
+daily or weekly work. `Shared/Templates/` stores reusable wiki templates.
+`Domains/<domain>/Sources/` is optional and can hold source excerpts or
+source-specific lenses when the raw package is large. `Cards/`, `Atlas/`, and
+`Spaces/` hold the durable synthesis and cite raw manifests or domain source
+notes through body footnotes, not YAML source links.
 
 ## Skills
 
 LoreForge exposes one user-facing entrypoint plus focused internal workflows.
-Agents should start from `loreforge`; the entrypoint opens paper, capture,
-config, work-item, check, import, and domain workflows only when they are
-needed.
+Agents should start from `loreforge`; the entrypoint opens paper, plan,
+capture, config, work-item, check, import, and domain workflows only when they
+are needed.
 
 | Skill | Purpose |
 |---|---|
-| `loreforge` | Default main entrypoint for config, capture, ingest, lint, init, import, query, and cross-domain coordination |
+| `loreforge` | Default main entrypoint for config, capture, ingest, lint, init, import, query, plan, work-item records, and cross-domain coordination |
 | `loreforge-config` | Resolve wiki location, registry, sync backend, and post-write sync |
 | `loreforge-capture` | Preserve raw source packages under `Shared/Raw/<source-id>/` without compiling domain pages |
 | `loreforge-paper` | Route paper-specific capture/ingest for arXiv, DOI, PDF, preprints, conference papers, and paper-like technical reports |
+| `plan-docomposer` | Decompose personal or research goals into weekly and daily note plans under `Calendar/` |
 | `loreforge-work-item` | Turn project, Jira, issue, MR/PR, bugfix, CI failure, and implementation context into durable `Spaces/projects/` records |
 | `loreforge-check` | Lint, audit, and structural checks for raw packages and native domains |
 | `loreforge-import` | Treat existing repos, vaults, folders, and exports as source material |
@@ -128,13 +132,14 @@ needed.
 | `json-canvas` | Create and edit JSON Canvas files |
 | `obsidian-bases` | Create and edit Obsidian Bases files |
 
-The main entrypoint owns domain selection, config, capture handoff, and
-cross-domain coordination. `loreforge-paper` owns the paper-specific ingest
-shape before bounded domain handoff. `loreforge-work-item` owns project record
-shape before bounded domain handoff. `loreforge-domain` owns durable domain
-writes. Helper skills produce capture input or Obsidian-specific artifacts;
-they should not replace routing, domain orientation, index, log, and check
-workflow.
+The main entrypoint owns domain selection, config, capture handoff, plan
+handoff, and cross-domain coordination. `loreforge-paper` owns the
+paper-specific ingest shape before bounded domain handoff. `plan-docomposer`
+owns wiki-local goal decomposition into Calendar notes. `loreforge-work-item`
+owns project record shape before bounded domain handoff. `loreforge-domain`
+owns durable domain writes. Helper skills produce capture input or
+Obsidian-specific artifacts; they should not replace routing, domain
+orientation, index, log, and check workflow.
 
 The previous Obsidian `wiki` adapter layout is not bundled. Existing Obsidian
 vaults can still be used as sources, and LoreForge wiki instances can still be
@@ -148,8 +153,9 @@ The plugin layer is intentionally thin:
 
 - expose the `loreforge` main entrypoint
 - keep `loreforge-config`, `loreforge-capture`, `loreforge-check`,
-  `loreforge-paper`, `loreforge-work-item`, `loreforge-import`, and
-  `loreforge-domain` available as internal workflows for the entrypoint
+  `loreforge-paper`, `plan-docomposer`, `loreforge-work-item`,
+  `loreforge-import`, and `loreforge-domain` available as internal workflows
+  for the entrypoint
 - provide boundary instructions for when to use LoreForge
 - keep actual knowledge in separate wiki instances
 - recover after context compaction from domain `SCHEMA.md`, `index.md`,

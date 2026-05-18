@@ -9,6 +9,7 @@ wiki/
   00_System/
   Calendar/
     dailynotes/
+    weeklynotes/
   Shared/
     Raw/
       <source-id>/
@@ -31,23 +32,25 @@ wiki/
 
 `00_System/` is the wiki-level operating surface. It typically contains
 `index.md`, `domains.md`, and `wiki-layout.md`. `Calendar/` stores dated
-personal notes such as daily notes. `Shared/Raw/` stores one raw source package
-per source under `Shared/Raw/<source-id>/`. `Shared/Templates/` stores reusable
-templates once for the whole wiki. Each `Domains/<domain>/` is a self-contained
-LLM Wiki maintained by one expert agent.
+personal notes such as daily notes and weekly planning notes. `Shared/Raw/`
+stores one raw source package per source under `Shared/Raw/<source-id>/`.
+`Shared/Templates/` stores reusable templates once for the whole wiki. Each
+`Domains/<domain>/` is a self-contained LLM Wiki maintained by one expert
+agent.
 
 ## Calendar Files
 
 | Path | Purpose |
 |---|---|
 | `Calendar/dailynotes/` | Default folder for daily diary or daily-note pages |
+| `Calendar/weeklynotes/` | Default folder for weekly planning and review pages |
 
 ## Shared Files
 
 | Path | Purpose |
 |---|---|
 | `Shared/Raw/` | Wiki-root raw source area. Capture writes `Shared/Raw/<source-id>/origin.md` and `manifest.md`; ingest updates the same package with candidate domains, compiled page pointers, original artifacts, extracted artifacts, and any source-specific assets |
-| `Shared/Templates/` | Wiki-root reusable note templates, including diary templates |
+| `Shared/Templates/` | Wiki-root reusable note templates, including diary and weekly templates |
 
 ## Domain Files
 

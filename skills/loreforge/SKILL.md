@@ -1,6 +1,6 @@
 ---
 name: loreforge
-description: Default LoreForge entrypoint for capture, ingest, query, lint, init, config, import, work-item records, and cross-domain coordination. Resolves intent, config, domains, write gates, and subagent fan-out before delegating to focused workflows and loreforge-domain experts.
+description: Default LoreForge entrypoint for capture, ingest, query, lint, init, config, import, plan, work-item records, and cross-domain coordination. Resolves intent, config, domains, write gates, and subagent fan-out before delegating to focused workflows and loreforge-domain experts.
 user-invocable: true
 version: 0.2.0
 ---
@@ -8,9 +8,9 @@ version: 0.2.0
 # LoreForge
 
 Use this skill as the default user-facing entry point for LoreForge. The user
-should be able to paste a link, file path, source, or command such as capture,
-ingest, lint, init, config, import, query, update, or work-item without choosing
-a lower level skill.
+should be able to paste a link, file path, source, goal, or command such as
+capture, ingest, lint, init, config, import, query, update, plan, or work-item
+without choosing a lower level skill.
 
 Use `loreforge` as the default user-facing entry point. Other LoreForge skills
 are internal workflows; do not ask the user to choose them.
@@ -21,6 +21,7 @@ This skill owns:
 - wiki/config/sync resolution
 - source capture handoff
 - domain selection and routing
+- Calendar daily/weekly planning handoff
 - write gates for multi-domain or destructive work
 - subagent fan-out when the host supports it
 - final synthesis and user-facing summary
@@ -32,6 +33,7 @@ It delegates durable work to focused workflows:
 | `loreforge-config` | wiki discovery, registry edits, init config, sync backend, post-write sync |
 | `loreforge-capture` | URL/file/paste/doc/research pack -> raw package under `Shared/Raw/<source-id>/` |
 | `loreforge-paper` | paper-specific capture/ingest flow for arXiv, DOI, PDF, preprint, conference paper, or paper-like technical report |
+| `plan-docomposer` | decompose personal or research goals into weekly and daily note plans under `Calendar/` |
 | `loreforge-work-item` | project, Jira, issue, MR/PR, bugfix, CI failure, and implementation records under domain `Spaces/projects/` |
 | `loreforge-domain` | one expert-owned domain's query, ingest synthesis, update, and domain initialization |
 | `loreforge-check` | lint, audit, structural checks, raw package integrity, validator execution |
@@ -70,6 +72,7 @@ Map user intent to one operation:
 - `ingest`: capture if needed, update raw package metadata, and compile domain knowledge
 - `query`: answer from existing wiki knowledge
 - `update`: revise durable domain pages
+- `plan`: decompose a personal, research, study, career, or project goal into weekly and daily note plans
 - `work-item`: create or update a durable project, Jira, issue, MR/PR, bugfix,
   CI failure, implementation, or verification record
 - `lint`: lint, audit, review, or structural check
@@ -124,6 +127,17 @@ when the user explicitly asks or approves the split.
 
 Delegate config and sync backend work to `loreforge-config`. After registry
 updates, report the selected wiki, default domain, backend, and next action.
+
+### Plan
+
+1. Resolve the wiki root and sync backend through `loreforge-config`.
+2. Delegate goal decomposition, weekly allocation, and daily projection to
+   `plan-docomposer`.
+3. Write only `Calendar/dailynotes/`, `Calendar/weeklynotes/`, and
+   `Shared/Templates/` unless the user explicitly asks for a durable domain
+   rollup.
+4. Do not turn plan notes into agent memory, source capture, or domain ingest.
+5. Run the configured post-write sync through `loreforge-config` after edits.
 
 ### Init
 
