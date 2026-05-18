@@ -101,12 +101,18 @@ Raw source packages preserve the source language by default. Capture derives a
 stable `source-id`, writes `origin.md` for the source text/transcription, and
 writes `manifest.md` with source metadata, `content_hash`, `compiled_pages`,
 `candidate_domains`, capture notes, and links to original and extracted
-artifacts. For text articles, blogs, docs, and pasted text, keep title,
-author/publisher, dates, canonical URL, headings, links, and local image
-references. Prefer complete transcription when the material is user-provided,
-local, permissively licensed, public domain, or otherwise appropriate to reuse
-in full. Otherwise keep a faithful structured capture and record only concrete
-limitations.
+artifacts when those artifacts are stored. For text articles, blogs, docs, and
+pasted text, keep title, author/publisher, dates, canonical URL, headings,
+links, and local image references. Prefer complete transcription when the
+material is user-provided, local, permissively licensed, public domain, or
+otherwise appropriate to reuse in full. Otherwise keep a faithful structured
+capture and record only concrete limitations.
+
+For papers, prefer compact metadata-and-text capture. Store identifiers,
+canonical URL, extraction method, `origin.md`, and limitations by default.
+Archive the original PDF only when explicitly requested or when access
+stability, exact page/figure audit, local provenance, or offline reuse requires
+the binary.
 
 Compiled domain pages do not carry YAML `sources:` links. Put source-backed
 provenance in body footnotes that point to raw manifests or domain source
