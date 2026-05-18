@@ -45,7 +45,7 @@ default = "main"
 name = "main"
 path = "/path/to/loreforge-wiki"
 description = "Personal LoreForge wiki"
-sync = "local" # local | webdav | git | scp
+sync = "local" # local | rclone | git
 default_domain = "ai-research"
 remote = ""
 sync_bootstrapped = false
@@ -66,15 +66,13 @@ folders.
 
 When creating a new wiki or adding sync to an existing wiki:
 
-1. Ask for or infer the backend: `webdav`, `git`, `scp`, or explicit `local`.
-2. For `webdav`, require an `rclone` `remote:path` target and whether bootstrap
-   sync has already run.
+1. Ask for or infer the backend: `rclone`, `git`, or explicit `local`.
+2. For `rclone`, require a configured `rclone` `remote:path` target and whether
+   bootstrap sync has already run. WebDAV, SFTP, and other rclone remotes all
+   use this backend.
 3. For `git`, require or discover the remote repo URL.
-4. For `scp`, require an `scp` target such as `user@host:/path/to/wiki` and
-   confirm the remote path is a publish/backup target that local writes may
-   overwrite.
-5. For `local`, warn that no remote sync protects the wiki.
-6. Write or update the machine-local registry entry.
+4. For `local`, warn that no remote sync protects the wiki.
+5. Write or update the machine-local registry entry.
 
 Do not require example paths to be real. Keep docs and examples generic.
 
@@ -82,13 +80,10 @@ Do not require example paths to be real. Keep docs and examples generic.
 
 After any agent-owned wiki edit:
 
-- `webdav`: run `skills/loreforge-domain/scripts/sync_webdav.sh` with the wiki
+- `rclone`: run `skills/loreforge-domain/scripts/sync_rclone.sh` with the wiki
   path and configured `remote:path`. Use bootstrap/resync mode only when the
-  local copy should win on the first sync.
+  local copy should seed the remote on the first sync.
 - `git`: run `git add`, make a focused commit in the wiki repo, and push.
-- `scp`: run `skills/loreforge-domain/scripts/sync_scp.sh` with the wiki path
-  and configured `user@host:/path` target. This is a one-way local-to-remote
-  publish flow; it does not merge remote-only edits.
 - `local`: report that the wiki remains local-only, no remote sync ran, and
   repeat the data-loss warning.
 

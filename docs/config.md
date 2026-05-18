@@ -5,10 +5,9 @@ The main entrypoint and `loreforge-config` should prefer a user-provided wiki pa
 then `WIKI_PATH`, then `~/wiki`.
 
 For LoreForge instances that use `~/wiki` as the local working copy and sync
-through Nutstore/WebDAV, keep the local checkout in that default directory and
-follow the configured sync command. The first sync on a fresh machine may
-require a different bootstrap or resync command than the normal steady-state
-sync.
+through rclone, keep the local checkout in that default directory and follow
+the configured sync command. The first sync on a fresh machine may require a
+different bootstrap or resync command than the normal steady-state sync.
 
 ## Local Registry
 
@@ -40,8 +39,8 @@ default = "cs"
 name = "cs"
 path = "/home/phlens/wiki"
 description = "Computer science, GPU, ML systems, PyTorch"
-sync = "webdav"
-remote = "nustore:LoreForgeWiki"
+sync = "rclone"
+remote = "wiki-webdav:LoreForgeWiki"
 default_domain = "investment"
 sync_bootstrapped = true
 ```
@@ -50,9 +49,9 @@ The registry is not a knowledge store. Do not put notes, findings, summaries, or
 
 Fields:
 
-- `sync`: one of `webdav`, `git`, `scp`, or `local`.
-- `remote`: for `webdav`, an `rclone` `remote:path`; for `git`, a repo URL;
-  for `scp`, a `user@host:/path/to/wiki` target; for `local`, leave empty.
+- `sync`: one of `rclone`, `git`, or `local`.
+- `remote`: for `rclone`, an `rclone` `remote:path`; for `git`, a repo URL;
+  for `local`, leave empty.
 - `default_domain`: optional default domain when a user names only the wiki.
 - `sync_bootstrapped`: machine-local flag that says the first sync/bootstrap
   step has already been handled on this machine.
@@ -85,56 +84,43 @@ Agents should not query GitHub directly for every answer.
 
 Supported backends:
 
-- `webdav`: user configures `rclone config`, then provides an `rclone`
-  `remote:path`, for example `nustore:LoreForgeWiki`. The first sync on a new
-  machine may need a bootstrap or `--resync` flow; normal repeat sync should use
-  the recorded `rclone bisync` command.
+- `rclone`: user configures `rclone config`, then provides an `rclone`
+  `remote:path`, for example `wiki-webdav:LoreForgeWiki` or
+  `wiki-sftp:LoreForgeWiki`. The first sync on a new machine may need a
+  bootstrap or `--resync` flow; normal repeat sync should use the recorded
+  `rclone bisync` command.
 - `git`: user provides a remote repo URL. Initialize or clone the wiki as a git
   working copy, set the remote, then run `git add`, `git commit`, and `git push`
   after wiki edits.
-- `scp`: user provides a remote target such as `user@example.com:/srv/wiki`.
-  The helper creates the remote directory if needed and copies the local wiki
-  contents there. This is one-way local-to-remote publishing and does not merge
-  remote-only edits.
 - `local`: no remote sync. This is allowed only after warning the user that the
   wiki is not linked to remote persistence and local machine loss can lose data.
 
-For `git`, `remote` is the repo URL. For `scp`, `remote` is the SCP target.
+For `git`, `remote` is the repo URL. For `rclone`, `remote` is the rclone target.
 For `local`, `remote` is empty and `sync_bootstrapped` should be `false`.
 
-WebDAV command helper:
+rclone command helper:
 
 ```bash
-bash skills/loreforge-domain/scripts/sync_webdav.sh --wiki ~/wiki --remote nustore:LoreForgeWiki
-bash skills/loreforge-domain/scripts/sync_webdav.sh --wiki ~/wiki --remote nustore:LoreForgeWiki --resync
+bash skills/loreforge-domain/scripts/sync_rclone.sh --wiki ~/wiki --remote wiki-webdav:LoreForgeWiki
+bash skills/loreforge-domain/scripts/sync_rclone.sh --wiki ~/wiki --remote wiki-sftp:LoreForgeWiki
+bash skills/loreforge-domain/scripts/sync_rclone.sh --wiki ~/wiki --remote wiki-sftp:LoreForgeWiki --resync
 ```
 
 The helper owns the exact `rclone bisync` argv. Use the first form for normal
-steady-state sync and the second form for first sync or recovery when the local
-wiki should win.
-
-SCP command helper:
-
-```bash
-bash skills/loreforge-domain/scripts/sync_scp.sh --wiki ~/wiki --remote user@example.com:/srv/wiki
-```
-
-The helper owns the exact `ssh` and `scp` argv. Use this only when the remote
-path is a backup or publish target for the local wiki.
+steady-state sync and the second form for first sync or recovery after
+confirming the local wiki should seed the remote.
 
 ## Post-Write Sync Contract
 
 After any agent-owned wiki edit, run the configured backend flow before
 reporting completion:
 
-- `webdav`: run `skills/loreforge-domain/scripts/sync_webdav.sh` for the wiki
+- `rclone`: run `skills/loreforge-domain/scripts/sync_rclone.sh` for the wiki
   path and configured `remote:path`. If `sync_bootstrapped` is false, use the
-  helper's bootstrap/resync mode after confirming the local wiki should win the
-  first bootstrap.
+  helper's bootstrap/resync mode after confirming the local wiki should seed
+  the first bootstrap.
 - `git`: run `git add`, create a focused commit, and push to the configured
   remote.
-- `scp`: run `skills/loreforge-domain/scripts/sync_scp.sh` for the wiki path
-  and configured `user@host:/path` target.
 - `local`: do not run sync; report that the wiki remains local-only and repeat
   the data-loss warning.
 

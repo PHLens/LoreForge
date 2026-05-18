@@ -166,18 +166,16 @@ Agents should use the local clone for search and editing. GitHub is for persiste
 
 ## Sync Backends
 
-LoreForge wiki instances are local-first and can be configured for `webdav`,
-`git`, `scp`, or explicit `local` mode. New wiki initialization should confirm the
+LoreForge wiki instances are local-first and can be configured for `rclone`,
+`git`, or explicit `local` mode. New wiki initialization should confirm the
 backend before the first durable write, and existing wikis can add sync behavior
 by updating the machine-local registry entry for that machine.
 
-After every agent-owned wiki edit, WebDAV-backed wikis should run
-`skills/loreforge-domain/scripts/sync_webdav.sh`, git-backed wikis should commit
-and push, SCP-backed wikis should run `skills/loreforge-domain/scripts/sync_scp.sh`,
-and local-only wikis should report that no remote sync ran and warn about data-loss
-risk. The WebDAV helper owns the exact `rclone bisync` command and supports both
-steady-state sync and first-machine bootstrap/resync. The SCP helper is a one-way
-local-to-remote publish flow for backup or deployment targets.
+After every agent-owned wiki edit, rclone-backed wikis should run
+`skills/loreforge-domain/scripts/sync_rclone.sh`, git-backed wikis should commit
+and push, and local-only wikis should report that no remote sync ran and warn
+about data-loss risk. The rclone helper owns the exact `rclone bisync` command
+and supports WebDAV, SFTP, and other rclone remotes through one backend.
 
 ## Existing Repos And Vaults
 
