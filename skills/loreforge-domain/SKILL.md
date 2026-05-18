@@ -420,6 +420,33 @@ excerpt notes or source-specific lenses over large raw packages. Compiled
 `Cards/`, `Atlas/`, `Spaces/`, and `Sources/` pages cite raw manifests or
 domain source notes with body footnotes, not YAML.
 
+### Paper And Single-Source Ingest Style
+
+When ingesting a paper or one important source into a domain page:
+
+- Keep the page about the source's durable content: problem, mechanism,
+  assumptions, results, limits, and reusable implications. Do not include
+  editor/process narration such as "this is more suitable as a paper note" or
+  "I am linking this to the wiki".
+- Use one or a small number of source footnotes for source-backed claims.
+  Single-source pages should not end every paragraph with the same footnote
+  unless the source boundary would otherwise become ambiguous.
+- Weave concept links into the prose with `[[wiki|readable alias]]` at the point
+  where the concept is used. Prefer links to existing Cards, Atlas pages, and
+  Spaces that share a problem, mechanism, or solution pattern. Avoid separate
+  mechanical comparison tables whose only purpose is to list related pages.
+- Link related papers or problem-solving cases by explaining the shared idea,
+  such as similar state movement, scheduling, locality, determinism, resource
+  allocation, or debugging constraints. Do not merely attach a "related cards"
+  list.
+- Prefer direct positive descriptions. Use "not X but Y" contrast only when it
+  prevents a concrete misconception, and remove repeated contrastive phrasing
+  before validation handoff.
+- For cross-domain conceptual links, use explicit path-qualified wikilinks such
+  as `[[Domains/gpu-arch-research/Cards/simt-core-pipeline|SIMT core
+  pipeline]]` when the target exists in the same wiki. The domain validator
+  accepts existing wiki-local path targets and rejects unsafe paths.
+
 ### Source Capture Policy
 
 - Preserve the shared raw source before synthesizing cards.

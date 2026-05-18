@@ -262,10 +262,27 @@ def is_cross_domain_link(target: str) -> bool:
     return (
         target.startswith("/")
         or target.startswith("../")
-        or "/Domains/" in target
-        or target.startswith("Domains/")
         or "\\" in target
     )
+
+
+def wikilink_target_exists(target: str, domain: Path, wiki: Path | None, known_stems: set[str]) -> bool:
+    if "/" not in target:
+        return target in known_stems
+
+    if wiki is None:
+        return True
+
+    if target.startswith(("Atlas/", "Cards/", "Sources/", "Spaces/")):
+        base = domain
+    else:
+        base = wiki
+
+    path = base / target
+    candidates = [path]
+    if path.suffix != ".md":
+        candidates.append(path.with_suffix(".md"))
+    return any(candidate.exists() for candidate in candidates)
 
 
 def active_pages(domain: Path) -> list[Path]:
@@ -505,8 +522,8 @@ def validate_domain(domain: Path) -> list[Issue]:
 
         for target in wikilinks(text):
             if is_cross_domain_link(target):
-                issues.append(Issue("cross-domain-link", page_rel, f"`[[{target}]]` points outside the domain"))
-            elif "/" not in target and target not in known_stems:
+                issues.append(Issue("cross-domain-link", page_rel, f"`[[{target}]]` uses an unsafe path"))
+            elif not wikilink_target_exists(target, domain, wiki, known_stems):
                 issues.append(Issue("broken-wikilink", page_rel, f"`[[{target}]]` has no active page"))
 
     for page in archived:
@@ -524,8 +541,8 @@ def validate_domain(domain: Path) -> list[Issue]:
     if index_path.exists():
         for target in wikilinks(index_text):
             if is_cross_domain_link(target):
-                issues.append(Issue("cross-domain-link", "index.md", f"`[[{target}]]` points outside the domain"))
-            elif "/" not in target and target not in known_stems:
+                issues.append(Issue("cross-domain-link", "index.md", f"`[[{target}]]` uses an unsafe path"))
+            elif not wikilink_target_exists(target, domain, wiki, known_stems):
                 issues.append(Issue("broken-wikilink", "index.md", f"`[[{target}]]` has no active page"))
 
     if log_path.exists():
