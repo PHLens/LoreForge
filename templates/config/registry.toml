@@ -9,6 +9,7 @@
 #   local  = no remote sync; warn about data-loss risk after wiki edits
 #   webdav = rclone remote:path, for example a Nutstore/WebDAV target
 #   git    = git remote repo URL
+#   scp    = user@host:/path target for one-way local-to-remote publishing
 
 default = "cs"
 
@@ -38,3 +39,12 @@ sync = "local"
 remote = ""
 default_domain = "notes"
 sync_bootstrapped = false
+
+[[wikis]]
+name = "published"
+path = "/home/phlens/published-wiki"
+description = "Wiki published to an SSH-accessible backup path"
+sync = "scp"
+remote = "user@example.com:/srv/loreforge-wiki"
+default_domain = "notes"
+sync_bootstrapped = true
