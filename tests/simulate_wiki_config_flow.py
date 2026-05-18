@@ -14,8 +14,12 @@ import re
 import subprocess
 import sys
 import tempfile
-import tomllib
 from pathlib import Path
+
+try:
+    import tomllib
+except ModuleNotFoundError:
+    import tomli as tomllib
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO_ROOT / "skills" / "loreforge-domain" / "scripts"))
@@ -134,6 +138,21 @@ def webdav_bisync_command(wiki: Path, remote: str, *, resync: bool) -> str:
     return result.stdout.strip()
 
 
+def scp_publish_command(wiki: Path, remote: str) -> list[str]:
+    script = REPO_ROOT / "skills" / "loreforge-domain" / "scripts" / "sync_scp.sh"
+    argv = [
+        "bash",
+        script.as_posix(),
+        "--wiki",
+        wiki.as_posix(),
+        "--remote",
+        remote,
+        "--dry-run",
+    ]
+    result = subprocess.run(argv, check=True, capture_output=True, text=True)
+    return result.stdout.strip().splitlines()
+
+
 def post_write_sync_plan(wiki: Path, wiki_entry: dict, message: str) -> list[str]:
     backend = wiki_entry["sync"]
     remote = wiki_entry.get("remote", "")
@@ -149,6 +168,8 @@ def post_write_sync_plan(wiki: Path, wiki_entry: dict, message: str) -> list[str
             f"git -C {wiki.as_posix()} commit -m {message!r}",
             f"git -C {wiki.as_posix()} push",
         ]
+    if backend == "scp":
+        return scp_publish_command(wiki, remote)
     raise AssertionError(f"unknown sync backend: {backend}")
 
 
@@ -412,7 +433,7 @@ def assert_skill_example_is_generic() -> None:
     found = [value for value in forbidden if value in config_skill or value in capture_skill]
     if found:
         raise AssertionError(f"skill example contains environment-specific values: {found}")
-    for expected in ["/path/to/loreforge-wiki", "/path/to/source-vault", "~/.config/loreforge/registry.toml", "sync_bootstrapped", "local | webdav | git"]:
+    for expected in ["/path/to/loreforge-wiki", "/path/to/source-vault", "~/.config/loreforge/registry.toml", "sync_bootstrapped", "local | webdav | git | scp"]:
         if expected not in config_skill:
             raise AssertionError(f"config skill is missing config guidance: {expected}")
     for expected in [
@@ -429,22 +450,28 @@ def assert_skill_example_is_generic() -> None:
         'sync = "local"',
         "webdav",
         "git",
+        "scp",
         "local-only",
         "~/.config/loreforge/registry.toml",
         "machine-local registry",
         "scripts/sync_webdav.sh",
+        "scripts/sync_scp.sh",
     ]:
         if expected not in config_skill:
             raise AssertionError(f"skill is missing sync guidance: {expected}")
     for expected in [
         "skills/loreforge-domain/scripts/sync_webdav.sh",
+        "skills/loreforge-domain/scripts/sync_scp.sh",
     ]:
         if expected not in readme:
-            raise AssertionError(f"README is missing WebDAV sync helper guidance: {expected}")
+            raise AssertionError(f"README is missing sync helper guidance: {expected}")
         if expected not in config_doc:
-            raise AssertionError(f"config docs are missing WebDAV sync helper guidance: {expected}")
+            raise AssertionError(f"config docs are missing sync helper guidance: {expected}")
     if not sync_script.exists():
         raise AssertionError(f"WebDAV sync helper is missing: {sync_script}")
+    scp_script = REPO_ROOT / "skills" / "loreforge-domain" / "scripts" / "sync_scp.sh"
+    if not scp_script.exists():
+        raise AssertionError(f"SCP sync helper is missing: {scp_script}")
     normal = webdav_bisync_command(Path("~/wiki"), "nustore:LoreForgeWiki", resync=False)
     bootstrap = webdav_bisync_command(Path("~/wiki"), "nustore:LoreForgeWiki", resync=True)
     for expected in [
@@ -463,6 +490,15 @@ def assert_skill_example_is_generic() -> None:
         raise AssertionError(f"WebDAV helper normal command should not include --resync: {normal}")
     if "--resync" not in bootstrap:
         raise AssertionError(f"WebDAV helper bootstrap command is missing --resync: {bootstrap}")
+    scp_commands = scp_publish_command(Path("~/wiki"), "user@example.com:/srv/wiki")
+    if len(scp_commands) != 2:
+        raise AssertionError(f"SCP helper should emit ssh mkdir and scp commands: {scp_commands}")
+    for expected in ["ssh user@example.com", "mkdir\\ -p", "/srv/wiki"]:
+        if expected not in scp_commands[0]:
+            raise AssertionError(f"SCP helper mkdir command is missing {expected}: {scp_commands[0]}")
+    for expected in ["scp -r", "/wiki/.", "user@example.com:/srv/wiki"]:
+        if expected not in scp_commands[1]:
+            raise AssertionError(f"SCP helper copy command is missing {expected}: {scp_commands[1]}")
     for expected in [".obsidian*", ".obsidian-desktop", ".obsidian-mobile"]:
         if expected not in wiki_skill:
             raise AssertionError(f"skill is missing Obsidian profile boundary: {expected}")
@@ -617,6 +653,30 @@ def main() -> int:
             f"git -C {named_wiki.as_posix()} push",
         ]
         print("PASS sync upgrade: existing wiki can be switched to git and commit/push is required")
+
+        registry_wikis[1].update(
+            {
+                "sync": "scp",
+                "remote": "user@example.com:/srv/loreforge-wiki",
+                "sync_bootstrapped": True,
+            }
+        )
+        write_registry(
+            home,
+            default="main",
+            wikis=registry_wikis,
+            sources=registry_sources,
+        )
+        registry = load_registry(home)
+        systems_wiki = registry_wiki(registry, "systems")
+        assert systems_wiki["sync"] == "scp"
+        assert systems_wiki["remote"] == "user@example.com:/srv/loreforge-wiki"
+        assert systems_wiki["sync_bootstrapped"] is True
+        scp_plan = post_write_sync_plan(named_wiki, systems_wiki, "publish systems wiki")
+        assert scp_plan == scp_publish_command(named_wiki, "user@example.com:/srv/loreforge-wiki")
+        assert "ssh user@example.com" in scp_plan[0]
+        assert f"{named_wiki.as_posix()}/." in scp_plan[1]
+        print("PASS sync upgrade: existing wiki can be switched to scp and published to a remote path")
 
         source_before = digest_tree(source)
         import_source(source, domain)

@@ -50,9 +50,9 @@ The registry is not a knowledge store. Do not put notes, findings, summaries, or
 
 Fields:
 
-- `sync`: one of `webdav`, `git`, or `local`.
+- `sync`: one of `webdav`, `git`, `scp`, or `local`.
 - `remote`: for `webdav`, an `rclone` `remote:path`; for `git`, a repo URL;
-  for `local`, leave empty.
+  for `scp`, a `user@host:/path/to/wiki` target; for `local`, leave empty.
 - `default_domain`: optional default domain when a user names only the wiki.
 - `sync_bootstrapped`: machine-local flag that says the first sync/bootstrap
   step has already been handled on this machine.
@@ -92,11 +92,15 @@ Supported backends:
 - `git`: user provides a remote repo URL. Initialize or clone the wiki as a git
   working copy, set the remote, then run `git add`, `git commit`, and `git push`
   after wiki edits.
+- `scp`: user provides a remote target such as `user@example.com:/srv/wiki`.
+  The helper creates the remote directory if needed and copies the local wiki
+  contents there. This is one-way local-to-remote publishing and does not merge
+  remote-only edits.
 - `local`: no remote sync. This is allowed only after warning the user that the
   wiki is not linked to remote persistence and local machine loss can lose data.
 
-For `git`, `remote` is the repo URL. For `local`, `remote` is empty and
-`sync_bootstrapped` should be `false`.
+For `git`, `remote` is the repo URL. For `scp`, `remote` is the SCP target.
+For `local`, `remote` is empty and `sync_bootstrapped` should be `false`.
 
 WebDAV command helper:
 
@@ -109,6 +113,15 @@ The helper owns the exact `rclone bisync` argv. Use the first form for normal
 steady-state sync and the second form for first sync or recovery when the local
 wiki should win.
 
+SCP command helper:
+
+```bash
+bash skills/loreforge-domain/scripts/sync_scp.sh --wiki ~/wiki --remote user@example.com:/srv/wiki
+```
+
+The helper owns the exact `ssh` and `scp` argv. Use this only when the remote
+path is a backup or publish target for the local wiki.
+
 ## Post-Write Sync Contract
 
 After any agent-owned wiki edit, run the configured backend flow before
@@ -120,6 +133,8 @@ reporting completion:
   first bootstrap.
 - `git`: run `git add`, create a focused commit, and push to the configured
   remote.
+- `scp`: run `skills/loreforge-domain/scripts/sync_scp.sh` for the wiki path
+  and configured `user@host:/path` target.
 - `local`: do not run sync; report that the wiki remains local-only and repeat
   the data-loss warning.
 
