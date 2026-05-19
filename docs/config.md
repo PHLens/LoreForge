@@ -148,8 +148,8 @@ External orchestrators should use the read-only component adapter for
 availability and validation checks:
 
 ```bash
-python3 skills/loreforge-domain/scripts/loreforge_component.py status --json
-python3 skills/loreforge-domain/scripts/loreforge_component.py validate --wiki /path/to/wiki --all-domains --json
+loreforge status --json
+loreforge validate --wiki /path/to/wiki --all-domains --json
 ```
 
 See `docs/component-contract.md` for the full JSON contract. This adapter does

@@ -20,10 +20,10 @@ doctor/status checks.
 
 ## Commands
 
-The stable read-only adapter is:
+The stable read-only CLI is:
 
 ```bash
-python3 skills/loreforge-domain/scripts/loreforge_component.py <operation> --json
+loreforge <operation> --json
 ```
 
 Operations:
@@ -38,11 +38,15 @@ Operations:
 Examples:
 
 ```bash
-python3 skills/loreforge-domain/scripts/loreforge_component.py status --wiki-name main --json
-python3 skills/loreforge-domain/scripts/loreforge_component.py validate --wiki /path/to/wiki --domain ai-research --json
-python3 skills/loreforge-domain/scripts/loreforge_component.py validate --wiki /path/to/wiki --all-domains --json
-python3 skills/loreforge-domain/scripts/loreforge_component.py init --wiki /path/to/wiki --domain ai-research --sync rclone --remote wiki-webdav:LoreForgeWiki --json
+loreforge status --wiki-name main --json
+loreforge validate --wiki /path/to/wiki --domain ai-research --json
+loreforge validate --wiki /path/to/wiki --all-domains --json
+loreforge init --wiki /path/to/wiki --domain ai-research --sync rclone --remote wiki-webdav:LoreForgeWiki --json
 ```
+
+The CLI is the external contract. Its current implementation delegates to the
+Python component adapter under `skills/loreforge-domain/scripts/`; callers should
+not depend on that internal path.
 
 ## JSON Shape
 

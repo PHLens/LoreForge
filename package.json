@@ -1,0 +1,22 @@
+{
+  "name": "@phlens/loreforge",
+  "version": "0.1.0",
+  "private": true,
+  "description": "LoreForge skills and CLI facade.",
+  "type": "module",
+  "bin": {
+    "loreforge": "bin/loreforge"
+  },
+  "files": [
+    "bin/",
+    "docs/",
+    "lib/",
+    "skills/",
+    "templates/"
+  ],
+  "scripts": {
+    "check": "node --check bin/loreforge && node --check lib/*.mjs",
+    "test": "python3 tests/test_loreforge_component_contract.py && node --test tests/*.test.mjs"
+  },
+  "license": "UNLICENSED"
+}

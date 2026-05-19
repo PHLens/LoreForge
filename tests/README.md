@@ -8,6 +8,7 @@ python3 skills/loreforge-domain/scripts/validate_native_domain.py --fix /path/to
 python3 tests/test_loreforge_domain_footnote_convention.py
 python3 tests/test_loreforge_domain_card_atlas_boundary.py
 python3 tests/test_loreforge_component_contract.py
+node --test tests/loreforge_cli.test.mjs
 python3 tests/simulate_native_domain_operations.py
 python3 tests/simulate_wiki_config_flow.py
 python3 tests/simulate_loreforge_entrypoint_flow.py
