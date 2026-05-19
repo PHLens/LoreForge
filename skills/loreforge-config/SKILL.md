@@ -105,9 +105,9 @@ the component adapter instead of letting external tools write LoreForge config
 or wiki files:
 
 ```bash
-python3 skills/loreforge-domain/scripts/loreforge_component.py status --json
-python3 skills/loreforge-domain/scripts/loreforge_component.py validate --wiki <wiki> --all-domains --json
-python3 skills/loreforge-domain/scripts/loreforge_component.py init --wiki <wiki> --domain <domain> --json
+loreforge status --json
+loreforge validate --wiki <wiki> --all-domains --json
+loreforge init --wiki <wiki> --domain <domain> --json
 ```
 
 `status` and `validate` are read-only checks. `init` is proposal-only and
