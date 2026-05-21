@@ -300,6 +300,9 @@ Adapt to the user's domain. The schema constrains agent behavior and ensures con
 ## Conventions
 - File names: lowercase, hyphens, no spaces (e.g., `transformer-architecture.md`)
 - Every wiki page starts with YAML frontmatter (see below)
+- Every Card frontmatter includes `aliases`, a short list of human-searchable
+  names, acronyms, spelling variants, or common Chinese/English names. Keep
+  `title` as the canonical page name; use `aliases` only to improve search.
 - Use `[[wikilinks]]` to link between pages (minimum 2 outbound links per page)
 - When updating a page, always bump the `updated` date
 - Every new page must be added to `index.md` under the correct section
@@ -409,6 +412,11 @@ Card when source-backed facts, definitions, viewpoints, corrections, or
 provenance change. Cards should answer the stable "what is it" and
 "what is it good for" questions in a reusable way.
 
+Every Card must include an `aliases` list in frontmatter. Add only names a
+human would plausibly search for: acronyms, spelling variants, Chinese/English
+terms, common abbreviations, or a short readable label. Do not use aliases as a
+tag dump or as a replacement for semantic `[[wikilinks]]`.
+
 Write Cards like concise wiki/reference entries. Prefer direct definitions,
 mechanisms, constraints, examples, and open questions. Avoid repeated page
 self-description such as "this Card/page explains..." and avoid framing Cards
@@ -434,6 +442,8 @@ title: Page Title
 created: YYYY-MM-DD
 updated: YYYY-MM-DD
 type: concept
+aliases:
+  - Page Title
 tags: []
 confidence: medium
 status: active
