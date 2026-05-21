@@ -189,6 +189,8 @@ title: Agent Domain Boundary Note
 created: {TODAY}
 updated: {TODAY}
 type: concept
+aliases:
+  - Agent domain boundary note
 tags: [wiki, agent, source]
 confidence: medium
 status: active
@@ -210,6 +212,8 @@ title: Domain Boundary Discipline
 created: {TODAY}
 updated: {TODAY}
 type: concept
+aliases:
+  - Domain boundary discipline
 tags: [wiki, agent, concept]
 confidence: medium
 status: active

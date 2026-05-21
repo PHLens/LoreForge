@@ -12,6 +12,9 @@ def test_skill_contains_card_template_in_schema():
     assert "Cards are shared knowledge objects" in content
     assert "The default Card shape is" in content
     assert "shown in the SCHEMA template below." in content
+    assert "Every Card must include an `aliases` list" in content
+    assert "human-searchable" in content
+    assert "aliases:" in content
     assert "One-sentence direct definition or problem statement." in content
     assert "[^1]: [[Shared/Raw/source-id/manifest.md]]" in content
     assert "## Writing Style" in content

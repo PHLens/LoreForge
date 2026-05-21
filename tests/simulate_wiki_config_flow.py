@@ -386,6 +386,8 @@ title: Compounding Wiki
 created: {TODAY}
 updated: {TODAY}
 type: concept
+aliases:
+  - Compounding wiki
 tags: [concept, wiki]
 confidence: medium
 status: active

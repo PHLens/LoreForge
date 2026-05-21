@@ -32,6 +32,9 @@ REQUIRED_FRONTMATTER = [
     "tags",
     "status",
 ]
+REQUIRED_CARD_FRONTMATTER = [
+    "aliases",
+]
 INDEXABLE_SPACE_TAGS = {"person", "entity", "tool", "project"}
 EXPECTED_TYPE_BY_DIR = {
     "Atlas": "map",
@@ -486,6 +489,14 @@ def validate_domain(domain: Path) -> list[Issue]:
             if field not in fields:
                 issues.append(Issue("missing-frontmatter-field", page_rel, f"missing `{field}`"))
 
+        if page_rel.startswith("Cards/"):
+            for field in REQUIRED_CARD_FRONTMATTER:
+                if field not in fields:
+                    issues.append(Issue("missing-card-frontmatter-field", page_rel, f"missing `{field}`"))
+                    continue
+                if not list_value(fields.get(field, "")):
+                    issues.append(Issue("empty-card-aliases", page_rel, "`aliases` must contain at least one human-searchable alias"))
+
         if "sources" in fields:
             issues.append(Issue("deprecated-frontmatter-field", page_rel, "frontmatter `sources` is no longer used; move provenance to body footnotes"))
 
@@ -631,6 +642,7 @@ def main(argv: list[str]) -> int:
         "missing-raw-manifest",
         "missing-raw-origin",
         "missing-frontmatter-field",
+        "missing-card-frontmatter-field",
         "missing-footnote-definition",
         "missing-index-entry",
         "log-order",
