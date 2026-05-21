@@ -34,6 +34,9 @@ Operations:
   domains.
 - `init`: return an init plan and registry entry shape. This operation is
   intentionally proposal-only; it does not write files.
+- `setup`: write the machine-local registry entry plus minimal wiki/domain
+  skeleton for an external bootstrapper. This operation is a LoreForge-owned
+  bootstrap path; it does not run capture, ingest, rclone sync, or git sync.
 
 Examples:
 
@@ -42,6 +45,7 @@ loreforge status --wiki-name main --json
 loreforge validate --wiki /path/to/wiki --domain ai-research --json
 loreforge validate --wiki /path/to/wiki --all-domains --json
 loreforge init --wiki /path/to/wiki --domain ai-research --sync rclone --remote wiki-webdav:LoreForgeWiki --json
+loreforge setup --wiki /path/to/wiki --domain ai-research --sync local --json
 ```
 
 The CLI is the external contract. Its current implementation delegates to the
@@ -98,8 +102,12 @@ Issues use:
 and validator `issues`.
 
 `init` includes `writes: false`, an intended `registry_entry`, and an `actions`
-plan. The actual LoreForge initialization flow remains owned by the LoreForge
-skills and must handle user confirmation, wiki writes, and sync setup.
+plan. It remains the read-only planning surface.
+
+`setup` includes `selected_wiki`, `domain`, `writes`, `preserved`, `sync`, and
+`validation`. `writes` lists files/directories created or registry entries
+updated. `sync.executed` is always `false` in the current contract; callers must
+not assume rclone or git propagation ran.
 
 ## Doctor Semantics
 
@@ -110,6 +118,10 @@ Noesis doctor can treat this contract as follows:
 - `init --json` is a planning surface only. A non-LoreForge caller should use
   the returned plan to explain what needs to happen, then delegate real writes
   to LoreForge.
+- `setup --json` is the write-capable bootstrap surface for external tools that
+  have explicit user intent to initialize a LoreForge wiki/domain.
 - Exit code `0` means `ok: true`; exit code `1` means at least one error issue.
-- The adapter never runs rclone pull/push, writes registry files, creates wiki
-  folders, or fixes validator issues.
+- The read-only adapter never runs rclone pull/push, writes registry files,
+  creates wiki folders, or fixes validator issues. The `setup` command can
+  write registry/wiki/domain bootstrap files but still does not run sync,
+  capture, ingest, or validator repairs.

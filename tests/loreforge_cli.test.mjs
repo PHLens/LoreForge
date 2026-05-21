@@ -104,8 +104,92 @@ test('init command is a read-only plan', (t) => {
 });
 
 
+test('setup command bootstraps registry, wiki, and domain skeleton', (t) => {
+  const root = tempRoot(t);
+  const wiki = path.join(root, 'wiki');
+  const registry = path.join(root, 'registry.toml');
+
+  const result = runLoreForge([
+    'setup',
+    '--wiki',
+    wiki,
+    '--domain',
+    'ai-research',
+    '--registry',
+    registry,
+    '--description',
+    'AI research notes',
+    '--language',
+    'zh',
+    '--json',
+  ]);
+  const payload = JSON.parse(result.stdout);
+
+  assert.equal(payload.component, 'loreforge');
+  assert.equal(payload.operation, 'setup');
+  assert.equal(payload.ok, true);
+  assert.equal(payload.selected_wiki.path, wiki);
+  assert.equal(payload.domain.name, 'ai-research');
+  assert.equal(payload.validation.ok, true);
+  assert.equal(fs.existsSync(registry), true);
+  assert.equal(fs.existsSync(path.join(wiki, '00_System', 'index.md')), true);
+  assert.equal(fs.existsSync(path.join(wiki, 'Shared', 'Templates', 'weekly.md')), true);
+  assert.equal(fs.existsSync(path.join(wiki, 'Domains', 'ai-research', 'SCHEMA.md')), true);
+  assert.match(fs.readFileSync(registry, 'utf8'), /default_domain = "ai-research"/);
+
+  const rerun = runLoreForge([
+    'setup',
+    '--wiki',
+    wiki,
+    '--domain',
+    'ai-research',
+    '--registry',
+    registry,
+    '--description',
+    'Different description should not matter without --force when core binding is identical',
+    '--language',
+    'zh',
+    '--json',
+  ]);
+  assert.equal(JSON.parse(rerun.stdout).ok, true);
+});
+
+
+test('setup preserves source registry entries', (t) => {
+  const root = tempRoot(t);
+  const wiki = path.join(root, 'wiki');
+  const registry = path.join(root, 'registry.toml');
+  write(registry, `default = "main"
+
+[[sources]]
+name = "old-vault"
+kind = "obsidian-vault"
+path = "/tmp/old-vault"
+default_target_wiki = "main"
+default_target_domain = "ai-research"
+`);
+
+  runLoreForge([
+    'setup',
+    '--wiki',
+    wiki,
+    '--domain',
+    'ai-research',
+    '--registry',
+    registry,
+    '--json',
+  ]);
+
+  const registryText = fs.readFileSync(registry, 'utf8');
+  assert.match(registryText, /\[\[sources\]\]/);
+  assert.match(registryText, /name = "old-vault"/);
+});
+
+
 test('help and version are available', () => {
   assert.match(runLoreForge(['--help']).stdout, /Usage: loreforge/);
   assert.match(runLoreForge(['help', 'validate']).stdout, /Usage: loreforge validate/);
+  assert.match(runLoreForge(['setup', '--help']).stdout, /Usage: loreforge setup/);
+  assert.match(runLoreForge(['help', 'setup']).stdout, /Usage: loreforge setup/);
   assert.match(runLoreForge(['--version']).stdout.trim(), /^\d+\.\d+\.\d+$/);
 });

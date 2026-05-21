@@ -107,8 +107,42 @@ def test_init_is_read_only_plan() -> None:
         assert payload["registry_entry"]["sync"] == "rclone"
 
 
+def test_cli_setup_writes_bootstrap_files() -> None:
+    with tempfile.TemporaryDirectory(prefix="loreforge-component-") as tmp:
+        root = Path(tmp)
+        wiki = root / "wiki"
+        registry = root / "registry.toml"
+        result = subprocess.run(
+            [
+                "node",
+                (REPO_ROOT / "bin" / "loreforge").as_posix(),
+                "setup",
+                "--wiki",
+                wiki.as_posix(),
+                "--domain",
+                "ai-research",
+                "--registry",
+                registry.as_posix(),
+                "--json",
+            ],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+        payload = json.loads(result.stdout)
+        assert payload["component"] == "loreforge"
+        assert payload["operation"] == "setup"
+        assert payload["ok"] is True
+        assert payload["validation"]["ok"] is True
+        assert (wiki / "00_System" / "index.md").exists()
+        assert (wiki / "Shared" / "Templates" / "weekly.md").exists()
+        assert (wiki / "Domains" / "ai-research" / "SCHEMA.md").exists()
+        assert "default_domain = \"ai-research\"" in registry.read_text(encoding="utf-8")
+
+
 if __name__ == "__main__":
     test_status_contract()
     test_validate_contract()
     test_init_is_read_only_plan()
+    test_cli_setup_writes_bootstrap_files()
     print("LoreForge component contract tests passed.")

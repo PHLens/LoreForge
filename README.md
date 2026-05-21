@@ -178,11 +178,15 @@ surface documented in `docs/component-contract.md`:
 loreforge status --json
 loreforge validate --wiki /path/to/wiki --all-domains --json
 loreforge init --wiki /path/to/wiki --domain ai-research --json
+loreforge setup --wiki /path/to/wiki --domain ai-research --json
 ```
 
-This surface is for doctor/status/proposal checks. It does not write registry
-files, wiki notes, domains, sync state, or fixes; actual LoreForge writes remain
-owned by the LoreForge skills.
+`status` and `validate` are read-only doctor checks. `init` is proposal-only and
+does not write registry files, wiki notes, domains, sync state, or fixes.
+`setup` is the component-facing bootstrap command for external tools: it writes
+the machine-local registry entry plus the minimal wiki/domain skeleton and
+returns a JSON report. It does not run capture, ingest, rclone sync, or git
+sync.
 
 ## GitHub-Backed Wikis
 
