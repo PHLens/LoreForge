@@ -142,6 +142,17 @@ mkdir -p ~/.config/loreforge
 cp templates/config/registry.toml ~/.config/loreforge/registry.toml
 ```
 
+External bootstrapper setup:
+
+```bash
+loreforge setup --wiki /path/to/wiki --domain ai-research --sync local --json
+```
+
+`loreforge setup` creates or updates the machine-local registry entry and
+minimal wiki/domain skeleton. It is the write-capable component CLI for setup
+flows such as Noesis umbrella bootstrap. It does not run rclone or git sync;
+those remain explicit post-setup actions.
+
 ## External Doctor Surface
 
 External orchestrators should use the read-only component adapter for
