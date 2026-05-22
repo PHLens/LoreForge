@@ -320,7 +320,12 @@ Adapt to the user's domain. The schema constrains agent behavior and ensures con
   specific source, and put definitions at the end of the page using wikilinks
   such as `[^1]: [[Sources/source-note-name]]` or
   `[^1]: [[Shared/Raw/<source-id>/manifest.md]]`. Single-source pages should
-  still use a footnote for source-backed claims.
+  still use a footnote for source-backed claims, but usually only once near the
+  lead, conclusion, or other boundary that makes the single-source scope clear.
+  Do not add the same footnote to every paragraph in a single-source Card.
+  Repeat source footnotes within a page only when multiple sources are
+  interleaved, a paragraph draws from a different source, or the source boundary
+  would otherwise be ambiguous.
 - **Knowledge links:** Links to Cards, Atlas pages, and Spaces are semantic wiki
   links, not provenance markers. Insert them naturally where the concept is
   used, and use aliases when needed for readable prose, e.g.
@@ -521,8 +526,11 @@ source and compile the useful domain slice, not to force a paper-shaped review.
   lens, update existing Cards/Atlas/Spaces, or create a new durable page.
 - Keep the synthesized page about reusable domain knowledge. Do not include
   editor/process narration.
-- Use source footnotes where claims depend on that source, but avoid repeated
-  identical footnotes when the source boundary is already clear.
+- Use source footnotes where claims depend on that source. For a single-source
+  Card or Source lens, cite the dominant source once or in a small number of
+  boundary-setting locations; do not mechanically repeat the same footnote on
+  every paragraph. Use multiple paragraph-level source footnotes only when
+  multiple sources are interleaved or a local claim needs a different source.
 - Weave semantic `[[wikilinks]]` into prose for concepts already represented in
   the wiki. Use direct positive descriptions and avoid mechanical related-link
   lists.
