@@ -263,8 +263,9 @@ Domain layer:
 Capture writes raw source packages into `Shared/Raw/<source-id>/` and stops
 there. Ingest updates those packages and compiles durable synthesis into
 `Atlas/`, `Cards/`, and `Spaces/`. Optional domain source excerpts live in
-`Sources/`. Compiled pages cite raw manifests or domain source notes with body
-footnotes.
+`Sources/`. Compiled pages should prefer plain internal wikilinks to wiki-local
+raw artifacts, raw manifests, or domain source notes; use source footnotes only
+when paragraph-level provenance would otherwise be ambiguous.
 ```
 
 Create `Domains/<domain>/Extras/` only when the domain needs its own
@@ -315,17 +316,14 @@ Adapt to the user's domain. The schema constrains agent behavior and ensures con
   as a substitute for semantic in-body wikilinks.
 - Write equations and derivations with LaTeX math: use `$...$` for inline
   expressions and `$$...$$` for standalone equations.
-- **Provenance markers:** Use body footnotes, not YAML, for compiled-page
-  provenance. Append `[^1]` at the end of paragraphs whose claims come from a
-  specific source, and put definitions at the end of the page using wikilinks
-  such as `[^1]: [[Sources/source-note-name]]` or
-  `[^1]: [[Shared/Raw/<source-id>/manifest.md]]`. Single-source pages should
-  still use a footnote for source-backed claims, but usually only once near the
-  lead, conclusion, or other boundary that makes the single-source scope clear.
-  Do not add the same footnote to every paragraph in a single-source Card.
-  Repeat source footnotes within a page only when multiple sources are
-  interleaved, a paragraph draws from a different source, or the source boundary
-  would otherwise be ambiguous.
+- **Provenance links:** Do not use YAML `sources:` for compiled-page provenance.
+  When the source is already a wiki-local raw artifact, raw manifest, or domain
+  Source note, prefer an inline wikilink using the note filename/stem and an
+  alias when useful, such as `[[clip-name|readable alias]]`. Use a source
+  footnote only when paragraph-level provenance would otherwise be ambiguous,
+  especially in multi-source synthesis where adjacent claims come from different
+  sources. Do not add the same source marker to every paragraph in a
+  single-source Card or Source lens.
 - **Knowledge links:** Links to Cards, Atlas pages, and Spaces are semantic wiki
   links, not provenance markers. Insert them naturally where the concept is
   used, and use aliases when needed for readable prose, e.g.
@@ -464,7 +462,7 @@ One-sentence direct definition or problem statement.
 
 ## What is
 
-[^1]: [[Shared/Raw/source-id/manifest.md]]
+[[source-artifact-or-manifest|readable source alias]]
 ```
 
 Add optional sections only when needed, such as `## Mechanism`, `## Example`,
@@ -487,8 +485,10 @@ relevant Cards or Atlas pages.
 Raw source packages live under `Shared/Raw/<source-id>/`. Domain pages do not
 keep YAML `sources:` links. Optional domain `Sources/` pages are compact
 excerpt notes or source-specific lenses over large raw packages. Compiled
-`Cards/`, `Atlas/`, `Spaces/`, and `Sources/` pages cite raw manifests or
-domain source notes with body footnotes, not YAML.
+`Cards/`, `Atlas/`, `Spaces/`, and `Sources/` pages prefer internal wikilinks
+to wiki-local raw artifacts, raw manifests, or domain source notes. Do not use
+YAML source links. Use source footnotes only for genuinely ambiguous
+paragraph-level provenance.
 
 ### Paper Ingest Handoff
 
@@ -526,11 +526,12 @@ source and compile the useful domain slice, not to force a paper-shaped review.
   lens, update existing Cards/Atlas/Spaces, or create a new durable page.
 - Keep the synthesized page about reusable domain knowledge. Do not include
   editor/process narration.
-- Use source footnotes where claims depend on that source. For a single-source
-  Card or Source lens, cite the dominant source once or in a small number of
-  boundary-setting locations; do not mechanically repeat the same footnote on
-  every paragraph. Use multiple paragraph-level source footnotes only when
-  multiple sources are interleaved or a local claim needs a different source.
+- Prefer inline wikilinks to wiki-local source artifacts or manifests, using the
+  file stem and alias syntax when useful. Use source footnotes only when a
+  multi-source page needs paragraph-level provenance disambiguation. For a
+  single-source Card or Source lens, link the dominant source once or in a small
+  number of boundary-setting locations instead of mechanically repeating the
+  same source marker on every paragraph.
 - Weave semantic `[[wikilinks]]` into prose for concepts already represented in
   the wiki. Use direct positive descriptions and avoid mechanical related-link
   lists.
@@ -546,9 +547,12 @@ source and compile the useful domain slice, not to force a paper-shaped review.
   retrieval date, source type, source language, `content_hash`, `origin`,
   `candidate_domains`, `compiled_pages`, status, and local artifact pointers.
 - Keep `origin.md` in the source language and preserve structure, links, and
-  image refs where possible. Prefer complete transcription when the material is
-  user-provided, local, permissively licensed, public domain, or otherwise
-  appropriate to reuse in full. For third-party web pages where full
+  image refs where possible. For human-captured Markdown/HTML/PDF artifacts,
+  preserve the original export unchanged under `original/` with the original
+  filename; use `origin.md` only as a thin wrapper when duplicating or rewriting
+  the full export would reduce fidelity. Prefer complete transcription when the
+  material is user-provided, local, permissively licensed, public domain, or
+  otherwise appropriate to reuse in full. For third-party web pages where full
   transcription is not appropriate, keep a faithful structured capture with
   specific excerpts and grounded notes; do not add generic boilerplate unless a
   concrete capture limitation matters.

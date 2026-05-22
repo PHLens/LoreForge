@@ -108,7 +108,7 @@ def assert_skill_contract() -> None:
         "Attach diagrams or artifacts only in the section that explains them",
         "Use Shared/Raw/ only for diagrams, logs, screenshots, or source artifacts",
         "Link And Citation Style",
-        "Use one or a small number of source footnotes for source-backed claims",
+        "Prefer inline wikilinks to wiki-local Jira/issue/MR/PR/design-doc/CI-log raw",
         "Weave concepts, systems, modules, files, failures, fixes, and related work",
         "Avoid standalone \"related Cards\" or \"related pages\" tables",
         "Prefer direct positive descriptions.",

@@ -122,11 +122,13 @@ Archive the original PDF only when explicitly requested or when access
 stability, exact page/figure audit, local provenance, or offline reuse requires
 the binary.
 
-Compiled domain pages do not carry YAML `sources:` links. Put source-backed
-provenance in body footnotes that point to raw manifests or domain source
-notes, for example `[^1]: [[Shared/Raw/<source-id>/manifest.md]]` or
-`[^1]: [[Sources/source-note-name]]`. Source metadata should point to wiki-local
-files, not temporary extractor outputs such as `/tmp/topic-research/...`.
+Compiled domain pages do not carry YAML `sources:` links. Prefer source-backed
+provenance as plain internal wikilinks to wiki-local raw artifacts, raw
+manifests, or domain source notes, using filename/stem links and aliases such as
+`[[clip-name|readable alias]]`. Use source footnotes only when paragraph-level
+provenance would otherwise be ambiguous. Source metadata should point to
+wiki-local files, not temporary extractor outputs such as
+`/tmp/topic-research/...`.
 
 ## Boundaries
 

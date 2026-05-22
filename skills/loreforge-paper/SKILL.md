@@ -134,9 +134,10 @@ paper page body.
 
 ## Link And Citation Style
 
-- Use one or a small number of source footnotes for source-backed claims when
-  the paper is the dominant source. Avoid ending every paragraph with the same
-  footnote unless the source boundary would otherwise become ambiguous.
+- Prefer inline wikilinks to wiki-local paper raw artifacts, manifests, or
+  source notes, using the file stem and alias syntax when useful. Use source
+  footnotes only when a multi-source paper page needs paragraph-level
+  provenance disambiguation.
 - Weave concepts, methods, principles, and mechanisms into prose with
   `[[wiki|readable alias]]` at the point where they are used.
 - Relate the paper to existing papers, Cards, Atlas pages, and Spaces by naming

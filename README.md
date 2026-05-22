@@ -103,8 +103,10 @@ personal planning notes when the wiki role is asked to decompose goals into
 daily or weekly work. `Shared/Templates/` stores reusable wiki templates.
 `Domains/<domain>/Sources/` is optional and can hold source excerpts or
 source-specific lenses when the raw package is large. `Cards/`, `Atlas/`, and
-`Spaces/` hold the durable synthesis and cite raw manifests or domain source
-notes through body footnotes, not YAML source links.
+`Spaces/` hold the durable synthesis and should prefer plain internal wikilinks
+to wiki-local raw artifacts, raw manifests, or domain source notes; use
+source footnotes only when paragraph-level provenance would otherwise be ambiguous.
+Do not use YAML source links.
 
 ## Skills
 
