@@ -16,7 +16,7 @@ def test_skill_contains_card_template_in_schema():
     assert "human-searchable" in content
     assert "aliases:" in content
     assert "One-sentence direct definition or problem statement." in content
-    assert "[^1]: [[Shared/Raw/source-id/manifest.md]]" in content
+    assert "[[source-artifact-or-manifest|readable source alias]]" in content
     assert "## Writing Style" in content
     assert "Write Cards like concise wiki/reference entries" in content
     assert "## Knowledge links" not in content
@@ -25,6 +25,7 @@ def test_skill_contains_card_template_in_schema():
     assert "[[kv-cache-memory-hierarchy|KV cache hierarchy]]" in content
     assert "Do not cite Cards with" in content
     assert "source-style footnote markers" in content
+    assert "Use source footnotes only" in content
     assert "related:: [[concept-a]], [[concept-b|Readable label]]" in content
     assert "not naturally mentioned in the body" in content
     assert "Use aliases when" in content

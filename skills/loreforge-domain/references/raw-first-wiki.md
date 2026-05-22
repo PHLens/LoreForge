@@ -43,4 +43,4 @@ reduce future work.
 
 ## Compilation Rule
 
-Create or update Cards, Atlas pages, Spaces, and optional Source notes only when the result will be reused. Compiled pages cite raw manifests or source notes with body footnotes, not YAML source links.
+Create or update Cards, Atlas pages, Spaces, and optional Source notes only when the result will be reused. Compiled pages prefer plain internal wikilinks to wiki-local raw artifacts, raw manifests, or source notes; use source footnotes only when paragraph-level provenance would otherwise be ambiguous. Do not use YAML source links.

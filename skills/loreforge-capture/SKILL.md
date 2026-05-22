@@ -17,7 +17,7 @@ Always:
 - derive a stable, readable `source-id`
 - write only raw source packages under `Shared/Raw/<source-id>/`
 - create `origin.md` and `manifest.md` for every capture
-- preserve source language and useful structure
+- preserve source language, useful structure, and human-captured artifact filenames
 - keep transient extractor paths out of durable wiki metadata
 - report the captured path and concrete capture limitations
 
@@ -34,7 +34,7 @@ Accept:
 - URLs and web pages
 - PDFs and local files
 - pasted text
-- exported docs or repos
+- exported docs, human clipper captures, or repos
 - `topic-research` research packs
 - `convert-to-markdown` or `defuddle` output
 
@@ -62,10 +62,14 @@ Only `manifest.md` and `origin.md` are required. Create `original/`,
 to compact metadata-and-text capture rather than archiving every PDF binary;
 see `loreforge-paper` for the paper-specific artifact policy.
 
-Use `origin.md` for the canonical agent-readable source text. Preserve the
-source language, title, headings, links, and concrete capture limitations. For
-third-party web pages where full transcription is not appropriate, keep a
-faithful structured capture with the useful excerpts and grounded notes.
+Use `origin.md` for canonical agent-readable source text or for a thin wrapper
+around preserved artifacts. For human-captured Markdown/HTML/PDF, keep the
+export unchanged under `original/` with its original filename and record that
+artifact in `manifest.md`; do not rename or rewrite the user's clip merely to
+fit a source-id. Preserve the source language, title, headings, links, and
+concrete capture limitations. For third-party web pages where full
+transcription is not appropriate, keep a faithful structured capture with the
+useful excerpts and grounded notes.
 
 Use `manifest.md` for metadata and lifecycle state:
 

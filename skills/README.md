@@ -41,8 +41,9 @@ owns durable project record shape before bounded domain handoff. The domain
 skill follows the LLM Wiki pattern: one expert agent maintains one domain by
 orienting on `SCHEMA.md`, `index.md`, recent `log.md`, and relevant pages
 before writing. Raw clips are preserved separately, and compiled domain pages
-cite raw manifests or domain source notes with body footnotes, not YAML source
-links.
+prefer plain internal wikilinks to raw artifacts/manifests or domain source
+notes; use source footnotes only for ambiguous paragraph-level provenance, not
+YAML source links.
 
 ## Core Workflow
 

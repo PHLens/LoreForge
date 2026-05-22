@@ -498,7 +498,7 @@ def validate_domain(domain: Path) -> list[Issue]:
                     issues.append(Issue("empty-card-aliases", page_rel, "`aliases` must contain at least one human-searchable alias"))
 
         if "sources" in fields:
-            issues.append(Issue("deprecated-frontmatter-field", page_rel, "frontmatter `sources` is no longer used; move provenance to body footnotes"))
+            issues.append(Issue("deprecated-frontmatter-field", page_rel, "frontmatter `sources` is no longer used; use inline wikilinks to wiki-local sources or footnotes only when provenance is ambiguous"))
 
         expected = expected_type(page, domain)
         if expected and fields.get("type") != expected:

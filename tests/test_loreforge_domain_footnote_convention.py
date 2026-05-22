@@ -1,4 +1,4 @@
-"""Lint tests for LoreForge wiki SKILL.md footnote conventions."""
+"""Lint tests for LoreForge wiki source-link conventions."""
 import re
 import pathlib
 
@@ -15,38 +15,37 @@ def test_no_inline_caret_footnotes():
     assert matches == [], (
         "Found deprecated ^[...] inline footnote syntax: "
         + str(matches)
-        + ". Use [^N] inline + [^N]: [[wikilink]] at page end instead."
+        + ". Use inline wikilinks for wiki-local sources; use [^N] only when provenance is ambiguous."
     )
 
 
-def test_provenance_uses_bracket_footnotes():
-    """Provenance marker section must use [^N] syntax."""
+def test_source_links_prefer_internal_wikilinks():
+    """Source-link guidance should prefer filename/stem wikilinks for wiki-local sources."""
     content = SKILL_PATH.read_text()
-    assert "[^1]" in content, (
-        "SKILL.md must reference [^1] footnote syntax for provenance markers."
-    )
+    assert "Provenance links" in content
+    assert "prefer an inline wikilink" in content
+    assert "[[clip-name|readable alias]]" in content
 
 
-def test_provenance_shows_footnote_definition_example():
-    """Provenance marker section must show wikilink footnote definition example."""
+def test_footnotes_are_exception_not_default():
+    """Footnotes should be limited to ambiguous paragraph-level provenance."""
     content = SKILL_PATH.read_text()
-    assert "[^1]: [[" in content, (
-        "SKILL.md must show [^1]: [[wikilink]] footnote definition example."
-    )
+    assert "Use source footnotes only" in content
+    assert "Single-source pages should still use a footnote" not in content
 
 
-def test_single_source_cards_do_not_repeat_same_footnote():
-    """Single-source Card guidance should forbid mechanical repeated footnotes."""
+def test_single_source_cards_do_not_repeat_same_source_marker():
+    """Single-source Card guidance should forbid mechanical repeated source markers."""
     content = SKILL_PATH.read_text()
-    assert "Do not add the same footnote to every paragraph in a single-source Card" in content
-    assert "cite the dominant source once or in a small number of" in content
+    assert "Do not add the same source marker to every paragraph" in content
+    assert "link the dominant source once or in a small" in content
     assert "boundary-setting locations" in content
-    assert "multiple sources are interleaved" in content
+    assert "multi-source synthesis" in content
 
 
 if __name__ == "__main__":
     test_no_inline_caret_footnotes()
-    test_provenance_uses_bracket_footnotes()
-    test_provenance_shows_footnote_definition_example()
-    test_single_source_cards_do_not_repeat_same_footnote()
-    print("All footnote convention tests passed.")
+    test_source_links_prefer_internal_wikilinks()
+    test_footnotes_are_exception_not_default()
+    test_single_source_cards_do_not_repeat_same_source_marker()
+    print("All source-link convention tests passed.")

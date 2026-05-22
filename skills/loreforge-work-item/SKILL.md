@@ -81,9 +81,10 @@ details that have no durable project value.
      `Shared/Raw/pytorch-14461/`.
    - Attach diagrams or artifacts only in the section that explains them. Do
      not create an attachment dump at the end.
-   - Source-backed claims should use body footnotes to raw manifests or domain
-     source notes. Conversation-local or repo-local context does not need fake
-     citations.
+   - Source-backed claims should prefer inline wikilinks to wiki-local raw
+     artifacts, manifests, or domain source notes. Use source footnotes only when
+     paragraph-level provenance would otherwise be ambiguous. Conversation-local
+     or repo-local context does not need fake citations.
 
 5. **Validate and sync**
    - Update `index.md` when creating or materially changing an indexable Space.
@@ -123,10 +124,9 @@ or a schema-defined equivalent.
 
 ## Link And Citation Style
 
-- Use one or a small number of source footnotes for source-backed claims when a
-  Jira, issue, MR, PR, design doc, CI log, or raw artifact is the dominant
-  source. Avoid ending every paragraph with the same footnote unless the source
-  boundary would otherwise become ambiguous.
+- Prefer inline wikilinks to wiki-local Jira/issue/MR/PR/design-doc/CI-log raw
+  artifacts, manifests, or domain source notes. Use source footnotes only when
+  paragraph-level provenance would otherwise be ambiguous.
 - Weave concepts, systems, modules, files, failures, fixes, and related work
   items into prose with `[[wiki|readable alias]]` at the point where they are
   used.

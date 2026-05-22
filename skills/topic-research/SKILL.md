@@ -12,8 +12,10 @@ inputs. Durable raw source packages belong under the wiki-level
 `Shared/Raw/<source-id>/` directory, with `manifest.md` tracking metadata,
 source hash, compiled page pointers, and artifact links. Domain-specific
 `Sources/` pages are optional excerpt notes when a raw package is large or a
-stable source lens is useful. Compiled domain pages should cite raw manifests
-or domain source notes with body footnotes, not YAML source links. Do not
+stable source lens is useful. Compiled domain pages should prefer plain
+internal wikilinks to wiki-local raw artifacts, raw manifests, or domain source
+notes; use source footnotes only when paragraph-level provenance would otherwise
+be ambiguous. Do not
 leave final wiki notes pointing at `/tmp/topic-research/...`.
 
 ## Environment Setup
