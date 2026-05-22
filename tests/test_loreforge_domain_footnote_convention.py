@@ -35,8 +35,18 @@ def test_provenance_shows_footnote_definition_example():
     )
 
 
+def test_single_source_cards_do_not_repeat_same_footnote():
+    """Single-source Card guidance should forbid mechanical repeated footnotes."""
+    content = SKILL_PATH.read_text()
+    assert "Do not add the same footnote to every paragraph in a single-source Card" in content
+    assert "cite the dominant source once or in a small number of" in content
+    assert "boundary-setting locations" in content
+    assert "multiple sources are interleaved" in content
+
+
 if __name__ == "__main__":
     test_no_inline_caret_footnotes()
     test_provenance_uses_bracket_footnotes()
     test_provenance_shows_footnote_definition_example()
+    test_single_source_cards_do_not_repeat_same_footnote()
     print("All footnote convention tests passed.")
