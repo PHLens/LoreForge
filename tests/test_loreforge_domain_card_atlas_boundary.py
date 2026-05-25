@@ -1,66 +1,79 @@
-"""Lint tests for LoreForge wiki Card / Atlas boundary guidance."""
+"""Lint tests for LoreForge Card / MOC authoring contracts."""
 import pathlib
 
 REPO_ROOT = pathlib.Path(__file__).resolve().parent.parent
-SKILL_PATH = REPO_ROOT / "skills" / "loreforge-domain" / "SKILL.md"
+CARD_SKILL_PATH = REPO_ROOT / "skills" / "loreforge-card" / "SKILL.md"
+MOC_SKILL_PATH = REPO_ROOT / "skills" / "loreforge-moc" / "SKILL.md"
+DOMAIN_SKILL_PATH = REPO_ROOT / "skills" / "loreforge-domain" / "SKILL.md"
+ENTRY_SKILL_PATH = REPO_ROOT / "skills" / "loreforge" / "SKILL.md"
 
 
-def test_skill_contains_card_template_in_schema():
-    """SKILL.md should define the Card template directly in the schema template."""
-    content = SKILL_PATH.read_text()
-    assert "### Default Card Template" in content
-    assert "Cards are shared knowledge objects" in content
-    assert "The default Card shape is" in content
-    assert "shown in the SCHEMA template below." in content
-    assert "Every Card must include an `aliases` list" in content
-    assert "human-searchable" in content
-    assert "aliases:" in content
+def test_card_skill_has_hard_authoring_contract():
+    """Card authoring should be a narrow leaf workflow with an acceptance gate."""
+    content = CARD_SKILL_PATH.read_text()
+    assert "page_type_decision" in content
+    assert "selected: card" in content
+    assert "Hard Gate" in content
+    assert "Card Contract" in content
+    assert "Acceptance Gate" in content
+    assert "strict page-type decision" in content
+    assert "reusable concept/method/mechanism/pattern/tradeoff/comparison" in content
+    assert "Do not write a Card when the decision is weak" in content
+    assert "aliases" in content
+    assert "First body paragraph is a direct definition" in content
+    assert "source summary" in content
+    assert "project record" in content
+    assert "proposal argument" in content
     assert "One-sentence direct definition or problem statement." in content
     assert "[[source-artifact-or-manifest|readable source alias]]" in content
-    assert "## Writing Style" in content
-    assert "Write Cards like concise wiki/reference entries" in content
-    assert "## Knowledge links" not in content
-    assert "**Knowledge links:**" in content
-    assert "semantic wiki" in content
-    assert "[[kv-cache-memory-hierarchy|KV cache hierarchy]]" in content
-    assert "Do not cite Cards with" in content
-    assert "source-style footnote markers" in content
-    assert "Use source footnotes only" in content
+    assert "Do not cite Cards with source-style footnote markers" in content
     assert "related:: [[concept-a]], [[concept-b|Readable label]]" in content
-    assert "not naturally mentioned in the body" in content
-    assert "Use aliases when" in content
-    assert "do not repeat links already expressed naturally in the body" in content
-    assert "Do not add `related::` by default" in content
-    assert "do not use it" in content
-    assert "Body wikilinks are preferred" in content
-    assert "related:: [[related-page]]" not in content
 
 
-def test_skill_preserves_card_vs_atlas_split():
-    """SKILL.md should keep Cards reusable and Atlas for problem-specific views."""
-    content = SKILL_PATH.read_text()
-    assert "Use `Cards/` for shared, reusable knowledge objects" in content
-    assert "Use `Atlas/` for question-driven views" in content
-    assert "Overview: what problem or claim the view is trying to discuss" in content
-    assert "Key ideas or comments about those concepts" in content
-    assert "Cards should answer the stable \"what is it\" and" in content
-    assert "specific problem, project, proposal, or point of view" in content
-    assert "Common Card shapes:" in content
-    assert "Concept pages: definition or explanation" in content
-    assert "Comparison pages: what is being compared and why" in content
-    assert "project-specific" in content
-    assert "commentary, proposal framing" in content
-    assert "Avoid repeated page" in content
-    assert "self-description" in content
-    assert "proposal evidence" in content
-    assert "project support" in content
-    assert "Prefer direct" in content
-    assert '"not X but Y" phrasing' in content
-    assert "weave `[[wikilinks]]` into the relevant sentence" in content
-    assert "reference-list style citation" in content
+def test_moc_skill_has_hard_view_contract():
+    """MOC authoring should require a view question and relationship structure."""
+    content = MOC_SKILL_PATH.read_text()
+    assert "page_type_decision" in content
+    assert "selected: moc" in content
+    assert "view_question" in content
+    assert "Hard Gate" in content
+    assert "MOC Contract" in content
+    assert "Acceptance Gate" in content
+    assert "Do not write a MOC without a clear view question" in content
+    assert "A MOC is a human-readable view over relationships" in content
+    assert "not an index mirror" in content
+    assert "not a Card list" in content
+    assert "question-driven or problem-driven view" in content
+    assert "relationship map across multiple Cards" in content
+    assert "Links are woven naturally into the body" in content
+
+
+def test_entrypoint_routes_directly_to_leaf_workflows():
+    """The main entrypoint should choose Card/MOC leaves without a domain router hop."""
+    content = ENTRY_SKILL_PATH.read_text()
+    assert "`loreforge-card` | strict reusable Card authoring" in content
+    assert "`loreforge-moc` | strict Atlas/MOC view authoring" in content
+    assert "Delegate directly to `loreforge-card`" in content
+    assert "Delegate directly to `loreforge-moc`" in content
+    assert "Page-Type Decision" in content
+    assert "Do not force uncertain material into Cards or MOCs" in content
+
+
+def test_domain_skill_delegates_card_and_moc_authoring():
+    """The generic domain workflow should no longer own Card/MOC prose."""
+    content = DOMAIN_SKILL_PATH.read_text()
+    assert "Card and MOC authoring belong to loreforge-card and loreforge-moc" in content
+    assert "delegate Card authoring to `loreforge-card`" in content
+    assert "delegate Atlas/MOC authoring to `loreforge-moc`" in content
+    assert "Do not author Card pages in this workflow" in content
+    assert "Do not author Atlas/MOC pages in this workflow" in content
+    assert "### Default Card Template" not in content
+    assert "Common Card shapes:" not in content
 
 
 if __name__ == "__main__":
-    test_skill_contains_card_template_in_schema()
-    test_skill_preserves_card_vs_atlas_split()
-    print("All Card / Atlas boundary tests passed.")
+    test_card_skill_has_hard_authoring_contract()
+    test_moc_skill_has_hard_view_contract()
+    test_entrypoint_routes_directly_to_leaf_workflows()
+    test_domain_skill_delegates_card_and_moc_authoring()
+    print("All Card / MOC authoring contract tests passed.")

@@ -4,7 +4,7 @@
 The entrypoint is a skill-level dispatch workflow, not a runtime library.
 This test keeps the expected behavior concrete: discover domains, choose
 read/write targets, and preserve the rule that durable domain work is delegated
-to loreforge-domain.
+to focused leaf workflows.
 """
 
 from __future__ import annotations
@@ -55,6 +55,8 @@ def assert_skill_contract() -> None:
         "loreforge-paper",
         "plan-docomposer",
         "loreforge-work-item",
+        "loreforge-card",
+        "loreforge-moc",
         "loreforge-check",
         "loreforge-import",
         "loreforge-domain",
@@ -71,6 +73,10 @@ def assert_skill_contract() -> None:
         "Delegate work-item shaping and bounded domain write guidance to",
         "Delegate lint, audit, and check work to `loreforge-check`",
         "Delegate source discovery and capture planning to `loreforge-import`",
+        "Delegate directly to `loreforge-card`",
+        "Delegate directly to `loreforge-moc`",
+        "Page-Type Decision",
+        "Do not force uncertain material into Cards or MOCs",
         "Use loreforge-domain.",
         ]
     missing = [item for item in required if item not in skill]
@@ -79,6 +85,8 @@ def assert_skill_contract() -> None:
     paper_required = [
         "Paper ingest is a distinct workflow.",
         "loreforge-capture",
+        "loreforge-card",
+        "loreforge-moc",
         "loreforge-domain",
         "ordinary articles, blogs, docs, transcripts, reports, local notes, or web",
         "Paper Artifact Policy",
@@ -113,6 +121,8 @@ def assert_skill_contract() -> None:
         "Avoid standalone \"related Cards\" or \"related pages\" tables",
         "Prefer direct positive descriptions.",
         "Domain Handoff Prompt",
+        "loreforge-card",
+        "loreforge-moc",
     ]
     missing_work_item = [item for item in work_item_required if item not in work_item_skill]
     if missing_work_item:

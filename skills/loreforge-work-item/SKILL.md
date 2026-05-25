@@ -18,7 +18,7 @@ This skill owns the work-item-specific process:
 - shaping problem background, solution, bug diagnosis, verification, status,
   and follow-ups
 - attaching diagrams or artifacts only where they support the explanation
-- handing bounded domain writes to `loreforge-domain`
+- writing bounded project records under `Spaces/projects/`
 
 It does not replace:
 
@@ -26,8 +26,9 @@ It does not replace:
   and sync
 - `loreforge-capture` for raw source preservation
 - `loreforge-paper` for paper-specific ingest
-- `loreforge-domain` for domain orientation, page writes, index/log updates,
-  schema compliance, and validation
+- `loreforge-card` for separate reusable concepts discovered during the work
+- `loreforge-moc` for separate project/problem views
+- `loreforge-domain` for generic domain orientation, Source/Space repairs, and validation
 
 ## When To Use
 
