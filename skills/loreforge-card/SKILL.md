@@ -139,11 +139,11 @@ contradictions: []
 
 One-sentence direct definition or problem statement.
 
-## Mechanism
+## Why
+
+## What Is Page Title
 
 ## Constraints
-
-## Example
 
 ## Open Questions
 ```

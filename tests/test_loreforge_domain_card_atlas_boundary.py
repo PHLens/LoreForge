@@ -25,6 +25,12 @@ def test_card_skill_has_hard_authoring_contract():
     assert "project record" in content
     assert "proposal argument" in content
     assert "One-sentence direct definition or problem statement." in content
+    assert "## Why" in content
+    assert "## What Is Page Title" in content
+    assert "## Constraints" in content
+    assert "## Open Questions" in content
+    assert "## Mechanism" not in content
+    assert "## Example" not in content
     assert "[[source-artifact-or-manifest|readable source alias]]" in content
     assert "Do not cite Cards with source-style footnote markers" in content
     assert "related:: [[concept-a]], [[concept-b|Readable label]]" in content
