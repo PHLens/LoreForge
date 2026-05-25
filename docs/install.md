@@ -4,7 +4,8 @@ LoreForge has two parts:
 
 1. Framework repo: this repository.
 2. Wiki instance: a separate repository or vault managed by the LoreForge
-   main entrypoint, `loreforge-config`, and `loreforge-domain`.
+   main entrypoint, `loreforge-config`, `loreforge-card`, `loreforge-moc`, and
+   `loreforge-domain`.
 
 ## Create A Wiki Instance
 
@@ -75,6 +76,8 @@ Main entrypoint and expert workflows:
 - `loreforge-paper`
 - `plan-docomposer`
 - `loreforge-work-item`
+- `loreforge-card`
+- `loreforge-moc`
 - `loreforge-check`
 - `loreforge-import`
 - `loreforge-domain`

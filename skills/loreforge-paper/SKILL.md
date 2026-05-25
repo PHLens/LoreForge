@@ -17,13 +17,16 @@ This skill owns the paper-specific process:
 - paper note shape
 - contribution, mechanism, evaluation, and limit extraction
 - related paper / similar problem links
-- handoff to `loreforge-domain` for bounded domain writes
+- handoff to `loreforge-card`, `loreforge-moc`, or `loreforge-domain` for
+  bounded domain writes
 
 It does not replace:
 
 - `loreforge` for user-facing routing, domain selection, write gates, and sync
 - `loreforge-capture` for raw package preservation
-- `loreforge-domain` for domain orientation, page writes, index/log updates, and schema compliance
+- `loreforge-card` for reusable Card updates from the paper
+- `loreforge-moc` for paper-derived relationship or proposal views
+- `loreforge-domain` for domain orientation, Source/Space writes, index/log updates, and schema compliance
 
 ## When To Use
 
@@ -37,7 +40,8 @@ as one:
   "paper contribution", "related work", or "paper notes"
 
 For ordinary articles, blogs, docs, transcripts, reports, local notes, or web
-pages, use the generic source ingest path in `loreforge-domain`.
+pages, use the main `loreforge` entrypoint so it can choose
+`loreforge-card`, `loreforge-moc`, or a conservative Source/Space path.
 
 ## Workflow
 
@@ -62,8 +66,9 @@ pages, use the generic source ingest path in `loreforge-domain`.
    - Reuse the same raw package for every approved domain.
 
 4. **Compile Paper Knowledge**
-   - Create or update the paper page and any reusable Cards/Atlas updates
-     through `loreforge-domain`, staying inside `Domains/<domain>/`.
+   - Create or update the paper page through the selected domain workflow.
+     Reusable Cards go through `loreforge-card`; Atlas/MOC views go through
+     `loreforge-moc`; Source/Space writes go through `loreforge-domain`.
    - Put source-specific paper notes in the page type/folder that the domain
      schema supports, commonly `Spaces/papers/` or `Sources/` when present.
      If the schema has no paper convention, prefer a source-specific Space or
@@ -159,7 +164,7 @@ paper page body.
 Use this bounded prompt when delegating the actual domain write:
 
 ```text
-Use loreforge-domain.
+Use loreforge-card, loreforge-moc, or loreforge-domain as selected by the page-type decision.
 Wiki root: <wiki-root>
 Domain: <domain>
 Operation: ingest

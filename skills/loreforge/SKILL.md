@@ -1,6 +1,6 @@
 ---
 name: loreforge
-description: Default LoreForge entrypoint for capture, ingest, query, lint, init, config, import, plan, work-item records, and cross-domain coordination. Resolves intent, config, domains, write gates, and subagent fan-out before delegating to focused workflows and loreforge-domain experts.
+description: Default LoreForge entrypoint for capture, ingest, query, lint, init, config, import, plan, work-item records, Card/MOC authoring, and cross-domain coordination. Resolves intent, config, domains, write gates, and subagent fan-out before delegating to focused leaf workflows.
 user-invocable: true
 version: 0.2.0
 ---
@@ -35,7 +35,9 @@ It delegates durable work to focused workflows:
 | `loreforge-paper` | paper-specific capture/ingest flow for arXiv, DOI, PDF, preprint, conference paper, or paper-like technical report |
 | `plan-docomposer` | decompose personal or research goals into weekly and daily note plans under `Calendar/` |
 | `loreforge-work-item` | project, Jira, issue, MR/PR, bugfix, CI failure, and implementation records under domain `Spaces/projects/` |
-| `loreforge-domain` | one expert-owned domain's query, ingest synthesis, update, and domain initialization |
+| `loreforge-card` | strict reusable Card authoring under `Domains/<domain>/Cards/` |
+| `loreforge-moc` | strict Atlas/MOC view authoring under `Domains/<domain>/Atlas/` |
+| `loreforge-domain` | domain initialization, generic domain orientation, Sources/Spaces updates, and legacy domain repair |
 | `loreforge-check` | lint, audit, structural checks, raw package integrity, validator execution |
 | `loreforge-import` | existing repo/vault/folder/export -> source capture and native domain ingest |
 
@@ -72,6 +74,8 @@ Map user intent to one operation:
 - `ingest`: capture if needed, update raw package metadata, and compile domain knowledge
 - `query`: answer from existing wiki knowledge
 - `update`: revise durable domain pages
+- `card`: create or update a reusable Card page
+- `moc`: create or update an Atlas/MOC view page
 - `plan`: decompose a personal, research, study, career, or project goal into weekly and daily note plans
 - `work-item`: create or update a durable project, Jira, issue, MR/PR, bugfix,
   CI failure, implementation, or verification record
@@ -121,6 +125,24 @@ Routing rules:
 For ingest, default to one primary domain. Multi-domain ingest is allowed only
 when the user explicitly asks or approves the split.
 
+## Page-Type Decision
+
+Before writing compiled domain knowledge, decide the target page type and fail
+closed when the choice is weak:
+
+- `card`: stable reusable concept, mechanism, method, pattern, tradeoff,
+  comparison, or decision framework. Delegate directly to `loreforge-card`.
+- `moc`: question-driven view, problem framing, proposal/project view, or
+  relationship map across multiple pages. Delegate directly to `loreforge-moc`.
+- `source`: source excerpt or source-specific lens. Use `loreforge-domain` for
+  bounded `Sources/` work after capture.
+- `space`: person, organization, project, tool, system, or context record. Use
+  `loreforge-work-item` for project records or `loreforge-domain` for other
+  bounded `Spaces/` work.
+
+Do not force uncertain material into Cards or MOCs. Ask one concise question or
+choose the more conservative Source/Space path.
+
 ## Operation Workflows
 
 ### Config
@@ -163,8 +185,9 @@ updates, report the selected wiki, default domain, backend, and next action.
 3. If no raw package exists, delegate non-paper capture to `loreforge-capture`.
 4. Select a primary target domain.
 5. If secondary domains look relevant, list them and ask before writing there.
-6. Delegate package metadata updates and domain synthesis to a
-   `loreforge-domain` expert for each approved domain.
+6. Make a page-type decision for the compiled output. Delegate reusable Cards
+   to `loreforge-card`, MOC/view pages to `loreforge-moc`, and Source/Space
+   updates to `loreforge-domain` or the specific paper/work-item workflow.
 7. Run post-write sync through `loreforge-config`.
 
 For sources that matter to multiple domains, reuse the same
@@ -193,16 +216,34 @@ work item under `Spaces/projects/`.
    durable context.
 5. Run post-write sync through `loreforge-config`.
 
+### Card
+
+1. Resolve wiki/domain and confirm write permission.
+2. Delegate directly to `loreforge-card`.
+3. Require the Card acceptance gate before reporting completion.
+4. Run post-write sync through `loreforge-config`.
+
+### MOC
+
+1. Resolve wiki/domain and confirm write permission.
+2. Delegate directly to `loreforge-moc`.
+3. Require the MOC acceptance gate before reporting completion.
+4. Run post-write sync through `loreforge-config`.
+
 ### Update
 
-Select the domain, delegate the bounded update to `loreforge-domain`, then run
-post-write sync. Ask before touching 10+ pages or multiple domains.
+Select the domain, make a page-type decision, and delegate directly to the
+leaf workflow: `loreforge-card` for Cards, `loreforge-moc` for Atlas/MOCs,
+`loreforge-work-item` for project records, or `loreforge-domain` for
+Sources/Spaces/domain repair. Ask before touching 10+ pages or multiple
+domains.
 
 ### Lint
 
 Delegate lint, audit, and check work to `loreforge-check`. If repairs
-are needed, gate write-capable repair work and delegate domain page fixes to
-`loreforge-domain`.
+are needed, gate write-capable repair work and delegate page fixes to the
+relevant leaf workflow: `loreforge-card`, `loreforge-moc`, or
+`loreforge-domain` for generic domain repair.
 
 ### Import
 
@@ -210,10 +251,46 @@ Delegate source discovery and capture planning to `loreforge-import`. Use
 domain routing for the captured material. Ask before converting any existing
 repo or vault in place.
 
-## Delegation Prompt
+## Delegation Prompts
 
-For domain expert work, use this bounded prompt with a subagent when useful, or
-run it sequentially when subagents are unavailable:
+For Card work:
+
+```text
+Use loreforge-card.
+Wiki root: <wiki-root>
+Domain: <domain>
+Write policy: <write-confirmed>
+Request: <user request>
+Source/provenance context: <raw package, source note, or none>
+Target page: <existing or proposed Cards/<slug>.md>
+
+Orient on SCHEMA.md, index.md, recent log.md, and relevant pages.
+Make page_type_decision before writing.
+Update only Domains/<domain>/Cards/, index.md, and log.md unless explicitly asked.
+Run the Card acceptance gate before handoff.
+Return: page_type_decision, files changed, acceptance checklist, unresolved conflicts, confidence.
+```
+
+For MOC work:
+
+```text
+Use loreforge-moc.
+Wiki root: <wiki-root>
+Domain: <domain>
+Write policy: <write-confirmed>
+View question: <problem, claim, project, decision, or comparison>
+Request: <user request>
+Target page: <existing or proposed Atlas/<slug>.md>
+
+Orient on SCHEMA.md, index.md, recent log.md, and relevant Cards/Spaces/Sources.
+Make page_type_decision before writing.
+Update only Domains/<domain>/Atlas/, index.md, and log.md unless explicitly asked.
+Run the MOC acceptance gate before handoff.
+Return: page_type_decision, files changed, acceptance checklist, unresolved conflicts, confidence.
+```
+
+For generic domain work, use this bounded prompt with a subagent when useful,
+or run it sequentially when subagents are unavailable:
 
 ```text
 Use loreforge-domain.

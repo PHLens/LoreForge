@@ -85,8 +85,9 @@ Capture-only writes may create or refresh raw packages under
 updates still require orientation first.
 
 Query and ingest should stay question-driven: start from the problem being
-answered, then decide whether the raw package, an optional domain Source note,
-or a durable Card/Atlas/Space page is actually warranted.
+answered, then make a page-type decision. Use strict Card authoring for durable
+reusable concepts, strict Atlas/MOC authoring for relationship or problem
+views, and conservative Source/Space paths when the reusable shape is weak.
 
 Durable project work items belong in domain `Spaces/projects/` or the domain's
 schema-defined equivalent. They should summarize problem background, solution,
@@ -94,9 +95,9 @@ bug diagnosis, verification, and status, not preserve chat transcripts or
 command-by-command logs.
 
 When several raw packages are present, a main entrypoint or caller may group
-them by candidate domain and dispatch bounded parallel ingest jobs. Each domain
-expert still owns package updates, domain page writes, index updates, and log
-entries for its domain.
+them by candidate domain and dispatch bounded parallel ingest jobs. The selected
+leaf workflow owns its page write, index update, and log entry inside that
+domain boundary.
 
 After substantive changes, update `index.md` when stable pages are created,
 archived, renamed, or materially changed. Insert a concise newest-first
@@ -141,6 +142,8 @@ wiki-local files, not temporary extractor outputs such as
   Cards.
   Start from the question and create durable synthesis only when it reduces
   future work.
+- Do not force weak material into Cards or MOCs; use Source/Space records or
+  ask a blocker question when the page type is unclear.
 - If `Extras/` exists, do not index it directly.
 - Do not index `Spaces/_archive/` or transient workspace notes.
 - Mark low-confidence and contested knowledge explicitly.

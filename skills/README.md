@@ -15,9 +15,11 @@ needed.
 | `loreforge-paper` | Route paper-specific capture/ingest for arXiv, DOI, PDF, preprints, conference papers, and paper-like technical reports |
 | `plan-docomposer` | Decompose personal or research goals into weekly and daily note plans under `Calendar/` |
 | `loreforge-work-item` | Turn project, Jira, issue, MR/PR, bugfix, CI failure, and implementation context into durable `Spaces/projects/` records |
+| `loreforge-card` | Strict reusable Card authoring under `Domains/<domain>/Cards/` |
+| `loreforge-moc` | Strict Atlas/MOC view authoring under `Domains/<domain>/Atlas/` |
 | `loreforge-check` | Lint, audit, and structural checks for raw packages and native domains |
 | `loreforge-import` | Treat existing repos, vaults, folders, and exports as source material |
-| `loreforge-domain` | Query, ingest synthesis, update durable pages, and initialize expert-owned domains |
+| `loreforge-domain` | Domain initialization, generic domain orientation, Sources/Spaces updates, and legacy domain repair |
 
 It also bundles reusable helper skills that a wiki agent can call during
 capture or Obsidian-facing work:
@@ -58,5 +60,7 @@ failure, or implementation context should become a durable project record.
 Use `loreforge-check` when the user asks for linting, audit, validation, or checks.
 Use `loreforge-import` when an existing repo, vault, folder, or export should
 be treated as source material.
-Use `loreforge-domain` for one expert-owned domain's durable synthesis and
-updates.
+Use `loreforge-card` for reusable Card pages.
+Use `loreforge-moc` for Atlas/MOC view pages.
+Use `loreforge-domain` for domain initialization, Sources/Spaces updates, and
+generic domain repair.

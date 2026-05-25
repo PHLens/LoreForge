@@ -17,7 +17,8 @@ Always:
 - resolve source aliases from `~/.config/loreforge/registry.toml`
 - capture raw material into `Shared/Raw/` first
 - use `loreforge` to select target domains
-- use `loreforge-domain` domain experts for durable domain synthesis
+- use `loreforge` page-type decisions to choose `loreforge-card`,
+  `loreforge-moc`, or `loreforge-domain` for durable domain synthesis
 
 ## Workflow
 
@@ -28,7 +29,8 @@ Always:
 3. Inspect the source structure enough to identify candidate material.
 4. Capture source material into `Shared/Raw/<source-id>/` raw packages.
 5. Route captured packages by candidate domain.
-6. Delegate each domain ingest to `loreforge-domain`.
+6. Delegate each domain ingest to the selected leaf workflow:
+   `loreforge-card`, `loreforge-moc`, or `loreforge-domain`.
 7. Ensure each domain expert:
    - updates `Shared/Raw/<source-id>/origin.md` and `manifest.md`
    - writes optional domain `Sources/` excerpts only when useful

@@ -1,7 +1,7 @@
 ---
 name: loreforge-domain
-description: Domain expert workflow for one LoreForge domain. Use for delegated domain query, ingest synthesis, durable updates, and domain initialization after the LoreForge main entrypoint has resolved config, capture, routing, and write policy.
-user-invocable: true
+description: Internal LoreForge workflow for one domain's orientation, initialization, generic query, Sources/Spaces updates, and legacy domain repair after the main entrypoint has resolved config, routing, and write policy. Card and MOC authoring belong to loreforge-card and loreforge-moc.
+user-invocable: false
 version: 0.2.0
 metadata:
   origin: "Inspired by NousResearch Hermes LLM Wiki, MIT"
@@ -18,9 +18,10 @@ durable knowledge linked, and update it as questions arrive. It adds expert-owne
 domains, reusable Cards, and Atlas MOCs for preserving evolving project and
 conceptual views.
 
-Use this skill as a delegated domain expert. For user-facing routing,
-configuration, capture, import, or checks, use `loreforge` and the focused
-internal workflows first. When source-layer details matter, read
+Use this skill as a delegated domain orientation, initialization, and generic
+domain maintenance workflow. For user-facing routing, configuration, capture,
+import, checks, Card authoring, or MOC authoring, use `loreforge` and the
+focused internal workflows first. When source-layer details matter, read
 [references/raw-first-wiki.md](references/raw-first-wiki.md).
 
 Always:
@@ -29,8 +30,8 @@ Always:
 - query existing knowledge first
 - update pages directly after orientation
 - keep `index.md` and `log.md` current
-- keep Cards reusable; put project/proposal-specific synthesis in Atlas/MOC
-  pages
+- delegate Card authoring to `loreforge-card`
+- delegate Atlas/MOC authoring to `loreforge-moc`
 - write equations and derivations with Obsidian-compatible LaTeX: inline math
   as `$...$`, standalone equations as `$$...$$`, never as plain-text
   pseudo-notation
@@ -42,11 +43,12 @@ the user directly asks one selected domain to:
 
 - query a LoreForge wiki or domain
 - ingest an already captured source, raw package, URL, paper, doc, repo, local
-  file, or pasted material into one selected domain
-- update, revise, or maintain durable domain knowledge
+  file, or pasted material into one selected domain when the output is a
+  `Sources/` lens, `Spaces/` page, or generic domain repair
+- update, revise, or maintain generic domain knowledge that is not a Card or MOC
 - create a domain wiki
 - apply domain page fixes from a lint or check
-- save reusable synthesis into a domain wiki
+- repair or orient a domain before a leaf workflow writes a page
 
 **DO NOT** use this skill for:
 
@@ -56,6 +58,8 @@ the user directly asks one selected domain to:
 - full chat transcripts
 - one-off debugging details
 - main-entrypoint routing, sync setup, raw capture-only work, or full checks
+- Card authoring; use `loreforge-card`
+- Atlas/MOC authoring; use `loreforge-moc`
 
 Those belong in the agent runtime or memory system, not in the shared wiki.
 
@@ -333,18 +337,13 @@ Adapt to the user's domain. The schema constrains agent behavior and ensures con
   `related::` list.
 
 ## Writing Style
-- Write Cards like concise wiki/reference entries: define the concept, describe
-  the mechanism, name constraints, give examples, and link related pages.
-- Avoid Card self-description such as "this Card/page explains..." unless the
-  page's role itself is the subject.
-- Avoid framing Cards as proposal evidence, project support, or current-view
-  commentary. Put that synthesis in Atlas/MOC pages that link to reusable Cards.
+- Write domain `Sources/` and `Spaces/` pages as durable reference material,
+  not process narration.
 - Prefer direct positive descriptions over repeated "not X but Y" framing.
   Use negative contrast only when it prevents a specific misconception.
-- Atlas/MOC pages may carry project framing, current arguments, open decisions,
-  and commentary about how reusable Cards connect. When an Atlas/MOC refers to
-  Cards, weave `[[wikilinks]]` into the relevant sentence instead of making a
-  reference-list style citation.
+- Do not write Card or MOC prose in this workflow. Delegate Card pages to
+  `loreforge-card` and MOC pages to `loreforge-moc` so their acceptance gates
+  run before handoff.
 
 ## Frontmatter
 ```yaml
@@ -392,82 +391,15 @@ prevents tag sprawl.
 reusable thinking view exists.
 
 ## Atlas/MOC Pages
-Use `Atlas/` for question-driven views, proposal/project framing, and MOCs that
-connect multiple reusable pages around a current problem, claim, comparison, or
-decision. An Atlas page is not a mirror of `index.md`; it can contain the
-current argument, interpretation, evaluation questions, open decisions, and
-comments that belong to that view. Use Atlas when the user is asking about a
-specific problem, project, proposal, or point of view.
-
-When multiple concepts are collected and the useful work is in the relations
-between them, a MOC is the right shape. A useful Atlas/MOC page usually includes:
-
-- Overview: what problem or claim the view is trying to discuss
-- Key related concepts and relationships or comparisons
-- Key ideas or comments about those concepts
-- Remaining issues or questions
+Do not author Atlas/MOC pages in this workflow. Delegate to `loreforge-moc`
+after domain orientation and page-type decision. The MOC leaf workflow owns the
+view question, relationship structure, writing contract, and acceptance gate.
 
 ## Cards
-Cards are shared knowledge objects.
-Use `Cards/` for shared, reusable knowledge objects: durable concepts, methods,
-mechanisms, patterns, tradeoffs, comparisons, and decision frameworks. Update a
-Card when source-backed facts, definitions, viewpoints, corrections, or
-provenance change. Cards should answer the stable "what is it" and
-"what is it good for" questions in a reusable way.
-
-Every Card must include an `aliases` list in frontmatter. Add only names a
-human would plausibly search for: acronyms, spelling variants, Chinese/English
-terms, common abbreviations, or a short readable label. Do not use aliases as a
-tag dump or as a replacement for semantic `[[wikilinks]]`.
-
-Write Cards like concise wiki/reference entries. Prefer direct definitions,
-mechanisms, constraints, examples, and open questions. Avoid repeated page
-self-description such as "this Card/page explains..." and avoid framing Cards
-as proposal evidence, project support, or current-view commentary. Prefer direct
-positive descriptions over repeated "not X but Y" phrasing; use negative
-contrast only when it prevents a specific misconception. Put project-specific
-commentary, proposal framing, or "how this helps my current paper" synthesis in
-an Atlas/MOC page that links to the reusable Cards. The default Card shape is
-shown in the SCHEMA template below.
-
-Common Card shapes:
-
-- Concept pages: definition or explanation, current state of knowledge, open
-  questions or debates, related concepts
-- Comparison pages: what is being compared and why, dimensions of comparison,
-  verdict or synthesis, footnote provenance for source-backed claims
-
-### Default Card Template
-
-```markdown
----
-title: Page Title
-created: YYYY-MM-DD
-updated: YYYY-MM-DD
-type: concept
-aliases:
-  - Page Title
-tags: []
-confidence: medium
-status: active
-contested: false
-contradictions: []
----
-
-# Page Title
-
-One-sentence direct definition or problem statement.
-
-## Why
-
-## What is
-
-[[source-artifact-or-manifest|readable source alias]]
-```
-
-Add optional sections only when needed, such as `## Mechanism`, `## Example`,
-`## Limits`, or `## Open Questions`. Do not reserve a mandatory proposal section
-inside Cards.
+Do not author Card pages in this workflow. Delegate to `loreforge-card` after
+domain orientation and page-type decision. The Card leaf workflow owns
+reusable concept boundaries, `aliases`, writing style, provenance rules, and
+the Card acceptance gate.
 
 ## Extras
 Create domain `Extras/` only for non-source attachments owned by this domain:
@@ -523,7 +455,8 @@ transcripts, reports, local notes, or web pages. Its goal is to preserve the
 source and compile the useful domain slice, not to force a paper-shaped review.
 
 - Decide whether the source should become a compact `Sources/<source-id>.md`
-  lens, update existing Cards/Atlas/Spaces, or create a new durable page.
+  lens, update existing Spaces, or hand off to `loreforge-card` /
+  `loreforge-moc` for Card/Atlas authoring.
 - Keep the synthesized page about reusable domain knowledge. Do not include
   editor/process narration.
 - Prefer inline wikilinks to wiki-local source artifacts or manifests, using the
@@ -534,7 +467,8 @@ source and compile the useful domain slice, not to force a paper-shaped review.
   same source marker on every paragraph.
 - Weave semantic `[[wikilinks]]` into prose for concepts already represented in
   the wiki. Use direct positive descriptions and avoid mechanical related-link
-  lists.
+  lists. For reusable concepts or relationship views, hand off to
+  `loreforge-card` or `loreforge-moc` instead of writing them here.
 
 ### Source Capture Policy
 

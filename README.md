@@ -123,9 +123,11 @@ are needed.
 | `loreforge-paper` | Route paper-specific capture/ingest for arXiv, DOI, PDF, preprints, conference papers, and paper-like technical reports |
 | `plan-docomposer` | Decompose personal or research goals into weekly and daily note plans under `Calendar/` |
 | `loreforge-work-item` | Turn project, Jira, issue, MR/PR, bugfix, CI failure, and implementation context into durable `Spaces/projects/` records |
+| `loreforge-card` | Strict reusable Card authoring under `Domains/<domain>/Cards/` |
+| `loreforge-moc` | Strict Atlas/MOC view authoring under `Domains/<domain>/Atlas/` |
 | `loreforge-check` | Lint, audit, and structural checks for raw packages and native domains |
 | `loreforge-import` | Treat existing repos, vaults, folders, and exports as source material |
-| `loreforge-domain` | Query, ingest synthesis, update durable pages, and initialize expert-owned domains |
+| `loreforge-domain` | Domain initialization, generic domain orientation, Sources/Spaces updates, and legacy domain repair |
 | `topic-research` | Browser-backed web research, URL extraction, Zhihu detail expansion, WeChat probing, and source research packs |
 | `convert-to-markdown` | Convert local documents and exported pages to Markdown |
 | `defuddle` | Extract clean Markdown from standard web pages with the Defuddle CLI |
@@ -139,9 +141,11 @@ handoff, and cross-domain coordination. `loreforge-paper` owns the
 paper-specific ingest shape before bounded domain handoff. `plan-docomposer`
 owns wiki-local goal decomposition into Calendar notes. `loreforge-work-item`
 owns project record shape before bounded domain handoff. `loreforge-domain`
-owns durable domain writes. Helper skills produce capture input or
-Obsidian-specific artifacts; they should not replace routing, domain
-orientation, index, log, and check workflow.
+owns domain initialization and generic Sources/Spaces maintenance.
+`loreforge-card` and `loreforge-moc` own Card/MOC authoring contracts and
+acceptance gates. Helper skills produce capture input or Obsidian-specific
+artifacts; they should not replace routing, domain orientation, index, log,
+and check workflow.
 
 The previous Obsidian `wiki` adapter layout is not bundled. Existing Obsidian
 vaults can still be used as sources, and LoreForge wiki instances can still be
@@ -156,8 +160,8 @@ The plugin layer is intentionally thin:
 - expose the `loreforge` main entrypoint
 - keep `loreforge-config`, `loreforge-capture`, `loreforge-check`,
   `loreforge-paper`, `plan-docomposer`, `loreforge-work-item`,
-  `loreforge-import`, and `loreforge-domain` available as internal workflows
-  for the entrypoint
+  `loreforge-card`, `loreforge-moc`, `loreforge-import`, and
+  `loreforge-domain` available as internal workflows for the entrypoint
 - provide boundary instructions for when to use LoreForge
 - keep actual knowledge in separate wiki instances
 - recover after context compaction from domain `SCHEMA.md`, `index.md`,
@@ -222,9 +226,10 @@ one backend.
 
 Existing repos or vaults should be treated as sources. Use `loreforge-import`
 and `loreforge-capture` to preserve raw material under `Shared/Raw/`, then
-route selected material to `loreforge-domain` domain experts for native
-`Domains/<domain>/` synthesis instead of keeping long-term alternate layouts or
-source mirrors.
+route selected material through the main `loreforge` page-type decision so
+native `Domains/<domain>/` synthesis lands in `loreforge-card`,
+`loreforge-moc`, or conservative Source/Space workflows instead of keeping
+long-term alternate layouts or source mirrors.
 
 ## License
 

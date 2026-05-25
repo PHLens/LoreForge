@@ -100,16 +100,18 @@ LoreForge now follows a small core:
 4. Optional domain source notes live in `Domains/<domain>/Sources/` when a raw
    package is large or needs a stable excerpt.
 5. One expert agent owns and maintains one domain.
-6. The core `loreforge-domain` skill handles domain query, ingest, update, and
-   initialization.
-7. Expert agents write directly after orientation.
+6. The main `loreforge` entrypoint makes page-type decisions before compiled
+   writes.
+7. `loreforge-card` and `loreforge-moc` own strict Card/MOC authoring
+   contracts and acceptance gates. `loreforge-domain` handles domain
+   initialization, generic orientation, Sources/Spaces updates, and repair.
 8. Human supervision happens through `log.md`, `index.md`, confidence metadata,
    contradiction records, checks, and git diffs.
 
 The old staged package pipeline is not part of the active core workflow.
 Focused helper workflows may exist for config, capture, paper-specific ingest,
-work-item records, checks, and import, but they should stay behind the main
-entrypoint instead of becoming user surface area.
+work-item records, Card/MOC authoring, checks, and import, but they should stay
+behind the main entrypoint instead of becoming user surface area.
 
 ## What To Learn From LLM Wiki Systems
 
