@@ -36,6 +36,23 @@ def test_card_skill_has_hard_authoring_contract():
     assert "related:: [[concept-a]], [[concept-b|Readable label]]" in content
 
 
+def test_card_skill_defines_split_gate():
+    """Growing Cards should be split by reusable concept boundaries, not arbitrary length."""
+    content = CARD_SKILL_PATH.read_text()
+    collapsed = " ".join(content.split())
+    assert "## Split Gate" in content
+    assert "Before expanding an existing Card" in content
+    assert "multiple `What Is ...` explanations" in content
+    assert "independently searched, linked, or reused" in content
+    assert "Constraints, variants, or comparisons dominate the parent concept" in content
+    assert "Use a MOC for the relationship view" in collapsed
+    assert "Do not split when the added material is just an example" in content
+    assert "## Split Procedure" in content
+    assert "Keep the original Card as the canonical page" in content
+    assert "Replace extracted detail in the original Card with a concise summary" in collapsed
+    assert "The Split Gate was checked" in content
+
+
 def test_moc_skill_has_hard_view_contract():
     """MOC authoring should require a view question and relationship structure."""
     content = MOC_SKILL_PATH.read_text()
@@ -79,6 +96,7 @@ def test_domain_skill_delegates_card_and_moc_authoring():
 
 if __name__ == "__main__":
     test_card_skill_has_hard_authoring_contract()
+    test_card_skill_defines_split_gate()
     test_moc_skill_has_hard_view_contract()
     test_entrypoint_routes_directly_to_leaf_workflows()
     test_domain_skill_delegates_card_and_moc_authoring()

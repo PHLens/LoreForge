@@ -102,6 +102,42 @@ Keep Card prose reusable:
   be used near the top only for relevant pages not naturally mentioned in the
   body. Do not add `related::` by default and do not repeat body links.
 
+## Split Gate
+
+Before expanding an existing Card, decide whether the new material still
+belongs in the same reusable knowledge object.
+
+Split the Card when one of these is true:
+
+- A section has become a separate reusable concept, mechanism, method,
+  constraint, tradeoff, or comparison with its own stable "what is it" answer.
+- The page now needs multiple `What Is ...` explanations for different things.
+- A subsection would be independently searched, linked, or reused by humans or
+  agents.
+- Constraints, variants, or comparisons dominate the parent concept and would
+  be clearer as their own Card.
+- The Card is becoming an umbrella over several Cards. Use a MOC for the
+  relationship view instead of keeping the umbrella as a swollen Card.
+
+Do not split when the added material is just an example, clarification,
+boundary condition, or open question for the same concept. Do not create a
+child Card that lacks a direct definition, meaningful aliases, or natural
+outbound links.
+
+## Split Procedure
+
+When splitting:
+
+1. Keep the original Card as the canonical page for its stable concept.
+2. Create each extracted Card through the normal Card hard gate and default
+   template.
+3. Give each extracted Card its own `aliases`, direct first paragraph, natural
+   wikilinks, provenance, `index.md` entry, and `log.md` entry.
+4. Replace extracted detail in the original Card with a concise summary and
+   semantic links to the new Cards.
+5. If the useful artifact is a view over the new Card set, create or update a
+   MOC through `loreforge-moc` instead of making the parent Card act as a map.
+
 ## Provenance
 
 Do not use YAML `sources:` for compiled-page provenance.
@@ -161,6 +197,8 @@ Before reporting completion, check:
   or MOC.
 - Frontmatter includes non-empty `aliases`.
 - The first body paragraph is a direct definition or problem statement.
+- The Split Gate was checked; oversized umbrella Cards were split or handed to
+  a MOC.
 - Related pages are linked naturally in the body.
 - Provenance is represented with wiki-local links or sparse footnotes only
   where useful.
