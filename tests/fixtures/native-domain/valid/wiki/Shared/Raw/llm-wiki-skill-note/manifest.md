@@ -14,6 +14,7 @@ compiled_pages:
   - Domains/ai-research/Cards/compounding-wiki-maintenance.md
   - Domains/ai-research/Cards/expert-domain-wiki.md
   - Domains/ai-research/Spaces/codex.md
+  - Domains/ai-research/Spaces/projects/codex/threaded-tool-call-replay.md
 status: compiled
 artifacts:
   - Shared/Raw/llm-wiki-skill-note/original/clip.md
