@@ -84,6 +84,25 @@ Required shape:
 - At least two meaningful outbound `[[wikilinks]]` when related pages exist.
 - Update `index.md` under `## Cards` and insert a newest-first `log.md` entry.
 
+## Zettelkasten Adaptation
+
+Treat Cards as Zettelkasten-style permanent notes for this domain:
+
+- Each Card has one focus object: one durable concept, method, mechanism,
+  pattern, tradeoff, comparison, or decision framework.
+- The Card is self-contained enough to make sense later without rereading the
+  original source package.
+- Write in the domain's own words. Do not promote copied source notes,
+  highlights, or extracted summaries into Cards.
+- Link the Card into the knowledge network with semantic links whose nearby
+  prose explains why the linked page matters.
+- Do not rely on tags, folders, backlinks, or `index.md` as the main meaning of
+  the Card. The body must carry the definition and relationships.
+
+Do not copy the physical Zettelkasten numbering/sequence system into
+LoreForge. Stable filenames, aliases, natural wikilinks, `index.md`, `log.md`,
+and MOCs provide the digital navigation layer.
+
 ## Writing Style
 
 Write Cards like concise reference entries. Prefer direct definitions,
@@ -197,6 +216,7 @@ Before reporting completion, check:
   or MOC.
 - Frontmatter includes non-empty `aliases`.
 - The first body paragraph is a direct definition or problem statement.
+- The Card is self-contained, written in domain words, and has one focus object.
 - The Split Gate was checked; oversized umbrella Cards were split or handed to
   a MOC.
 - Related pages are linked naturally in the body.

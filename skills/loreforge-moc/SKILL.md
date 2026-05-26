@@ -76,6 +76,24 @@ Required shape:
   remaining questions when the view calls for them.
 - Update `index.md` under `## Atlas` and insert a newest-first `log.md` entry.
 
+## Zettelkasten Adaptation
+
+Treat MOCs as Zettelkasten-style structure notes for this domain:
+
+- A MOC is an entry point into a cluster of Cards, Spaces, Sources, and other
+  views.
+- The page explains why the linked notes belong together and what question,
+  problem, claim, project, or decision the cluster helps answer.
+- Links are not a bibliography or a broad related-pages dump. Each link should
+  sit near the relationship, contrast, dependency, sequence, or tension it
+  helps explain.
+- When the MOC starts accumulating definitions, extract those definitions into
+  Cards and keep the MOC as the relationship view.
+
+Do not copy the physical Zettelkasten numbering/sequence system into
+LoreForge. Use readable filenames, aliases, natural wikilinks, `index.md`,
+`log.md`, and MOCs as the navigation layer.
+
 ## Writing Style
 
 Write for a human trying to understand how pieces connect.
@@ -148,6 +166,8 @@ Before reporting completion, check:
 - The page is not mainly an index mirror, source summary, project record, or
   single-concept Card.
 - The page explains relationships or current judgment in human-readable prose.
+- The page acts as a structure note: an entry point with relationship context,
+  not a broad link dump.
 - Links are woven naturally into the body rather than listed mechanically.
 - Reusable definitions stay in Cards; project/current-view commentary stays in
   the MOC.
