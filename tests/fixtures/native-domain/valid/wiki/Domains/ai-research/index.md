@@ -15,3 +15,4 @@
 
 ## Spaces
 - [[codex]] - Tool Space used by an expert agent workflow.
+- [[threaded-tool-call-replay]] - Work-item Space under `Spaces/projects/` without legacy project tag.

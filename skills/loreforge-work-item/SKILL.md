@@ -120,8 +120,11 @@ If a placement or attachment decision matters for maintainers, put it in
 `log.md`, not in the work-item page body.
 
 Frontmatter follows the domain schema. Work-item pages are usually `type:
-space`; tags should use the domain taxonomy and stay coarse, such as `project`
-or a schema-defined equivalent.
+space`; tags should use the domain taxonomy and stay coarse. Use `project` by
+default when the domain taxonomy supports it; otherwise use the schema-defined
+work-item equivalent. Pages under `Spaces/projects/` are indexable work-item
+Spaces even when a legacy page is missing the `project` tag, but new pages
+should still include the tag when the schema allows it.
 
 ## Link And Citation Style
 

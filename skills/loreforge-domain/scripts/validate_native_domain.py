@@ -36,6 +36,7 @@ REQUIRED_CARD_FRONTMATTER = [
     "aliases",
 ]
 INDEXABLE_SPACE_TAGS = {"person", "entity", "tool", "project"}
+INDEXABLE_SPACE_PREFIXES = (("Spaces", "projects"),)
 EXPECTED_TYPE_BY_DIR = {
     "Atlas": "map",
     "Cards": "concept",
@@ -449,9 +450,15 @@ def expected_type(page: Path, domain: Path) -> str | None:
 
 
 def should_index(page: Path, domain: Path, fields: dict[str, str]) -> bool:
-    top = page.relative_to(domain).parts[0]
+    parts = page.relative_to(domain).parts
+    top = parts[0]
     if top != "Spaces":
         return True
+    if any(part in {"_archive", "archive"} for part in parts):
+        return False
+    for prefix in INDEXABLE_SPACE_PREFIXES:
+        if parts[: len(prefix)] == prefix:
+            return True
     tags = list_value(fields.get("tags", "[]"))
     return bool(tags & INDEXABLE_SPACE_TAGS)
 

@@ -531,8 +531,11 @@ Use `Spaces/` for durable non-Card objects and context notes:
 - archived pages
 
 Use tags to distinguish Spaces. Index active Spaces tagged `person`, `entity`,
-`tool`, or `project`. Do not index `Spaces/_archive/` or transient workspace
-notes.
+`tool`, or `project`. Also index durable work-item records under
+`Spaces/projects/` even when repairing a legacy page that is missing the
+`project` tag; new work-item pages should still use `project` or the
+schema-defined equivalent when available. Do not index any Space under
+`_archive/` or `archive/`, and do not index transient workspace notes.
 
 One page per notable person, entity, tool, or project. Include:
 - Overview / what it is
@@ -558,8 +561,10 @@ The index is sectioned by type. Each entry is one line: wikilink + summary.
 
 > Mechanical inventory. Every active Markdown page under Atlas, Cards, Sources,
 > and indexable Spaces should appear here with a one-line summary.
-> Index Spaces only when tagged `person`, `entity`, `tool`, or `project`.
-> Do not index `Spaces/_archive/` or transient workspace notes.
+> Index Spaces only when tagged `person`, `entity`, `tool`, or `project`, or
+> when they are durable work-item records under `Spaces/projects/`.
+> Do not index any Space under `_archive/` or `archive/`, or transient
+> workspace notes.
 > Last updated: YYYY-MM-DD | Total pages: N
 
 ## Atlas
