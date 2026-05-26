@@ -53,6 +53,20 @@ def test_card_skill_defines_split_gate():
     assert "The Split Gate was checked" in content
 
 
+def test_card_skill_adapts_zettelkasten_permanent_notes():
+    """Cards should adapt permanent-note discipline without importing the numbering system."""
+    content = CARD_SKILL_PATH.read_text()
+    collapsed = " ".join(content.split())
+    assert "## Zettelkasten Adaptation" in content
+    assert "permanent notes" in content
+    assert "one focus object" in content
+    assert "self-contained enough to make sense later" in content
+    assert "Write in the domain's own words" in content
+    assert "semantic links whose nearby prose explains why the linked page matters" in collapsed
+    assert "Do not copy the physical Zettelkasten numbering/sequence system" in content
+    assert "The Card is self-contained, written in domain words, and has one focus object" in content
+
+
 def test_moc_skill_has_hard_view_contract():
     """MOC authoring should require a view question and relationship structure."""
     content = MOC_SKILL_PATH.read_text()
@@ -69,6 +83,20 @@ def test_moc_skill_has_hard_view_contract():
     assert "question-driven or problem-driven view" in content
     assert "relationship map across multiple Cards" in content
     assert "Links are woven naturally into the body" in content
+
+
+def test_moc_skill_adapts_zettelkasten_structure_notes():
+    """MOCs should act as structure notes instead of broad related-link dumps."""
+    content = MOC_SKILL_PATH.read_text()
+    collapsed = " ".join(content.split())
+    assert "## Zettelkasten Adaptation" in content
+    assert "structure notes" in content
+    assert "entry point into a cluster" in content
+    assert "why the linked notes belong together" in content
+    assert "relationship, contrast, dependency, sequence, or tension" in content
+    assert "extract those definitions into Cards" in collapsed
+    assert "Do not copy the physical Zettelkasten numbering/sequence system" in content
+    assert "The page acts as a structure note: an entry point with relationship context" in collapsed
 
 
 def test_entrypoint_routes_directly_to_leaf_workflows():
@@ -97,7 +125,9 @@ def test_domain_skill_delegates_card_and_moc_authoring():
 if __name__ == "__main__":
     test_card_skill_has_hard_authoring_contract()
     test_card_skill_defines_split_gate()
+    test_card_skill_adapts_zettelkasten_permanent_notes()
     test_moc_skill_has_hard_view_contract()
+    test_moc_skill_adapts_zettelkasten_structure_notes()
     test_entrypoint_routes_directly_to_leaf_workflows()
     test_domain_skill_delegates_card_and_moc_authoring()
     print("All Card / MOC authoring contract tests passed.")
