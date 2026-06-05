@@ -98,6 +98,8 @@ LoreForge. Use readable filenames, aliases, natural wikilinks, `index.md`,
 
 Write for a human trying to understand how pieces connect.
 
+Apply the `loreforge` Compiled Page Language Gate before handoff.
+
 Prefer:
 
 - concise overview of the problem or claim

@@ -337,10 +337,12 @@ Adapt to the user's domain. The schema constrains agent behavior and ensures con
   `related::` list.
 
 ## Writing Style
-- Write domain `Sources/` and `Spaces/` pages as durable reference material,
-  not process narration.
-- Prefer direct positive descriptions over repeated "not X but Y" framing.
-  Use negative contrast only when it prevents a specific misconception.
+- Apply the `loreforge` Compiled Page Language Gate to every synthesized
+  `Sources/` and `Spaces/` page before handoff.
+- For formal project artifacts under `Spaces/projects/` such as
+  `proposal*.md`, `research-plan*.md`, `literature-survey*.md`, experimental
+  protocols, and project design notes, apply `loreforge-work-item`'s "Formal
+  Project Artifacts" gate before writing or repairing the page.
 - Do not write Card or MOC prose in this workflow. Delegate Card pages to
   `loreforge-card` and MOC pages to `loreforge-moc` so their acceptance gates
   run before handoff.
@@ -444,9 +446,11 @@ current status, and follow-ups.
 
 Work-item pages are durable project records, not activity logs. Do not save
 chat transcripts, command-by-command chronology, raw CI logs, or temporary task
-state. If a work-item request reaches this skill without work-item-specific
-context, read `skills/loreforge-work-item/SKILL.md` before writing the domain
-page.
+state. For proposal, research-plan, literature-survey, experimental-protocol,
+or project design-note files, apply the "Formal Project Artifacts" gate from
+`skills/loreforge-work-item/SKILL.md`. If a work-item request reaches this skill
+without work-item-specific context, read `skills/loreforge-work-item/SKILL.md`
+before writing the domain page.
 
 ### Single-Source Ingest Style
 
@@ -466,9 +470,9 @@ source and compile the useful domain slice, not to force a paper-shaped review.
   number of boundary-setting locations instead of mechanically repeating the
   same source marker on every paragraph.
 - Weave semantic `[[wikilinks]]` into prose for concepts already represented in
-  the wiki. Use direct positive descriptions and avoid mechanical related-link
-  lists. For reusable concepts or relationship views, hand off to
-  `loreforge-card` or `loreforge-moc` instead of writing them here.
+  the wiki. Avoid mechanical related-link lists. For reusable concepts or
+  relationship views, hand off to `loreforge-card` or `loreforge-moc` instead
+  of writing them here.
 
 ### Source Capture Policy
 

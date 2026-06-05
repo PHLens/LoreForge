@@ -17,6 +17,8 @@ This skill owns the work-item-specific process:
 - choosing stable project/work-item placement
 - shaping problem background, solution, bug diagnosis, verification, status,
   and follow-ups
+- applying formal project-artifact language gates for proposals, research
+  plans, literature surveys, experimental protocols, and project design notes
 - attaching diagrams or artifacts only where they support the explanation
 - writing bounded project records under `Spaces/projects/`
 
@@ -42,6 +44,9 @@ for:
 - design/implementation/debug/verification context that should help future
   agents or humans resume the same project
 - diagrams, screenshots, or generated artifacts that explain a work item
+- formal project artifacts under `Spaces/projects/`, including
+  `proposal*.md`, `research-plan*.md`, `literature-survey*.md`, experimental
+  protocols, and project design notes
 
 Do not use this workflow for raw CI log archives, full chat transcripts,
 temporary task state, user preferences, daily notes, or one-off debugging
@@ -109,15 +114,28 @@ Use only sections that have substance. Common sections:
 Prefer durable explanation over process narration. Do not write "I did X, then
 I did Y" unless the sequence itself explains the root cause or risk.
 
-Do not include editor/process narration such as:
-
-- "this should be a work-item note"
-- "I am adding this to the wiki"
-- "the page should live in X"
-- "I attached this because..."
-
 If a placement or attachment decision matters for maintainers, put it in
 `log.md`, not in the work-item page body.
+
+## Formal Project Artifacts
+
+Apply the `loreforge` Compiled Page Language Gate to every work-item or project
+page before handoff. Project files such as `proposal*.md`, `research-plan*.md`,
+`literature-survey*.md`, `experimental-protocol*.md`, and project design notes
+also use the narrower rules below.
+
+Required style:
+
+- Write the artifact itself: research problem, motivation, related-work
+  boundary, method, implementation plan, evaluation plan, scope, risks, and
+  expected contribution.
+- Literature surveys should compare mechanisms, assumptions, scope, IR level,
+  backend coverage, artifact generation, and evaluation signals. They should
+  not say "this page currently contains..." or promise future additions unless
+  that appears under a substantive "Open Gaps" or "Survey Scope" section.
+- Research plans should use milestone, artifact, experiment, and validation
+  language. Avoid "Non-Goals" sections when they only restate obvious
+  exclusions; use "Scope" or "Boundary" to define what the work covers.
 
 Frontmatter follows the domain schema. Work-item pages are usually `type:
 space`; tags should use the domain taxonomy and stay coarse. Use `project` by
@@ -142,9 +160,8 @@ should still include the tag when the schema allows it.
   is bookkeeping. Tables are acceptable only when they carry real analysis,
   such as comparing symptoms, root causes, implementation options, or
   verification coverage.
-- Prefer direct positive descriptions. Use "not X but Y" contrast only when it
-  prevents a concrete misconception, and remove repeated contrastive phrasing
-  before handoff.
+- For project artifacts, apply the stricter gate in "Formal Project Artifacts"
+  before this general style rule.
 - For cross-domain conceptual links, use explicit path-qualified wikilinks such
   as `[[Domains/gpu-arch-research/Cards/simt-core-pipeline|SIMT core
   pipeline]]` when the target exists in the same wiki.
@@ -166,6 +183,7 @@ Stay inside Domains/<domain>/ for domain pages.
 Use Shared/Raw/ only for diagrams, logs, screenshots, or source artifacts that need preservation.
 Orient on SCHEMA.md, index.md, recent log.md, existing project/work-item pages, and relevant Cards/Atlas/Spaces.
 Write the page as a durable problem/solution/debug/verification record, not a chronology or chat transcript.
+For proposal, research-plan, literature-survey, experimental-protocol, or design-note files, apply the Formal Project Artifacts gate.
 Use natural `[[wiki|alias]]` links for related concepts, systems, modules, failures, fixes, and similar work items.
 Put attachments in the section where they support the explanation.
 Update index.md when creating or materially changing an indexable Space.

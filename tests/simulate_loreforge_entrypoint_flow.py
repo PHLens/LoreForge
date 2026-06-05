@@ -48,6 +48,7 @@ def assert_skill_contract() -> None:
     skill = read_skill()
     paper_skill = read_paper_skill()
     work_item_skill = read_work_item_skill()
+    collapsed_skill = " ".join(skill.split())
     required = [
         "Default LoreForge entrypoint",
         "loreforge-config",
@@ -71,6 +72,11 @@ def assert_skill_contract() -> None:
         "Calendar daily/weekly planning handoff",
         "Do not turn plan notes into agent memory, source capture, or domain ingest.",
         "Delegate work-item shaping and bounded domain write guidance to",
+        "Compiled Page Language Gate",
+        "Apply this gate to every synthesized LoreForge wiki page",
+        "Raw captures and `log.md` entries are exempt",
+        "Formal project artifacts under `Spaces/projects/`",
+        "proposals, research plans, literature surveys",
         "Delegate lint, audit, and check work to `loreforge-check`",
         "Delegate source discovery and capture planning to `loreforge-import`",
         "Delegate directly to `loreforge-card`",
@@ -82,6 +88,8 @@ def assert_skill_contract() -> None:
     missing = [item for item in required if item not in skill]
     if missing:
         raise AssertionError(f"main entrypoint skill is missing required routing contract text: {missing}")
+    if "Cards, Atlas/MOCs, Sources, Spaces, paper notes, work items" not in collapsed_skill:
+        raise AssertionError("main entrypoint skill is missing compiled page coverage text")
     paper_required = [
         "Paper ingest is a distinct workflow.",
         "loreforge-capture",
@@ -119,7 +127,10 @@ def assert_skill_contract() -> None:
         "Prefer inline wikilinks to wiki-local Jira/issue/MR/PR/design-doc/CI-log raw",
         "Weave concepts, systems, modules, files, failures, fixes, and related work",
         "Avoid standalone \"related Cards\" or \"related pages\" tables",
-        "Prefer direct positive descriptions.",
+        "Formal Project Artifacts",
+        "Apply the `loreforge` Compiled Page Language Gate to every work-item or project",
+        "proposal*.md",
+        "literature-survey*.md",
         "Domain Handoff Prompt",
         "loreforge-card",
         "loreforge-moc",
