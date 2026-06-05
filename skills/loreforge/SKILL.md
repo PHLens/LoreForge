@@ -140,8 +140,36 @@ closed when the choice is weak:
   `loreforge-work-item` for project records or `loreforge-domain` for other
   bounded `Spaces/` work.
 
+Formal project artifacts under `Spaces/projects/`, including
+`proposal*.md`, `research-plan*.md`, `literature-survey*.md`, experimental
+protocols, and project design notes, are `space` pages handled through
+`loreforge-work-item` / `loreforge-domain`. They must not be routed to Cards as
+related-work notes or to Atlas as active proposal drafts once a project
+directory exists.
+
 Do not force uncertain material into Cards or MOCs. Ask one concise question or
 choose the more conservative Source/Space path.
+
+## Compiled Page Language Gate
+
+Apply this gate to every synthesized LoreForge wiki page: Cards, Atlas/MOCs,
+Sources, Spaces, paper notes, work items, project artifacts, and related-work
+surveys. Raw captures and `log.md` entries are exempt because they preserve
+source text and audit history.
+
+- Write the durable artifact itself: definition, mechanism, relationship,
+  evidence, decision, plan, status, or reusable implication.
+- Keep process, placement, routing, and edit-history commentary out of page
+  bodies. Put wiki-maintenance facts in `log.md`.
+- Avoid self-describing boilerplate such as "this page records", "this Card
+  explains", "current draft", "here we...", "moved from", "renamed from", or
+  "I added".
+- Prefer direct positive claims. Use negative contrast only when it prevents a
+  specific technical misconception; remove repeated "not X but Y" framing
+  before handoff.
+- Related-work and survey pages compare mechanisms, assumptions, scope,
+  evaluation signals, and artifact boundaries. They do not promise future
+  additions unless that is a substantive "Open Gaps" section.
 
 ## Operation Workflows
 
@@ -205,7 +233,9 @@ domain's source of truth.
 
 Use this path when the user asks to save current project work, a Jira/issue, an
 MR/PR, a bugfix, a CI failure, implementation details, verification status, or a
-work item under `Spaces/projects/`.
+work item under `Spaces/projects/`. Use the same path for formal project
+project artifacts such as proposals, research plans, literature surveys,
+experimental protocols, and project design notes.
 
 1. Select one primary domain for the project/system.
 2. Delegate work-item shaping and bounded domain write guidance to

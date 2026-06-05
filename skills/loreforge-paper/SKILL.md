@@ -127,12 +127,7 @@ A paper page should answer:
 - How should this paper be reused later: as a method reference, cautionary
   case, evaluation baseline, related work, or project input?
 
-Do not include editor/process narration such as:
-
-- "this is more suitable as a paper note"
-- "I am linking this to the wiki"
-- "the page should live in X"
-- "I did not create a Card because..."
+Apply the `loreforge` Compiled Page Language Gate before handoff.
 
 If a placement decision matters for maintainers, put it in `log.md`, not in the
 paper page body.
@@ -152,9 +147,6 @@ paper page body.
 - Avoid standalone "related Cards" tables whose main purpose is bookkeeping.
   Tables are acceptable only when they carry real analysis, such as comparing
   assumptions, mechanisms, metrics, or failure modes.
-- Prefer direct positive descriptions. Use "not X but Y" contrast only when it
-  prevents a concrete misconception, and remove repeated contrastive phrasing
-  before handoff.
 - For cross-domain conceptual links, use explicit path-qualified wikilinks such
   as `[[Domains/gpu-arch-research/Cards/simt-core-pipeline|SIMT core
   pipeline]]` when the target exists in the same wiki.

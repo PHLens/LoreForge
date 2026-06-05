@@ -118,8 +118,48 @@ def test_domain_skill_delegates_card_and_moc_authoring():
     assert "delegate Atlas/MOC authoring to `loreforge-moc`" in content
     assert "Do not author Card pages in this workflow" in content
     assert "Do not author Atlas/MOC pages in this workflow" in content
-    assert "### Default Card Template" not in content
-    assert "Common Card shapes:" not in content
+
+
+def test_compiled_page_language_gate_applies_to_all_wiki_pages():
+    """All compiled wiki page workflows should share the language gate."""
+    entry = ENTRY_SKILL_PATH.read_text()
+    card = CARD_SKILL_PATH.read_text()
+    moc = MOC_SKILL_PATH.read_text()
+    domain = DOMAIN_SKILL_PATH.read_text()
+    paper = (REPO_ROOT / "skills" / "loreforge-paper" / "SKILL.md").read_text()
+    work_item = (REPO_ROOT / "skills" / "loreforge-work-item" / "SKILL.md").read_text()
+    collapsed_entry = " ".join(entry.split())
+    collapsed_domain = " ".join(domain.split())
+    collapsed_work_item = " ".join(work_item.split())
+
+    assert "## Compiled Page Language Gate" in entry
+    assert "Apply this gate to every synthesized LoreForge wiki page" in entry
+    assert "Cards, Atlas/MOCs, Sources, Spaces, paper notes, work items" in collapsed_entry
+    assert "Raw captures and `log.md` entries are exempt" in entry
+    assert "Keep process, placement, routing, and edit-history commentary out of page bodies" in collapsed_entry
+    assert "this page records" in entry
+    assert "not X but Y" in entry
+
+    assert "Apply the `loreforge` Compiled Page Language Gate before handoff." in card
+    assert "Apply the `loreforge` Compiled Page Language Gate before handoff." in moc
+    assert "Compiled Page Language Gate" in domain
+    assert "Apply the `loreforge` Compiled Page Language Gate before handoff." in paper
+    assert "Compiled Page Language Gate" in work_item
+
+    assert "Formal project artifacts under `Spaces/projects/`" in entry
+    assert "proposal*.md" in entry
+    assert "research-plan*.md" in entry
+    assert "literature-survey*.md" in entry
+    assert "must not be routed to Cards as related-work notes" in collapsed_entry
+
+    assert "## Formal Project Artifacts" in work_item
+    assert "Apply the `loreforge` Compiled Page Language Gate to every work-item or project" in collapsed_work_item
+    assert "Literature surveys should compare mechanisms, assumptions, scope, IR level" in collapsed_work_item
+    assert "Research plans should use milestone, artifact, experiment, and validation language" in collapsed_work_item
+
+    assert "Formal Project Artifacts" in domain
+    assert "### Default Card Template" not in domain
+    assert "Common Card shapes:" not in domain
 
 
 if __name__ == "__main__":
@@ -130,4 +170,5 @@ if __name__ == "__main__":
     test_moc_skill_adapts_zettelkasten_structure_notes()
     test_entrypoint_routes_directly_to_leaf_workflows()
     test_domain_skill_delegates_card_and_moc_authoring()
+    test_compiled_page_language_gate_applies_to_all_wiki_pages()
     print("All Card / MOC authoring contract tests passed.")

@@ -108,13 +108,13 @@ and MOCs provide the digital navigation layer.
 Write Cards like concise reference entries. Prefer direct definitions,
 mechanisms, constraints, examples, and open questions.
 
+Apply the `loreforge` Compiled Page Language Gate before handoff.
+
 Keep Card prose reusable:
 
 - Avoid proposal framing, project support arguments, and current-view
   commentary.
 - Avoid dumping a source summary. Extract the durable concept instead.
-- Prefer direct positive descriptions. Use negative contrast only when it
-  prevents a concrete likely misconception.
 - Do not add mechanical "related Cards" sections. Weave semantic
   `[[wikilinks]]` into the relevant sentence.
 - Optional `related:: [[concept-a]], [[concept-b|Readable label]]` fields may
