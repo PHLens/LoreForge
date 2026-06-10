@@ -124,7 +124,9 @@ URL, language, word count, meta tags, schema.org data, selections/highlights,
 and site-specific selectors when the article extractor misses stable structure.
 Use a capture template to keep the output repeatable, localize important
 figures or diagrams under the raw package, and record extractor, template,
-selector, asset, and prompt-assistance choices in `manifest.md`.
+selector, asset, and prompt-assistance choices in `manifest.md`. New wiki
+setup provides default web templates under `Shared/Templates/capture/`:
+`web-capture-recipe.md`, `web-origin.md`, and `web-manifest.md`.
 
 For papers, prefer compact metadata-and-text capture. Store identifiers,
 canonical URL, extraction method, `origin.md`, and limitations by default.

@@ -136,6 +136,9 @@ def test_cli_setup_writes_bootstrap_files() -> None:
         assert payload["validation"]["ok"] is True
         assert (wiki / "00_System" / "index.md").exists()
         assert (wiki / "Shared" / "Templates" / "weekly.md").exists()
+        assert (wiki / "Shared" / "Templates" / "capture" / "web-capture-recipe.md").exists()
+        assert (wiki / "Shared" / "Templates" / "capture" / "web-origin.md").exists()
+        assert (wiki / "Shared" / "Templates" / "capture" / "web-manifest.md").exists()
         assert (wiki / "Domains" / "ai-research" / "SCHEMA.md").exists()
         assert "default_domain = \"ai-research\"" in registry.read_text(encoding="utf-8")
 

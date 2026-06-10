@@ -51,7 +51,9 @@ Web capture should borrow the Obsidian Web Clipper shape without making
 Obsidian a dependency: preserve the original artifact when possible, extract
 deterministic variables and selectors, render a repeatable `origin.md`, keep
 important assets wiki-local, and record the extractor/template/selector lineage
-in the raw manifest before any ingest or domain synthesis.
+in the raw manifest before any ingest or domain synthesis. New wiki setup seeds
+default capture templates in `Shared/Templates/capture/` from
+`templates/wiki/Shared/Templates/capture/`.
 
 ## Core Workflow
 

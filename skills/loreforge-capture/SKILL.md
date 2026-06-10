@@ -66,11 +66,13 @@ Clipper's capture model:
    schema.org triggers used to capture comments, transcripts, code blocks,
    tables, figures, or other stable page regions. Selector output belongs in
    `origin.md` or `extracted/`, not in a domain page during capture.
-4. **Apply a capture template.** Render `origin.md` from a small source
-   template: metadata heading, source URL or description, extraction method,
-   main content, selected/highlighted excerpts if any, and concrete
-   limitations. Use filters or post-processing to turn HTML into Markdown,
-   normalize tables/lists, and keep image links readable.
+4. **Apply a capture template.** Use
+   `Shared/Templates/capture/web-origin.md` and
+   `Shared/Templates/capture/web-manifest.md` as the default templates for web
+   raw packages. They mirror Web Clipper's template model: preset variables,
+   meta variables, schema variables, selector output, filters, and
+   source-mode fields render into `origin.md` and `manifest.md`. Customize by
+   copying the recipe, not by inventing one-off package shapes.
 5. **Localize important assets.** Save figures, diagrams, screenshots, or
    downloaded files under `assets/` or `original/` when they matter for later
    audit or offline reuse. Rewrite important references in `origin.md` to
@@ -79,6 +81,18 @@ Clipper's capture model:
    was used: helper skill or tool, extractor, template or selector recipe,
    original artifact, extracted artifacts, asset handling, and any auth/session
    assumptions.
+
+Default setup seeds these reusable templates into new wikis:
+
+```text
+Shared/Templates/capture/
+  web-capture-recipe.md
+  web-origin.md
+  web-manifest.md
+```
+
+The same files are distributed from the LoreForge framework under
+`templates/wiki/Shared/Templates/capture/`.
 
 Treat this as a capture discipline, not as an Obsidian dependency. If the
 `obsidian-clipper` CLI/API or an exported Obsidian Web Clipper note is already
@@ -140,9 +154,12 @@ artifacts: []
 limitations: "<concrete limitations or empty>"
 extraction:
   method: "defuddle|topic-research|obsidian-clipper|convert-to-markdown|manual"
-  template: "<capture template or empty>"
+  template: "Shared/Templates/capture/web-origin.md"
+  recipe: "Shared/Templates/capture/web-capture-recipe.md"
+  variables: []
   selectors: []
   schema_triggers: []
+  filters: []
   assets: "none|linked|localized|partial"
   prompt_assisted: false
 ---

@@ -134,6 +134,9 @@ test('setup command bootstraps registry, wiki, and domain skeleton', (t) => {
   assert.equal(fs.existsSync(registry), true);
   assert.equal(fs.existsSync(path.join(wiki, '00_System', 'index.md')), true);
   assert.equal(fs.existsSync(path.join(wiki, 'Shared', 'Templates', 'weekly.md')), true);
+  assert.equal(fs.existsSync(path.join(wiki, 'Shared', 'Templates', 'capture', 'web-capture-recipe.md')), true);
+  assert.equal(fs.existsSync(path.join(wiki, 'Shared', 'Templates', 'capture', 'web-origin.md')), true);
+  assert.equal(fs.existsSync(path.join(wiki, 'Shared', 'Templates', 'capture', 'web-manifest.md')), true);
   assert.equal(fs.existsSync(path.join(wiki, 'Domains', 'ai-research', 'SCHEMA.md')), true);
   assert.match(fs.readFileSync(registry, 'utf8'), /default_domain = "ai-research"/);
 

@@ -102,6 +102,9 @@ render a repeatable `origin.md`, localize important assets, and record the
 extractor/template/selector lineage in `manifest.md`. Obsidian Web Clipper
 exports or `obsidian-clipper` CLI/API output can be used as capture input when
 available, but the durable wiki contract remains the LoreForge raw package.
+New wiki setup seeds reusable capture templates under
+`Shared/Templates/capture/` from the framework's
+`templates/wiki/Shared/Templates/capture/` directory.
 Paper capture should default to compact metadata-and-text preservation and
 archive PDF binaries only when the user asks or exact/offline audit requires
 the original. `Calendar/dailynotes/` and `Calendar/weeklynotes/` hold dated

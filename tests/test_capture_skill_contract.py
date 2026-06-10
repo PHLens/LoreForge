@@ -38,13 +38,18 @@ def test_capture_skill_web_clipper_contract() -> None:
             "Apply a capture template.",
             "Localize important assets.",
             "Record extraction lineage.",
+            "Shared/Templates/capture/web-origin.md",
+            "Shared/Templates/capture/web-manifest.md",
+            "templates/wiki/Shared/Templates/capture/",
             "obsidian-clipper",
             "retrieved_at",
             "source_url",
             "source_description",
             "extraction:",
+            "variables:",
             "selectors:",
             "schema_triggers:",
+            "filters:",
             "prompt_assisted:",
         ],
     )
@@ -65,6 +70,7 @@ def test_domain_and_docs_reference_capture_plan() -> None:
         [
             "Web capture should be planned before extraction.",
             "deterministic page variables",
+            "Shared/Templates/capture/",
             "prompt-assistance choices",
         ],
     )
@@ -73,11 +79,30 @@ def test_domain_and_docs_reference_capture_plan() -> None:
         [
             "clipper-style plan",
             "Obsidian Web Clipper",
+            "templates/wiki/Shared/Templates/capture/",
         ],
     )
+
+
+def test_packaged_capture_templates_exist() -> None:
+    template_root = REPO_ROOT / "templates" / "wiki" / "Shared" / "Templates" / "capture"
+    expected = {
+        "web-capture-recipe.md": ["Default Web Capture Recipe", "{{content}}", "{{selector:main article}}"],
+        "web-origin.md": ["{{title}}", "{{content}}", "{{schema:@Article}}"],
+        "web-manifest.md": ["source_id: \"{{source_id}}\"", "extraction:", "schema_triggers:"],
+    }
+    for name, required in expected.items():
+        path = template_root / name
+        if not path.exists():
+            raise AssertionError(f"missing packaged capture template: {path}")
+        text = path.read_text(encoding="utf-8")
+        missing = [item for item in required if item not in text]
+        if missing:
+            raise AssertionError(f"{path} is missing template text: {missing}")
 
 
 if __name__ == "__main__":
     test_capture_skill_web_clipper_contract()
     test_domain_and_docs_reference_capture_plan()
+    test_packaged_capture_templates_exist()
     print("LoreForge capture skill contract tests passed.")
