@@ -82,7 +82,7 @@ Clipper's capture model:
    original artifact, extracted artifacts, asset handling, and any auth/session
    assumptions.
 
-Default setup seeds these reusable templates into new wikis:
+Keep reusable web capture templates in the wiki repo:
 
 ```text
 Shared/Templates/capture/
@@ -91,8 +91,9 @@ Shared/Templates/capture/
   web-manifest.md
 ```
 
-The same files are distributed from the LoreForge framework under
-`templates/wiki/Shared/Templates/capture/`.
+Treat those wiki-local files as the canonical editable copy for that wiki. Do
+not maintain a second framework-packaged template copy unless the user asks for
+template distribution.
 
 Treat this as a capture discipline, not as an Obsidian dependency. If the
 `obsidian-clipper` CLI/API or an exported Obsidian Web Clipper note is already
