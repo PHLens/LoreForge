@@ -6,7 +6,7 @@ source_language: "en"
 retrieved_at: "2026-06-10"
 source_url: "https://arxiv.org/abs/2101.03961"
 source_description: "arXiv abstract page for the Switch Transformer MoE paper."
-content_hash: "e2ad28f255fffac77ef7ee65b05b26b5d6c56d12062b3c75ee08fddec20df9a8"
+content_hash: "b0f74feb3da19af052a2246da92b9f0f1433994157af4e3715780926ce83143d"
 origin: "Shared/Raw/moe-web-capture/origin.md"
 candidate_domains:
   - "gpu-arch-research"
@@ -14,15 +14,16 @@ compiled_pages: []
 status: captured
 artifacts:
   - "Shared/Raw/moe-web-capture/original/source.html"
+  - "Shared/Raw/moe-web-capture/extracted/defuddle.md"
   - "Shared/Raw/moe-web-capture/extracted/arxiv-api.xml"
-limitations: "MCP wiki search was unavailable due Confluence 401. Public arXiv abstract and arXiv Atom API metadata were used as substitute sources. PDF body was not downloaded or transcribed."
+limitations: "MCP wiki search was unavailable due to Confluence 401. Public arXiv abstract and arXiv Atom API metadata were used as substitute sources. PDF body was not downloaded or transcribed."
 extraction:
   primary_method: "defuddle"
   methods:
     - name: "defuddle"
       role: "primary-content"
       artifacts:
-        - "Shared/Raw/moe-web-capture/original/source.html"
+        - "Shared/Raw/moe-web-capture/extracted/defuddle.md"
     - name: "arxiv-api"
       role: "metadata-supplement"
       artifacts:

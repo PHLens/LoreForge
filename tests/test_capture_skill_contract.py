@@ -26,6 +26,12 @@ def assert_contains(path: str, required: list[str]) -> None:
         raise AssertionError(f"{path} is missing capture contract text: {missing}")
 
 
+def markdown_section(text: str, heading: str, next_heading: str) -> str:
+    start = text.index(heading) + len(heading)
+    end = text.index(next_heading, start)
+    return text[start:end]
+
+
 def test_capture_skill_web_clipper_contract() -> None:
     assert_contains(
         "skills/loreforge-capture/SKILL.md",
@@ -44,6 +50,7 @@ def test_capture_skill_web_clipper_contract() -> None:
             "author: \"<author>\"",
             "published: \"<published date or empty>\"",
             "created: \"YYYY-MM-DD\"",
+            "the visible `Captured:` line renders `created`",
             "created",
             "description",
             "tags:",
@@ -103,17 +110,21 @@ def test_golden_capture_fixture_shape() -> None:
     raw = REPO_ROOT / "tests" / "fixtures" / "capture" / "web-clipper-like" / "Shared" / "Raw" / "moe-web-capture"
     origin = raw / "origin.md"
     manifest = raw / "manifest.md"
+    defuddle = raw / "extracted" / "defuddle.md"
     origin_text = origin.read_text(encoding="utf-8")
     manifest_text = manifest.read_text(encoding="utf-8")
+    defuddle_text = defuddle.read_text(encoding="utf-8")
 
     expected_hash = hashlib.sha256(origin.read_bytes()).hexdigest()
     if f'content_hash: "{expected_hash}"' not in manifest_text:
         raise AssertionError("golden manifest content_hash does not match origin.md")
 
     required_origin = [
+        "retrieved_at: \"2026-06-10\"",
         "created: \"2026-06-10\"",
         "capture_card:",
         "format: web-clipper-like",
+        "> Captured: 2026-06-10",
         "## Content",
         "## Structured Metadata",
         "## Capture Limits",
@@ -122,14 +133,22 @@ def test_golden_capture_fixture_shape() -> None:
     if missing_origin:
         raise AssertionError(f"golden origin is missing fixed capture-card fields: {missing_origin}")
 
+    content_section = markdown_section(origin_text, "## Content", "## Structured Metadata")
     forbidden_content = ["## Title:", "Authors:", "Cite as:"]
-    found_forbidden = [item for item in forbidden_content if item in origin_text]
+    found_forbidden = [item for item in forbidden_content if item in content_section]
     if found_forbidden:
         raise AssertionError(f"golden origin keeps duplicated extractor metadata: {found_forbidden}")
+
+    if "Abstract:" not in content_section or "Mixture of Experts (MoE)" not in content_section:
+        raise AssertionError("golden origin content does not preserve filtered source substance")
+
+    if "## Title:" not in defuddle_text or "Cite as:" not in defuddle_text:
+        raise AssertionError("golden defuddle artifact does not preserve unfiltered extractor output")
 
     required_manifest = [
         "primary_method:",
         "methods:",
+        "Shared/Raw/moe-web-capture/extracted/defuddle.md",
         "role: \"metadata-supplement\"",
         "role: \"manual-cleanup\"",
         "content_filters:",

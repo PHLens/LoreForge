@@ -47,22 +47,29 @@ arXiv abstract page for the Switch Transformer MoE paper.
 
 ## Content
 
-Mixture of Experts selects different parameters for each incoming example,
-creating a sparsely activated model with many parameters and roughly constant
-per-token compute. Switch Transformer simplifies MoE routing and reports more
-stable sparse training with lower precision formats.
+> Abstract: In deep learning, models typically reuse the same parameters for all
+> inputs. Mixture of Experts (MoE) defies this and instead selects different
+> parameters for each incoming example. The result is a sparsely-activated
+> model -- with outrageous numbers of parameters -- but a constant computational
+> cost. However, despite several notable successes of MoE, widespread adoption
+> has been hindered by complexity, communication costs and training instability
+> -- we address these with the Switch Transformer. We simplify the MoE routing
+> algorithm and design intuitive improved models with reduced communication and
+> computational costs. Our proposed training techniques help wrangle the
+> instabilities and we show large sparse models may be trained, for the first
+> time, with lower precision (bfloat16) formats.
 
 ## Structured Metadata
 
 - site: arXiv
 - language: en
-- words: 72
+- words: 132
 - image:
 - schema: arXiv Atom API entry; categories=cs.LG, cs.AI; pdf=https://arxiv.org/pdf/2101.03961v3
 - selectors: arXiv abstract block; arXiv Atom API metadata entry
 
 ## Capture Limits
 
-MCP wiki search was unavailable due Confluence 401. Public arXiv abstract and
+MCP wiki search was unavailable due to Confluence 401. Public arXiv abstract and
 arXiv Atom API metadata were used as substitute sources. PDF body was not
 downloaded or transcribed.

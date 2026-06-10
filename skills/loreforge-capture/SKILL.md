@@ -71,13 +71,18 @@ Clipper's capture model:
    clipper-like capture card format below. Mirror Web Clipper's default field
    logic: `title`, `source`, `author`, `published`, `created`,
    `description`, `tags`, and `content` are stable fields, while selector,
-   schema, and meta variables fill optional structured fields. Do not invent a
-   new per-source card shape unless the source cannot fit the fixed format.
-   Filter `content` before writing it: remove title, author, citation,
-   source URL, publication date, and other metadata already promoted into
-   frontmatter, the source quote block, or Structured Metadata. The content
-   section should hold the article body, abstract, selected text, highlights,
-   or source-specific substance, not a second nested capture card.
+   schema, and meta variables fill optional structured fields. Use `created`
+   for the capture-card creation date; keep `retrieved_at` as the raw package
+   lifecycle field in frontmatter and `manifest.md`. For direct web capture
+   they usually match, and the visible `Captured:` line renders `created`.
+   Do not list `retrieved_at` as a capture-card variable unless the rendered
+   card explicitly names it. Do not invent a new per-source card shape unless
+   the source cannot fit the fixed format. Filter `content` before writing it:
+   remove title, author, citation, source URL, publication date, and other
+   metadata already promoted into frontmatter, the source quote block, or
+   Structured Metadata. The content section should hold the article body,
+   abstract, selected text, highlights, or source-specific substance, not a
+   second nested capture card.
 5. **Localize important assets.** Save figures, diagrams, screenshots, or
    downloaded files under `assets/` or `original/` when they matter for later
    audit or offline reuse. Rewrite important references in `origin.md` to
@@ -144,7 +149,7 @@ capture_card:
 > Source: <canonical url>
 > Author: <author>
 > Published: <published date or empty>
-> Captured: YYYY-MM-DD
+> Captured: <created>
 
 ## Description
 
