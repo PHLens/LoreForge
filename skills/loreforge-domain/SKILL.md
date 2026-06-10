@@ -499,7 +499,7 @@ source and compile the useful domain slice, not to force a paper-shaped review.
   (title, author, published date, site, language, meta tags, schema.org data,
   selection/highlights, and clean article content), apply site-specific CSS
   selectors only when the main extractor misses stable structure, localize
-  important assets, and record the extractor/template/selector decisions in
+  important assets, and record the extractor/source-mode/selector decisions in
   `manifest.md`.
 - Prompt or LLM-assisted fields are allowed only as a last-mile extraction aid.
   Do not let them replace the raw source text; record the prompt/model/context
@@ -527,8 +527,8 @@ source and compile the useful domain slice, not to force a paper-shaped review.
 - For standard web pages where a lightweight extractor is enough, `defuddle`
   can provide clean Markdown before ingest.
 - Obsidian Web Clipper exports or `obsidian-clipper` CLI/API output can be used
-  as input when available. Treat it as an extractor/template source for a
-  LoreForge raw package, not as permission to write directly into domain pages.
+  as input when available. Treat it as an extraction source for a LoreForge raw
+  package, not as permission to write directly into domain pages.
 - Auth/session files used by capture tools belong in the tool's local `auth/`
   directory or another machine-local path and must not be committed.
 

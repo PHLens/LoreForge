@@ -35,11 +35,18 @@ def test_capture_skill_web_clipper_contract() -> None:
             "Snapshot first.",
             "Extract deterministic variables.",
             "Use selectors for site-specific structure.",
-            "Apply a capture template.",
+            "Render a fixed capture card.",
             "Localize important assets.",
             "Record extraction lineage.",
-            "Shared/Templates/capture/web-origin.md",
-            "Shared/Templates/capture/web-manifest.md",
+            "Capture Card Format",
+            "title: \"<title>\"",
+            "author: \"<author>\"",
+            "published: \"<published date or empty>\"",
+            "created",
+            "description",
+            "tags:",
+            "capture_card:",
+            "format: web-clipper-like",
             "obsidian-clipper",
             "retrieved_at",
             "source_url",
@@ -60,7 +67,7 @@ def test_domain_and_docs_reference_capture_plan() -> None:
         [
             "clipper-style capture plan",
             "deterministic page variables",
-            "extractor/template/selector decisions",
+            "extractor/source-mode/selector decisions",
             "obsidian-clipper",
         ],
     )
@@ -69,7 +76,7 @@ def test_domain_and_docs_reference_capture_plan() -> None:
         [
             "Web capture should be planned before extraction.",
             "deterministic page variables",
-            "Shared/Templates/capture/",
+            "fixed Web Clipper-like capture card shape",
             "prompt-assistance choices",
         ],
     )
@@ -77,8 +84,8 @@ def test_domain_and_docs_reference_capture_plan() -> None:
         "README.md",
         [
             "clipper-style plan",
-            "Obsidian Web Clipper",
-            "Shared/Templates/capture/",
+            "Web Clipper-like capture card",
+            "fixed Web Clipper-like capture card",
         ],
     )
 

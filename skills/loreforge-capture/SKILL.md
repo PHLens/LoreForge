@@ -20,7 +20,8 @@ Always:
 - preserve source language, useful structure, links, metadata, and
   human-captured artifact filenames
 - choose and record a capture plan before extraction: source mode, extractor,
-  selectors or template, assets to localize, and expected limitations
+  selectors, fixed capture-card format, assets to localize, and expected
+  limitations
 - keep transient extractor paths out of durable wiki metadata
 - report the captured path and concrete capture limitations
 
@@ -66,34 +67,20 @@ Clipper's capture model:
    schema.org triggers used to capture comments, transcripts, code blocks,
    tables, figures, or other stable page regions. Selector output belongs in
    `origin.md` or `extracted/`, not in a domain page during capture.
-4. **Apply a capture template.** Use
-   `Shared/Templates/capture/web-origin.md` and
-   `Shared/Templates/capture/web-manifest.md` as the default templates for web
-   raw packages. They mirror Web Clipper's template model: preset variables,
-   meta variables, schema variables, selector output, filters, and
-   source-mode fields render into `origin.md` and `manifest.md`. Customize by
-   copying the recipe, not by inventing one-off package shapes.
+4. **Render a fixed capture card.** Render `origin.md` in the
+   clipper-like capture card format below. Mirror Web Clipper's default field
+   logic: `title`, `source`, `author`, `published`, `created`,
+   `description`, `tags`, and `content` are stable fields, while selector,
+   schema, and meta variables fill optional structured fields. Do not invent a
+   new per-source card shape unless the source cannot fit the fixed format.
 5. **Localize important assets.** Save figures, diagrams, screenshots, or
    downloaded files under `assets/` or `original/` when they matter for later
    audit or offline reuse. Rewrite important references in `origin.md` to
    wiki-local paths such as `Shared/Raw/<source-id>/assets/<name>`.
 6. **Record extraction lineage.** `manifest.md` must say which capture route
-   was used: helper skill or tool, extractor, template or selector recipe,
+   was used: helper skill or tool, extractor, source mode, selector choices,
    original artifact, extracted artifacts, asset handling, and any auth/session
    assumptions.
-
-Keep reusable web capture templates in the wiki repo:
-
-```text
-Shared/Templates/capture/
-  web-capture-recipe.md
-  web-origin.md
-  web-manifest.md
-```
-
-Treat those wiki-local files as the canonical editable copy for that wiki. Do
-not maintain a second framework-packaged template copy unless the user asks for
-template distribution.
 
 Treat this as a capture discipline, not as an Obsidian dependency. If the
 `obsidian-clipper` CLI/API or an exported Obsidian Web Clipper note is already
@@ -106,6 +93,77 @@ schema, selector, or article extraction cannot capture a stable field. When a
 prompt-derived field is used, store the prompt/context/model or a concise
 description in `manifest.md` and keep quoted source text grounded in the
 deterministic source capture.
+
+## Capture Card Format
+
+For web pages, `origin.md` should use this fixed, Web Clipper-like field order.
+Use empty values only when a field is genuinely unavailable.
+
+```markdown
+---
+title: "<title>"
+source_id: "<source-id>"
+type: source
+source_type: web
+source_language: "<language>"
+retrieved_at: "YYYY-MM-DD"
+source_url: "<canonical url>"
+author: "<author>"
+published: "<published date or empty>"
+site: "<site or publisher>"
+description: "<description or excerpt>"
+tags:
+  - raw-capture
+  - web
+origin: "Shared/Raw/<source-id>/origin.md"
+candidate_domains: []
+compiled_pages: []
+status: captured
+capture_card:
+  format: web-clipper-like
+  source_mode: "article|selection|highlights|selector|full"
+  variables:
+    - title
+    - source
+    - author
+    - published
+    - created
+    - description
+    - tags
+    - content
+---
+
+# <title>
+
+> Source: <canonical url>
+> Author: <author>
+> Published: <published date or empty>
+> Captured: YYYY-MM-DD
+
+## Description
+
+<description or excerpt>
+
+## Content
+
+<clean markdown content, selected text, or highlights>
+
+## Structured Metadata
+
+- site: <site or publisher>
+- language: <language>
+- words: <word count>
+- image: <social image or local asset path>
+- schema: <schema.org values when useful>
+- selectors: <selector names or empty>
+
+## Capture Limits
+
+<concrete limitations, auth/session assumptions, or missing assets>
+```
+
+`manifest.md` records package lifecycle and extraction lineage; `origin.md`
+keeps the human- and agent-readable capture card.
 
 ## Raw Package Shape
 
@@ -155,8 +213,7 @@ artifacts: []
 limitations: "<concrete limitations or empty>"
 extraction:
   method: "defuddle|topic-research|obsidian-clipper|convert-to-markdown|manual"
-  template: "Shared/Templates/capture/web-origin.md"
-  recipe: "Shared/Templates/capture/web-capture-recipe.md"
+  capture_card_format: "web-clipper-like"
   variables: []
   selectors: []
   schema_triggers: []

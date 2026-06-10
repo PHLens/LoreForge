@@ -122,12 +122,10 @@ when available, then build `origin.md` from deterministic page variables such
 as article body, title, author, site, description, published date, canonical
 URL, language, word count, meta tags, schema.org data, selections/highlights,
 and site-specific selectors when the article extractor misses stable structure.
-Use a capture template to keep the output repeatable, localize important
-figures or diagrams under the raw package, and record extractor, template,
-selector, asset, and prompt-assistance choices in `manifest.md`. A wiki can
-keep its canonical editable web capture templates under
-`Shared/Templates/capture/`, typically `web-capture-recipe.md`,
-`web-origin.md`, and `web-manifest.md`.
+Use a fixed Web Clipper-like capture card shape in `origin.md` to keep the
+output repeatable, localize important figures or diagrams under the raw
+package, and record extractor, selector, asset, and prompt-assistance choices
+in `manifest.md`.
 
 For papers, prefer compact metadata-and-text capture. Store identifiers,
 canonical URL, extraction method, `origin.md`, and limitations by default.
