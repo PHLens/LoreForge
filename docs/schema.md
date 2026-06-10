@@ -117,6 +117,15 @@ material is user-provided, local, permissively licensed, public domain, or
 otherwise appropriate to reuse in full. Otherwise keep a faithful structured
 capture and record only concrete limitations.
 
+Web capture should be planned before extraction. Save the original artifact
+when available, then build `origin.md` from deterministic page variables such
+as article body, title, author, site, description, published date, canonical
+URL, language, word count, meta tags, schema.org data, selections/highlights,
+and site-specific selectors when the article extractor misses stable structure.
+Use a capture template to keep the output repeatable, localize important
+figures or diagrams under the raw package, and record extractor, template,
+selector, asset, and prompt-assistance choices in `manifest.md`.
+
 For papers, prefer compact metadata-and-text capture. Store identifiers,
 canonical URL, extraction method, `origin.md`, and limitations by default.
 Archive the original PDF only when explicitly requested or when access
