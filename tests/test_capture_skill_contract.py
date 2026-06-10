@@ -8,6 +8,7 @@ directory shape.
 
 from __future__ import annotations
 
+import hashlib
 from pathlib import Path
 
 
@@ -42,11 +43,17 @@ def test_capture_skill_web_clipper_contract() -> None:
             "title: \"<title>\"",
             "author: \"<author>\"",
             "published: \"<published date or empty>\"",
+            "created: \"YYYY-MM-DD\"",
             "created",
             "description",
             "tags:",
             "capture_card:",
             "format: web-clipper-like",
+            "dedupe fixed-field metadata",
+            "primary_method:",
+            "methods:",
+            "metadata-supplement",
+            "fallback:",
             "obsidian-clipper",
             "retrieved_at",
             "source_url",
@@ -77,6 +84,8 @@ def test_domain_and_docs_reference_capture_plan() -> None:
             "Web capture should be planned before extraction.",
             "deterministic page variables",
             "fixed Web Clipper-like capture card shape",
+            "is not duplicated inside `## Content`",
+            "manifest extraction lineage",
             "prompt-assistance choices",
         ],
     )
@@ -90,7 +99,51 @@ def test_domain_and_docs_reference_capture_plan() -> None:
     )
 
 
+def test_golden_capture_fixture_shape() -> None:
+    raw = REPO_ROOT / "tests" / "fixtures" / "capture" / "web-clipper-like" / "Shared" / "Raw" / "moe-web-capture"
+    origin = raw / "origin.md"
+    manifest = raw / "manifest.md"
+    origin_text = origin.read_text(encoding="utf-8")
+    manifest_text = manifest.read_text(encoding="utf-8")
+
+    expected_hash = hashlib.sha256(origin.read_bytes()).hexdigest()
+    if f'content_hash: "{expected_hash}"' not in manifest_text:
+        raise AssertionError("golden manifest content_hash does not match origin.md")
+
+    required_origin = [
+        "created: \"2026-06-10\"",
+        "capture_card:",
+        "format: web-clipper-like",
+        "## Content",
+        "## Structured Metadata",
+        "## Capture Limits",
+    ]
+    missing_origin = [item for item in required_origin if item not in origin_text]
+    if missing_origin:
+        raise AssertionError(f"golden origin is missing fixed capture-card fields: {missing_origin}")
+
+    forbidden_content = ["## Title:", "Authors:", "Cite as:"]
+    found_forbidden = [item for item in forbidden_content if item in origin_text]
+    if found_forbidden:
+        raise AssertionError(f"golden origin keeps duplicated extractor metadata: {found_forbidden}")
+
+    required_manifest = [
+        "primary_method:",
+        "methods:",
+        "role: \"metadata-supplement\"",
+        "role: \"manual-cleanup\"",
+        "content_filters:",
+        "fallback:",
+        "status: \"unavailable\"",
+        "substitute_sources:",
+    ]
+    missing_manifest = [item for item in required_manifest if item not in manifest_text]
+    if missing_manifest:
+        raise AssertionError(f"golden manifest is missing lineage fields: {missing_manifest}")
+
+
 if __name__ == "__main__":
     test_capture_skill_web_clipper_contract()
     test_domain_and_docs_reference_capture_plan()
+    test_golden_capture_fixture_shape()
     print("LoreForge capture skill contract tests passed.")

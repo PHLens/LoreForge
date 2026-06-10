@@ -73,6 +73,11 @@ Clipper's capture model:
    `description`, `tags`, and `content` are stable fields, while selector,
    schema, and meta variables fill optional structured fields. Do not invent a
    new per-source card shape unless the source cannot fit the fixed format.
+   Filter `content` before writing it: remove title, author, citation,
+   source URL, publication date, and other metadata already promoted into
+   frontmatter, the source quote block, or Structured Metadata. The content
+   section should hold the article body, abstract, selected text, highlights,
+   or source-specific substance, not a second nested capture card.
 5. **Localize important assets.** Save figures, diagrams, screenshots, or
    downloaded files under `assets/` or `original/` when they matter for later
    audit or offline reuse. Rewrite important references in `origin.md` to
@@ -107,6 +112,7 @@ type: source
 source_type: web
 source_language: "<language>"
 retrieved_at: "YYYY-MM-DD"
+created: "YYYY-MM-DD"
 source_url: "<canonical url>"
 author: "<author>"
 published: "<published date or empty>"
@@ -146,7 +152,8 @@ capture_card:
 
 ## Content
 
-<clean markdown content, selected text, or highlights>
+<clean markdown content, selected text, or highlights; omit duplicated title,
+author, citation, source URL, and publication metadata already captured above>
 
 ## Structured Metadata
 
@@ -212,12 +219,23 @@ status: captured
 artifacts: []
 limitations: "<concrete limitations or empty>"
 extraction:
-  method: "defuddle|topic-research|obsidian-clipper|convert-to-markdown|manual"
+  primary_method: "defuddle|topic-research|obsidian-clipper|convert-to-markdown|manual"
+  methods:
+    - name: "<tool or helper>"
+      role: "primary-content|metadata-supplement|asset-capture|manual-cleanup"
+      artifacts: []
   capture_card_format: "web-clipper-like"
   variables: []
   selectors: []
   schema_triggers: []
   filters: []
+  content_filters:
+    - "dedupe fixed-field metadata"
+  fallback:
+    search_source: ""
+    status: "available|unavailable|not-used"
+    reason: ""
+    substitute_sources: []
   assets: "none|linked|localized|partial"
   prompt_assisted: false
 ---

@@ -99,10 +99,10 @@ artifacts when those artifacts are stored. `original/`, `extracted/`, and
 For web pages, capture follows a clipper-style plan: preserve an original
 artifact when possible, extract deterministic page variables and selectors,
 render a fixed Web Clipper-like capture card in `origin.md`, localize important
-assets, and record extractor/selector lineage in `manifest.md`. Obsidian Web
-Clipper exports or `obsidian-clipper` CLI/API output can be used as capture
-input when available, but the durable wiki contract remains the LoreForge raw
-package.
+assets, filter duplicated metadata out of the content body, and record
+extractor/selector/fallback lineage in `manifest.md`. Obsidian Web Clipper
+exports or `obsidian-clipper` CLI/API output can be used as capture input when
+available, but the durable wiki contract remains the LoreForge raw package.
 Paper capture should default to compact metadata-and-text preservation and
 archive PDF binaries only when the user asks or exact/offline audit requires
 the original. `Calendar/dailynotes/` and `Calendar/weeklynotes/` hold dated

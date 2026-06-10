@@ -501,6 +501,12 @@ source and compile the useful domain slice, not to force a paper-shaped review.
   selectors only when the main extractor misses stable structure, localize
   important assets, and record the extractor/source-mode/selector decisions in
   `manifest.md`.
+- Before saving `origin.md`, filter the content section so title, authors,
+  source URL, citation table, publication date, and other fields already
+  promoted to the capture card are not duplicated as a nested card.
+- When a search source such as MCP wiki or Confluence is unavailable, record
+  the failure status and substitute source under manifest extraction lineage
+  instead of only burying it in prose limitations.
 - Prompt or LLM-assisted fields are allowed only as a last-mile extraction aid.
   Do not let them replace the raw source text; record the prompt/model/context
   or a concise description in the manifest when they affect captured fields.
