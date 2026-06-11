@@ -25,8 +25,10 @@ resolve config and the `loreforge-domain` expert should create:
 - `00_System/index.md`, `00_System/domains.md`, and `00_System/wiki-layout.md`
 - shared `Calendar/dailynotes/`, `Calendar/weeklynotes/`, `Shared/Raw/`, and
   `Shared/Templates/`
-- shared templates: `Shared/Templates/weekly.md` for weekly planning and
-  review; diary templates may be added by the wiki's Obsidian profile
+- shared templates: `Shared/Templates/weekly.md` for weekly planning,
+  `card.md` for reusable concepts, `moc.md` for broader Atlas/MOC structure
+  notes, and `relationship.md` for focused relationship views; diary templates
+  may be added by the wiki's Obsidian profile
 - domain `SCHEMA.md`, `index.md`, `log.md`, `Atlas/`, `Cards/`, and `Spaces/`
   under `Domains/<domain>/`
 - optional `Sources/` under `Domains/<domain>/` when a source excerpt or

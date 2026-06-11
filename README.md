@@ -43,7 +43,7 @@ LoreForge/
 ├── .claude-plugin/            # Claude plugin metadata
 ├── README.md
 ├── docs/                     # Philosophy, schema, install guidance
-├── templates/config/          # Optional local registry example
+├── templates/                 # Optional registry and wiki starter templates
 └── skills/                   # LoreForge entrypoint, domain skill, and helper skills
 ```
 
@@ -73,6 +73,10 @@ wiki/
         extracted/
         assets/
     Templates/
+      weekly.md
+      card.md
+      moc.md
+      relationship.md
   Domains/
     <domain>/
       SCHEMA.md
@@ -108,7 +112,8 @@ Paper capture should default to compact metadata-and-text preservation and
 archive PDF binaries only when the user asks or exact/offline audit requires
 the original. `Calendar/dailynotes/` and `Calendar/weeklynotes/` hold dated
 personal planning notes when the wiki role is asked to decompose goals into
-daily or weekly work. `Shared/Templates/` stores reusable wiki templates.
+daily or weekly work. `Shared/Templates/` stores reusable wiki templates,
+including weekly planning, Card, MOC, and focused relationship-view starters.
 `Domains/<domain>/Sources/` is optional and can hold source excerpts or
 source-specific lenses when the raw package is large. `Cards/`, `Atlas/`, and
 `Spaces/` hold the durable synthesis and should prefer plain internal wikilinks

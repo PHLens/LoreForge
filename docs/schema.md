@@ -19,6 +19,10 @@ wiki/
         extracted/
         assets/
     Templates/
+      weekly.md
+      card.md
+      moc.md
+      relationship.md
   Domains/
     <domain>/
       SCHEMA.md
@@ -34,9 +38,10 @@ wiki/
 `index.md`, `domains.md`, and `wiki-layout.md`. `Calendar/` stores dated
 personal notes such as daily notes and weekly planning notes. `Shared/Raw/`
 stores one raw source package per source under `Shared/Raw/<source-id>/`.
-`Shared/Templates/` stores reusable templates once for the whole wiki. Each
-`Domains/<domain>/` is a self-contained LLM Wiki maintained by one expert
-agent.
+`Shared/Templates/` stores reusable templates once for the whole wiki. It
+should include wiki-owned starters for weekly notes, Cards, MOCs, and focused
+relationship views. Each `Domains/<domain>/` is a self-contained LLM Wiki
+maintained by one expert agent.
 
 ## Calendar Files
 
@@ -50,7 +55,7 @@ agent.
 | Path | Purpose |
 |---|---|
 | `Shared/Raw/` | Wiki-root raw source area. Capture writes `Shared/Raw/<source-id>/origin.md` and `manifest.md`; ingest updates the same package with candidate domains, compiled page pointers, original artifacts, extracted artifacts, and any source-specific assets |
-| `Shared/Templates/` | Wiki-root reusable note templates, including diary and weekly templates |
+| `Shared/Templates/` | Wiki-root reusable note templates, including weekly, Card, MOC, and relationship-view starters |
 
 ## Domain Files
 
@@ -88,6 +93,10 @@ Query and ingest should stay question-driven: start from the problem being
 answered, then make a page-type decision. Use strict Card authoring for durable
 reusable concepts, strict Atlas/MOC authoring for relationship or problem
 views, and conservative Source/Space paths when the reusable shape is weak.
+`Shared/Templates/card.md`, `moc.md`, and `relationship.md` provide starter
+shapes for those choices. Relationship templates create focused Atlas/MOC
+`type: map` views between two or a few pages; they are not a separate page
+type.
 
 Durable project work items belong in domain `Spaces/projects/` or the domain's
 schema-defined equivalent. They should summarize problem background, solution,

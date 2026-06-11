@@ -130,6 +130,12 @@ links, not source citations.
 
 ## Default Template
 
+The wiki-level starter template lives at `Shared/Templates/moc.md`. Preserve an
+existing wiki template unless the user explicitly asks to rewrite it. For a
+focused relationship between two or a few pages, use
+`Shared/Templates/relationship.md`; it is still an Atlas/MOC `type: map`
+template, not a separate page type. The default MOC shape is:
+
 ```markdown
 ---
 title: Page Title
@@ -157,6 +163,36 @@ This view asks: ...
 ```
 
 Use only the sections that help the page. Do not create empty headings.
+
+The default relationship view shape is:
+
+```markdown
+---
+title: Relationship Title
+created: YYYY-MM-DD
+updated: YYYY-MM-DD
+type: map
+tags: []
+confidence: medium
+status: active
+contested: false
+contradictions: []
+---
+
+# Relationship Title
+
+This relationship view asks how [[page-a]] and [[page-b]] connect.
+
+## Relationship
+
+## Direction
+
+## Evidence
+
+## Tension
+
+## Open Questions
+```
 
 ## Acceptance Gate
 

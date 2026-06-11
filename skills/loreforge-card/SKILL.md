@@ -175,6 +175,10 @@ source citations. Do not cite Cards with source-style footnote markers.
 
 ## Default Template
 
+The wiki-level starter template lives at `Shared/Templates/card.md`. Preserve
+an existing wiki template unless the user explicitly asks to rewrite it. The
+default shape is:
+
 ```markdown
 ---
 title: Page Title
