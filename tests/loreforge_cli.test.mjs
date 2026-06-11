@@ -134,17 +134,11 @@ test('setup command bootstraps registry, wiki, and domain skeleton', (t) => {
   assert.equal(fs.existsSync(registry), true);
   assert.equal(fs.existsSync(path.join(wiki, '00_System', 'index.md')), true);
   assert.equal(fs.existsSync(path.join(wiki, 'Shared', 'Templates', 'weekly.md')), true);
-  assert.equal(fs.existsSync(path.join(wiki, 'Shared', 'Templates', 'card.md')), true);
-  assert.equal(fs.existsSync(path.join(wiki, 'Shared', 'Templates', 'moc.md')), true);
-  assert.equal(fs.existsSync(path.join(wiki, 'Shared', 'Templates', 'relationship.md')), true);
-  assert.match(fs.readFileSync(path.join(wiki, 'Shared', 'Templates', 'card.md'), 'utf8'), /type: concept/);
-  assert.match(fs.readFileSync(path.join(wiki, 'Shared', 'Templates', 'moc.md'), 'utf8'), /type: map/);
-  assert.match(fs.readFileSync(path.join(wiki, 'Shared', 'Templates', 'relationship.md'), 'utf8'), /Relationship Title/);
+  assert.equal(fs.existsSync(path.join(wiki, 'Shared', 'Templates', 'card.md')), false);
+  assert.equal(fs.existsSync(path.join(wiki, 'Shared', 'Templates', 'moc.md')), false);
+  assert.equal(fs.existsSync(path.join(wiki, 'Shared', 'Templates', 'relationship.md')), false);
   assert.equal(fs.existsSync(path.join(wiki, 'Domains', 'ai-research', 'SCHEMA.md')), true);
   assert.match(fs.readFileSync(registry, 'utf8'), /default_domain = "ai-research"/);
-
-  const customizedCard = path.join(wiki, 'Shared', 'Templates', 'card.md');
-  fs.writeFileSync(customizedCard, 'custom card template\n');
 
   const rerun = runLoreForge([
     'setup',
@@ -161,7 +155,6 @@ test('setup command bootstraps registry, wiki, and domain skeleton', (t) => {
     '--json',
   ]);
   assert.equal(JSON.parse(rerun.stdout).ok, true);
-  assert.equal(fs.readFileSync(customizedCard, 'utf8'), 'custom card template\n');
 });
 
 

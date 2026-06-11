@@ -96,8 +96,7 @@ LoreForge now follows a small core:
 3. Shared raw sources live as packages in `Shared/Raw/<source-id>/`; capture
    creates `origin.md` plus `manifest.md`, and ingest updates the same package
    while compiling domain knowledge. Reusable templates live in
-   `Shared/Templates/`, including separate starters for Cards, MOCs, and
-   focused relationship views.
+   `Shared/Templates/`.
 4. Optional domain source notes live in `Domains/<domain>/Sources/` when a raw
    package is large or needs a stable excerpt.
 5. One expert agent owns and maintains one domain.

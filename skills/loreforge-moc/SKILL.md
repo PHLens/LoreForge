@@ -130,11 +130,9 @@ links, not source citations.
 
 ## Default Template
 
-The wiki-level starter template lives at `Shared/Templates/moc.md`. Preserve an
-existing wiki template unless the user explicitly asks to rewrite it. For a
-focused relationship between two or a few pages, use
-`Shared/Templates/relationship.md`; it is still an Atlas/MOC `type: map`
-template, not a separate page type. The default MOC shape is:
+Use this default shape when creating a MOC. For a focused relationship between
+two or a few pages, use the relationship view shape below; it is still an
+Atlas/MOC `type: map` page, not a separate page type.
 
 ```markdown
 ---

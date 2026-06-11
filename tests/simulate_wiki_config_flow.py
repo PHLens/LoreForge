@@ -36,13 +36,6 @@ def write(path: Path, text: str) -> None:
     path.write_text(text, encoding="utf-8")
 
 
-def copy_template(wiki: Path, name: str) -> None:
-    write(
-        wiki / "Shared" / "Templates" / name,
-        (REPO_ROOT / "templates" / "wiki" / "Shared" / "Templates" / name).read_text(encoding="utf-8"),
-    )
-
-
 def digest_tree(root: Path) -> dict[str, str]:
     result: dict[str, str] = {}
     for path in sorted(root.rglob("*")):
@@ -290,8 +283,6 @@ tags:
 - Carry forward:
 """,
     )
-    for template in ("card.md", "moc.md", "relationship.md"):
-        copy_template(wiki, template)
     write(
         domain / "SCHEMA.md",
         "# Schema\n\n"
@@ -622,12 +613,9 @@ def main() -> int:
         assert (wiki / "Shared" / "Templates").is_dir()
         weekly_template = wiki / "Shared" / "Templates" / "weekly.md"
         assert weekly_template.exists()
-        assert (wiki / "Shared" / "Templates" / "card.md").exists()
-        assert (wiki / "Shared" / "Templates" / "moc.md").exists()
-        assert (wiki / "Shared" / "Templates" / "relationship.md").exists()
-        assert "type: concept" in (wiki / "Shared" / "Templates" / "card.md").read_text(encoding="utf-8")
-        assert "type: map" in (wiki / "Shared" / "Templates" / "moc.md").read_text(encoding="utf-8")
-        assert "Relationship Title" in (wiki / "Shared" / "Templates" / "relationship.md").read_text(encoding="utf-8")
+        assert not (wiki / "Shared" / "Templates" / "card.md").exists()
+        assert not (wiki / "Shared" / "Templates" / "moc.md").exists()
+        assert not (wiki / "Shared" / "Templates" / "relationship.md").exists()
         assert not (domain / "Sources").exists()
         assert "Layout: [[wiki-layout]]" in (wiki / "00_System" / "index.md").read_text(encoding="utf-8")
         assert "ai-research" in (wiki / "00_System" / "domains.md").read_text(encoding="utf-8")

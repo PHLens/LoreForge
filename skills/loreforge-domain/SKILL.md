@@ -172,9 +172,8 @@ When delegated to create or start a wiki or domain:
 3. Create `Calendar/`, `Calendar/dailynotes/`, and `Calendar/weeklynotes/` if
    missing.
 4. Create `Shared/Raw/` and `Shared/Templates/` if missing.
-5. Create the minimal `Shared/Templates/weekly.md`, `card.md`, `moc.md`, and
-   `relationship.md` below if missing. Preserve existing templates unless the
-   user explicitly asks to rewrite them.
+5. Create the minimal `Shared/Templates/weekly.md` below if missing. Preserve
+   existing templates unless the user explicitly asks to rewrite them.
 6. Create `Domains/<domain>/`.
 7. Create the required domain files and directories above.
 8. Ask for a concise domain description and the default language for extracted
@@ -188,12 +187,13 @@ When delegated to create or start a wiki or domain:
 
 ### Shared Templates
 
-Templates are human-facing Obsidian notes. Users may freely customize their
-headings and review style; LoreForge should require the template paths and page
-type semantics, not strict bodies. `card.md` is for reusable concept Cards,
-`moc.md` is for broad Atlas/MOC structure notes, and `relationship.md` is for
-focused relationship views between two or a few pages. Relationship views are
-still Atlas/MOC pages with `type: map`, not a separate validator page type.
+Weekly templates are human-facing Obsidian notes. Users may freely customize
+their headings and review style; LoreForge should require only the template
+path, not a strict template body. Card, MOC, and focused relationship shapes
+belong in domain `SCHEMA.md` plus `loreforge-card` / `loreforge-moc`
+authoring contracts rather than separate wiki template assets. Relationship
+views are still Atlas/MOC pages with `type: map`, not a separate validator page
+type.
 
 `Shared/Templates/weekly.md`:
 
@@ -235,94 +235,6 @@ tags:
 
 - Done:
 - Carry forward:
-```
-
-`Shared/Templates/card.md`:
-
-```markdown
----
-title: Page Title
-created: YYYY-MM-DD
-updated: YYYY-MM-DD
-type: concept
-aliases:
-  - Page Title
-tags: []
-confidence: medium
-status: active
-contested: false
-contradictions: []
----
-
-# Page Title
-
-One-sentence direct definition or problem statement.
-
-## Why
-
-## What Is Page Title
-
-## Constraints
-
-## Open Questions
-```
-
-`Shared/Templates/moc.md`:
-
-```markdown
----
-title: Page Title
-created: YYYY-MM-DD
-updated: YYYY-MM-DD
-type: map
-tags: []
-confidence: medium
-status: active
-contested: false
-contradictions: []
----
-
-# Page Title
-
-This view asks: ...
-
-## Current View
-
-## Key Relationships
-
-## Tradeoffs
-
-## Open Questions
-```
-
-`Shared/Templates/relationship.md`:
-
-```markdown
----
-title: Relationship Title
-created: YYYY-MM-DD
-updated: YYYY-MM-DD
-type: map
-tags: []
-confidence: medium
-status: active
-contested: false
-contradictions: []
----
-
-# Relationship Title
-
-This relationship view asks how [[page-a]] and [[page-b]] connect.
-
-## Relationship
-
-## Direction
-
-## Evidence
-
-## Tension
-
-## Open Questions
 ```
 
 ### 00_System Minimal Files
