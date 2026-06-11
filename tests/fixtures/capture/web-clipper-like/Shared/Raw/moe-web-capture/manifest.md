@@ -6,7 +6,7 @@ source_language: "en"
 retrieved_at: "2026-06-10"
 source_url: "https://arxiv.org/abs/2101.03961"
 source_description: "arXiv abstract page for the Switch Transformer MoE paper."
-content_hash: "ca6d2d11587042e421dd27a955e9b8c4bd6966561bdb350bb2e402757d5b7156"
+content_hash: "1fd6b0fea5aa8b1f640f1d01afd14dca3572e3a2b7f4064edf474022b91431e6"
 origin: "Shared/Raw/moe-web-capture/origin.md"
 candidate_domains:
   - "gpu-arch-research"
@@ -38,7 +38,8 @@ extraction:
     - "author"
     - "published"
     - "created"
-    - "description"
+    - "year"
+    - "arxiv"
     - "tags"
     - "content"
   selectors:
@@ -64,5 +65,5 @@ extraction:
 
 # Switch Transformers: Scaling to Trillion Parameter Models with Simple and Efficient Sparsity
 
-Golden fixture for a Web-Clipper-like LoreForge capture card and multi-method
+Golden fixture for a Web-Clipper-like LoreForge note and multi-method
 manifest lineage.

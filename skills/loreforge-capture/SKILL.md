@@ -20,7 +20,7 @@ Always:
 - preserve source language, useful structure, links, metadata, and
   human-captured artifact filenames
 - choose and record a capture plan before extraction: source mode, extractor,
-  selectors, fixed capture-card format, assets to localize, and expected
+  selectors, minimal clipper-note format, assets to localize, and expected
   limitations
 - keep transient extractor paths out of durable wiki metadata
 - report the captured path and concrete capture limitations
@@ -67,22 +67,23 @@ Clipper's capture model:
    schema.org triggers used to capture comments, transcripts, code blocks,
    tables, figures, or other stable page regions. Selector output belongs in
    `origin.md` or `extracted/`, not in a domain page during capture.
-4. **Render a fixed capture card.** Render `origin.md` in the
-   clipper-like capture card format below. Mirror Web Clipper's default field
-   logic: `title`, `source`, `author`, `published`, `created`,
-   `description`, `tags`, and `content` are stable fields, while selector,
-   schema, and meta variables fill optional structured fields. Use `created`
-   for the capture-card creation date; keep `retrieved_at` as the raw package
-   lifecycle field in frontmatter and `manifest.md`. For direct web capture
-   they usually match. Do not add a separate `Captured:` line or list
-   `retrieved_at` as a capture-card variable unless the rendered content
-   explicitly needs it. Do not invent a new per-source card shape unless the
-   source cannot fit the fixed format. Filter `content` before writing it:
-   remove title, author, citation, source URL, publication date, and other
-   metadata already promoted into frontmatter or `manifest.md`. The Markdown
-   body should be the article body, abstract, selected text, highlights, or
-   source-specific substance directly, not a second nested capture card and not
-   a report with repeated metadata sections.
+4. **Render a minimal clipper note.** Render `origin.md` like an Obsidian Web
+   Clipper note: a small frontmatter property set plus the cleaned `content`
+   body. Web Clipper exposes many variables, but its default template writes
+   only a few note properties and uses `{{content}}` as the note body. Mirror
+   that split. The stable generic properties are `title`, `source`, `author`,
+   `published`, `created`, and `tags`. Add source-specific properties only when
+   they are useful human index fields, such as `year` or `arxiv` for an arXiv
+   note. Keep package lifecycle and provenance fields such as `source_id`,
+   `source_type`, `source_language`, `retrieved_at`, `origin`,
+   `candidate_domains`, `compiled_pages`, `status`, capture variables,
+   selector/schema choices, fallback, and limitations in `manifest.md`, not
+   `origin.md`. Use `created` for the note creation date. Filter `content`
+   before writing it: remove title, author, citation, source URL, publication
+   date, description, and other metadata already promoted into frontmatter or
+   `manifest.md`. The Markdown body should be the article body, abstract,
+   selected text, highlights, or source-specific substance directly, not a
+   second nested capture card and not a report with repeated metadata sections.
 5. **Localize important assets.** Save figures, diagrams, screenshots, or
    downloaded files under `assets/` or `original/` when they matter for later
    audit or offline reuse. Rewrite important references in `origin.md` to
@@ -104,53 +105,34 @@ prompt-derived field is used, store the prompt/context/model or a concise
 description in `manifest.md` and keep quoted source text grounded in the
 deterministic source capture.
 
-## Capture Card Format
+## Clipper Note Format
 
-For web pages, `origin.md` should use this fixed, Web Clipper-like field order.
-Use empty values only when a field is genuinely unavailable.
+For web pages, `origin.md` should use this minimal, Web Clipper-like note
+shape. Omit unavailable optional fields instead of filling the note with empty
+metadata. Use `source` for the canonical URL to match Web Clipper's default
+template vocabulary. Put `source_id`, `retrieved_at`, extraction variables,
+selector/schema decisions, fallback, limitations, and compiled-page state only
+in `manifest.md`.
 
 ```markdown
 ---
 title: "<title>"
-source_id: "<source-id>"
-type: source
-source_type: web
-source_language: "<language>"
-retrieved_at: "YYYY-MM-DD"
-created: "YYYY-MM-DD"
-source_url: "<canonical url>"
+source: "<canonical url>"
 author: "<author>"
 published: "<published date or empty>"
-site: "<site or publisher>"
-description: "<description or excerpt>"
+created: "YYYY-MM-DD"
 tags:
-  - raw-capture
-  - web
-origin: "Shared/Raw/<source-id>/origin.md"
-candidate_domains: []
-compiled_pages: []
-status: captured
-capture_card:
-  format: web-clipper-like
-  source_mode: "article|selection|highlights|selector|full"
-  variables:
-    - title
-    - source
-    - author
-    - published
-    - created
-    - description
-    - tags
-    - content
+  - clippings
 ---
 
 <clean markdown content, selected text, or highlights; omit duplicated title,
-author, citation, source URL, publication metadata, description, selector/schema
-summaries, and capture limits already captured in frontmatter or manifest.md>
+author, citation, source URL, publication metadata, description,
+selector/schema summaries, and capture limits already captured in frontmatter
+or manifest.md>
 ```
 
 `manifest.md` records package lifecycle and extraction lineage; `origin.md`
-keeps frontmatter metadata plus the cleaned source content.
+keeps only note-facing metadata plus the cleaned source content.
 
 ## Raw Package Shape
 

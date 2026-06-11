@@ -122,14 +122,17 @@ when available, then build `origin.md` from deterministic page variables such
 as article body, title, author, site, description, published date, canonical
 URL, language, word count, meta tags, schema.org data, selections/highlights,
 and site-specific selectors when the article extractor misses stable structure.
-Use a fixed Web Clipper-like capture card shape in `origin.md` to keep the
-output repeatable: frontmatter holds the metadata fields and the Markdown body
-directly holds cleaned `content`. Localize important figures or diagrams under
-the raw package and record extractor, selector, asset, limitation, fallback, and
-prompt-assistance choices in `manifest.md` as manifest extraction lineage. The
-body should be filtered so metadata already promoted to fields, such as title,
-authors, citation, source URL, description, and publication date, is not duplicated
-in the body. If capture falls back from an unavailable search source to public
+Use a minimal Web Clipper-like note shape in `origin.md`: frontmatter keeps only
+note-facing index fields such as `title`, `source`, `author`, `published`,
+`created`, and `tags`, while the Markdown body directly holds cleaned
+`content`. Keep package lifecycle and provenance fields such as `source_id`,
+`retrieved_at`, selector/schema decisions, fallback, limitations,
+prompt-assistance choices, and compiled-page state in `manifest.md` as manifest
+extraction lineage. Localize important figures or diagrams under the raw
+package. The body should be
+filtered so metadata already promoted to fields, such as title, authors,
+citation, source URL, description, and publication date, is not duplicated in
+the body. If capture falls back from an unavailable search source to public
 pages or alternate APIs, record the unavailable source and substitute source in
 manifest extraction lineage.
 

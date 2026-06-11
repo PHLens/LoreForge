@@ -49,7 +49,7 @@ YAML source links.
 
 Web capture should borrow the Obsidian Web Clipper shape without making
 Obsidian a dependency: preserve the original artifact when possible, extract
-deterministic variables and selectors, render a fixed Web Clipper-like capture
+deterministic variables and selectors, render minimal Web Clipper-like note
 frontmatter in `origin.md`, put cleaned content directly in the note body,
 filter duplicated metadata out of that body, keep important assets wiki-local,
 and record extractor/selector/fallback lineage in the raw manifest before any

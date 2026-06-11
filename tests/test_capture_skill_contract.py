@@ -40,19 +40,18 @@ def test_capture_skill_web_clipper_contract() -> None:
             "Snapshot first.",
             "Extract deterministic variables.",
             "Use selectors for site-specific structure.",
-            "Render a fixed capture card.",
+            "Render a minimal clipper note.",
             "Localize important assets.",
             "Record extraction lineage.",
-            "Capture Card Format",
+            "Clipper Note Format",
             "title: \"<title>\"",
+            "source: \"<canonical url>\"",
             "author: \"<author>\"",
             "published: \"<published date or empty>\"",
             "created: \"YYYY-MM-DD\"",
             "created",
-            "description",
             "tags:",
-            "capture_card:",
-            "format: web-clipper-like",
+            "capture_card_format: \"web-clipper-like\"",
             "dedupe fixed-field metadata",
             "primary_method:",
             "methods:",
@@ -87,7 +86,7 @@ def test_domain_and_docs_reference_capture_plan() -> None:
         [
             "Web capture should be planned before extraction.",
             "deterministic page variables",
-            "fixed Web Clipper-like capture card shape",
+            "minimal Web Clipper-like note shape",
             "Markdown body",
             "is not duplicated",
             "manifest extraction lineage",
@@ -98,8 +97,8 @@ def test_domain_and_docs_reference_capture_plan() -> None:
         "README.md",
         [
             "clipper-style plan",
-            "Web Clipper-like capture card",
-            "fixed Web Clipper-like capture card",
+            "Web Clipper-like note frontmatter",
+            "minimal Web Clipper-like note frontmatter",
         ],
     )
 
@@ -118,14 +117,37 @@ def test_golden_capture_fixture_shape() -> None:
         raise AssertionError("golden manifest content_hash does not match origin.md")
 
     required_origin = [
-        "retrieved_at: \"2026-06-10\"",
+        "source: \"https://arxiv.org/abs/2101.03961\"",
+        "author: \"William Fedus, Barret Zoph, Noam Shazeer\"",
+        "published: \"2021-01-11T16:11:52Z\"",
         "created: \"2026-06-10\"",
-        "capture_card:",
-        "format: web-clipper-like",
+        "year: 2021",
+        "arxiv: \"2101.03961\"",
+        "- \"clippings\"",
     ]
-    missing_origin = [item for item in required_origin if item not in origin_text]
+    origin_frontmatter = origin_text.split("---", 2)[1]
+    missing_origin = [item for item in required_origin if item not in origin_frontmatter]
     if missing_origin:
-        raise AssertionError(f"golden origin is missing fixed capture-card fields: {missing_origin}")
+        raise AssertionError(f"golden origin is missing minimal clipper note fields: {missing_origin}")
+
+    forbidden_frontmatter = [
+        "source_id:",
+        "type:",
+        "source_type:",
+        "source_language:",
+        "retrieved_at:",
+        "source_url:",
+        "site:",
+        "description:",
+        "origin:",
+        "candidate_domains:",
+        "compiled_pages:",
+        "status:",
+        "capture_card:",
+    ]
+    found_frontmatter = [item for item in forbidden_frontmatter if item in origin_frontmatter]
+    if found_frontmatter:
+        raise AssertionError(f"golden origin keeps manifest-only fields: {found_frontmatter}")
 
     body = markdown_body(origin_text)
     forbidden_content = [

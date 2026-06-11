@@ -1,37 +1,14 @@
 ---
 title: "Switch Transformers: Scaling to Trillion Parameter Models with Simple and Efficient Sparsity"
-source_id: "moe-web-capture"
-type: source
-source_type: web
-source_language: "en"
-retrieved_at: "2026-06-10"
-created: "2026-06-10"
-source_url: "https://arxiv.org/abs/2101.03961"
+source: "https://arxiv.org/abs/2101.03961"
 author: "William Fedus, Barret Zoph, Noam Shazeer"
 published: "2021-01-11T16:11:52Z"
-site: "arXiv"
-description: "arXiv abstract page for the Switch Transformer MoE paper."
+created: "2026-06-10"
+year: 2021
+arxiv: "2101.03961"
 tags:
-  - "raw-capture"
-  - "web"
+  - "clippings"
   - "moe"
-origin: "Shared/Raw/moe-web-capture/origin.md"
-candidate_domains:
-  - "gpu-arch-research"
-compiled_pages: []
-status: captured
-capture_card:
-  format: web-clipper-like
-  source_mode: "article"
-  variables:
-    - "title"
-    - "source"
-    - "author"
-    - "published"
-    - "created"
-    - "description"
-    - "tags"
-    - "content"
 ---
 
 > Abstract: In deep learning, models typically reuse the same parameters for all
