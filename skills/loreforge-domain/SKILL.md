@@ -501,9 +501,10 @@ source and compile the useful domain slice, not to force a paper-shaped review.
   selectors only when the main extractor misses stable structure, localize
   important assets, and record the extractor/source-mode/selector decisions in
   `manifest.md`.
-- Before saving `origin.md`, filter the content section so title, authors,
+- Before saving `origin.md`, filter the Markdown body so title, authors,
   source URL, citation table, publication date, and other fields already
-  promoted to the capture card are not duplicated as a nested card.
+  promoted to frontmatter or manifest metadata are not duplicated as a nested
+  card.
 - When a search source such as MCP wiki or Confluence is unavailable, record
   the failure status and substitute source under manifest extraction lineage
   instead of only burying it in prose limitations.

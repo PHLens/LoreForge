@@ -123,13 +123,15 @@ as article body, title, author, site, description, published date, canonical
 URL, language, word count, meta tags, schema.org data, selections/highlights,
 and site-specific selectors when the article extractor misses stable structure.
 Use a fixed Web Clipper-like capture card shape in `origin.md` to keep the
-output repeatable, localize important figures or diagrams under the raw
-package, and record extractor, selector, asset, and prompt-assistance choices
-in `manifest.md`. The card content section should be filtered so metadata
-already promoted to fields, such as title, authors, citation, source URL, and
-publication date, is not duplicated inside `## Content`. If capture falls back
-from an unavailable search source to public pages or alternate APIs, record the
-unavailable source and substitute source in manifest extraction lineage.
+output repeatable: frontmatter holds the metadata fields and the Markdown body
+directly holds cleaned `content`. Localize important figures or diagrams under
+the raw package and record extractor, selector, asset, limitation, fallback, and
+prompt-assistance choices in `manifest.md` as manifest extraction lineage. The
+body should be filtered so metadata already promoted to fields, such as title,
+authors, citation, source URL, description, and publication date, is not duplicated
+in the body. If capture falls back from an unavailable search source to public
+pages or alternate APIs, record the unavailable source and substitute source in
+manifest extraction lineage.
 
 For papers, prefer compact metadata-and-text capture. Store identifiers,
 canonical URL, extraction method, `origin.md`, and limitations by default.

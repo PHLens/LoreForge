@@ -26,10 +26,8 @@ def assert_contains(path: str, required: list[str]) -> None:
         raise AssertionError(f"{path} is missing capture contract text: {missing}")
 
 
-def markdown_section(text: str, heading: str, next_heading: str) -> str:
-    start = text.index(heading) + len(heading)
-    end = text.index(next_heading, start)
-    return text[start:end]
+def markdown_body(text: str) -> str:
+    return text.split("---", 2)[2]
 
 
 def test_capture_skill_web_clipper_contract() -> None:
@@ -50,7 +48,6 @@ def test_capture_skill_web_clipper_contract() -> None:
             "author: \"<author>\"",
             "published: \"<published date or empty>\"",
             "created: \"YYYY-MM-DD\"",
-            "the visible `Captured:` line renders `created`",
             "created",
             "description",
             "tags:",
@@ -91,7 +88,8 @@ def test_domain_and_docs_reference_capture_plan() -> None:
             "Web capture should be planned before extraction.",
             "deterministic page variables",
             "fixed Web Clipper-like capture card shape",
-            "is not duplicated inside `## Content`",
+            "Markdown body",
+            "is not duplicated",
             "manifest extraction lineage",
             "prompt-assistance choices",
         ],
@@ -124,22 +122,27 @@ def test_golden_capture_fixture_shape() -> None:
         "created: \"2026-06-10\"",
         "capture_card:",
         "format: web-clipper-like",
-        "> Captured: 2026-06-10",
-        "## Content",
-        "## Structured Metadata",
-        "## Capture Limits",
     ]
     missing_origin = [item for item in required_origin if item not in origin_text]
     if missing_origin:
         raise AssertionError(f"golden origin is missing fixed capture-card fields: {missing_origin}")
 
-    content_section = markdown_section(origin_text, "## Content", "## Structured Metadata")
-    forbidden_content = ["## Title:", "Authors:", "Cite as:"]
-    found_forbidden = [item for item in forbidden_content if item in content_section]
+    body = markdown_body(origin_text)
+    forbidden_content = [
+        "## Title:",
+        "Authors:",
+        "Cite as:",
+        "## Description",
+        "## Content",
+        "## Structured Metadata",
+        "## Capture Limits",
+        "MCP wiki search was unavailable",
+    ]
+    found_forbidden = [item for item in forbidden_content if item in body]
     if found_forbidden:
         raise AssertionError(f"golden origin keeps duplicated extractor metadata: {found_forbidden}")
 
-    if "Abstract:" not in content_section or "Mixture of Experts (MoE)" not in content_section:
+    if "Abstract:" not in body or "Mixture of Experts (MoE)" not in body:
         raise AssertionError("golden origin content does not preserve filtered source substance")
 
     if "## Title:" not in defuddle_text or "Cite as:" not in defuddle_text:

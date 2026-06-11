@@ -98,11 +98,12 @@ artifacts when those artifacts are stored. `original/`, `extracted/`, and
 `assets/` are optional package subdirectories, not mandatory storage quotas.
 For web pages, capture follows a clipper-style plan: preserve an original
 artifact when possible, extract deterministic page variables and selectors,
-render a fixed Web Clipper-like capture card in `origin.md`, localize important
-assets, filter duplicated metadata out of the content body, and record
-extractor/selector/fallback lineage in `manifest.md`. Obsidian Web Clipper
-exports or `obsidian-clipper` CLI/API output can be used as capture input when
-available, but the durable wiki contract remains the LoreForge raw package.
+render fixed Web Clipper-like capture card frontmatter in `origin.md`, put
+cleaned content directly in the note body, localize important assets, filter
+duplicated metadata out of the body, and record extractor/selector/fallback
+lineage in `manifest.md`. Obsidian Web Clipper exports or `obsidian-clipper`
+CLI/API output can be used as capture input when available, but the durable
+wiki contract remains the LoreForge raw package.
 Paper capture should default to compact metadata-and-text preservation and
 archive PDF binaries only when the user asks or exact/offline audit requires
 the original. `Calendar/dailynotes/` and `Calendar/weeklynotes/` hold dated

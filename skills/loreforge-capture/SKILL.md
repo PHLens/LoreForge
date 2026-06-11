@@ -74,15 +74,15 @@ Clipper's capture model:
    schema, and meta variables fill optional structured fields. Use `created`
    for the capture-card creation date; keep `retrieved_at` as the raw package
    lifecycle field in frontmatter and `manifest.md`. For direct web capture
-   they usually match, and the visible `Captured:` line renders `created`.
-   Do not list `retrieved_at` as a capture-card variable unless the rendered
-   card explicitly names it. Do not invent a new per-source card shape unless
-   the source cannot fit the fixed format. Filter `content` before writing it:
+   they usually match. Do not add a separate `Captured:` line or list
+   `retrieved_at` as a capture-card variable unless the rendered content
+   explicitly needs it. Do not invent a new per-source card shape unless the
+   source cannot fit the fixed format. Filter `content` before writing it:
    remove title, author, citation, source URL, publication date, and other
-   metadata already promoted into frontmatter, the source quote block, or
-   Structured Metadata. The content section should hold the article body,
-   abstract, selected text, highlights, or source-specific substance, not a
-   second nested capture card.
+   metadata already promoted into frontmatter or `manifest.md`. The Markdown
+   body should be the article body, abstract, selected text, highlights, or
+   source-specific substance directly, not a second nested capture card and not
+   a report with repeated metadata sections.
 5. **Localize important assets.** Save figures, diagrams, screenshots, or
    downloaded files under `assets/` or `original/` when they matter for later
    audit or offline reuse. Rewrite important references in `origin.md` to
@@ -144,38 +144,13 @@ capture_card:
     - content
 ---
 
-# <title>
-
-> Source: <canonical url>
-> Author: <author>
-> Published: <published date or empty>
-> Captured: <created>
-
-## Description
-
-<description or excerpt>
-
-## Content
-
 <clean markdown content, selected text, or highlights; omit duplicated title,
-author, citation, source URL, and publication metadata already captured above>
-
-## Structured Metadata
-
-- site: <site or publisher>
-- language: <language>
-- words: <word count>
-- image: <social image or local asset path>
-- schema: <schema.org values when useful>
-- selectors: <selector names or empty>
-
-## Capture Limits
-
-<concrete limitations, auth/session assumptions, or missing assets>
+author, citation, source URL, publication metadata, description, selector/schema
+summaries, and capture limits already captured in frontmatter or manifest.md>
 ```
 
 `manifest.md` records package lifecycle and extraction lineage; `origin.md`
-keeps the human- and agent-readable capture card.
+keeps frontmatter metadata plus the cleaned source content.
 
 ## Raw Package Shape
 

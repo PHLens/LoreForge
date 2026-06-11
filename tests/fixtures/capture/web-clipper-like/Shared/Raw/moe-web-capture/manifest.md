@@ -6,7 +6,7 @@ source_language: "en"
 retrieved_at: "2026-06-10"
 source_url: "https://arxiv.org/abs/2101.03961"
 source_description: "arXiv abstract page for the Switch Transformer MoE paper."
-content_hash: "b0f74feb3da19af052a2246da92b9f0f1433994157af4e3715780926ce83143d"
+content_hash: "ca6d2d11587042e421dd27a955e9b8c4bd6966561bdb350bb2e402757d5b7156"
 origin: "Shared/Raw/moe-web-capture/origin.md"
 candidate_domains:
   - "gpu-arch-research"

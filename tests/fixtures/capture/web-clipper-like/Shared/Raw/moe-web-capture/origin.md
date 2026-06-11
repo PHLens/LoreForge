@@ -34,19 +34,6 @@ capture_card:
     - "content"
 ---
 
-# Switch Transformers: Scaling to Trillion Parameter Models with Simple and Efficient Sparsity
-
-> Source: https://arxiv.org/abs/2101.03961
-> Author: William Fedus, Barret Zoph, Noam Shazeer
-> Published: 2021-01-11T16:11:52Z
-> Captured: 2026-06-10
-
-## Description
-
-arXiv abstract page for the Switch Transformer MoE paper.
-
-## Content
-
 > Abstract: In deep learning, models typically reuse the same parameters for all
 > inputs. Mixture of Experts (MoE) defies this and instead selects different
 > parameters for each incoming example. The result is a sparsely-activated
@@ -58,18 +45,3 @@ arXiv abstract page for the Switch Transformer MoE paper.
 > computational costs. Our proposed training techniques help wrangle the
 > instabilities and we show large sparse models may be trained, for the first
 > time, with lower precision (bfloat16) formats.
-
-## Structured Metadata
-
-- site: arXiv
-- language: en
-- words: 132
-- image:
-- schema: arXiv Atom API entry; categories=cs.LG, cs.AI; pdf=https://arxiv.org/pdf/2101.03961v3
-- selectors: arXiv abstract block; arXiv Atom API metadata entry
-
-## Capture Limits
-
-MCP wiki search was unavailable due to Confluence 401. Public arXiv abstract and
-arXiv Atom API metadata were used as substitute sources. PDF body was not
-downloaded or transcribed.
