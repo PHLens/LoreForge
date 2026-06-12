@@ -88,6 +88,10 @@ Query and ingest should stay question-driven: start from the problem being
 answered, then make a page-type decision. Use strict Card authoring for durable
 reusable concepts, strict Atlas/MOC authoring for relationship or problem
 views, and conservative Source/Space paths when the reusable shape is weak.
+Card, MOC, and focused relationship shapes are governed by each domain's
+`SCHEMA.md` plus the `loreforge-card` and `loreforge-moc` authoring contracts,
+not by separate wiki template assets. Focused relationship views are Atlas/MOC
+`type: map` pages, not a separate page type.
 
 Durable project work items belong in domain `Spaces/projects/` or the domain's
 schema-defined equivalent. They should summarize problem background, solution,
@@ -116,6 +120,25 @@ links, and local image references. Prefer complete transcription when the
 material is user-provided, local, permissively licensed, public domain, or
 otherwise appropriate to reuse in full. Otherwise keep a faithful structured
 capture and record only concrete limitations.
+
+Web capture should be planned before extraction. Save the original artifact
+when available, then build `origin.md` from deterministic page variables such
+as article body, title, author, site, description, published date, canonical
+URL, language, word count, meta tags, schema.org data, selections/highlights,
+and site-specific selectors when the article extractor misses stable structure.
+Use a minimal Web Clipper-like note shape in `origin.md`: frontmatter keeps only
+note-facing index fields such as `title`, `source`, `author`, `published`,
+`created`, and `tags`, while the Markdown body directly holds cleaned
+`content`. Keep package lifecycle and provenance fields such as `source_id`,
+`retrieved_at`, selector/schema decisions, fallback, limitations,
+prompt-assistance choices, and compiled-page state in `manifest.md` as manifest
+extraction lineage. Localize important figures or diagrams under the raw
+package. The body should be
+filtered so metadata already promoted to fields, such as title, authors,
+citation, source URL, description, and publication date, is not duplicated in
+the body. If capture falls back from an unavailable search source to public
+pages or alternate APIs, record the unavailable source and substitute source in
+manifest extraction lineage.
 
 For papers, prefer compact metadata-and-text capture. Store identifiers,
 canonical URL, extraction method, `origin.md`, and limitations by default.

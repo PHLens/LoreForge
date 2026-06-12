@@ -173,7 +173,7 @@ When delegated to create or start a wiki or domain:
    missing.
 4. Create `Shared/Raw/` and `Shared/Templates/` if missing.
 5. Create the minimal `Shared/Templates/weekly.md` below if missing. Preserve
-   an existing weekly template unless the user explicitly asks to rewrite it.
+   existing templates unless the user explicitly asks to rewrite them.
 6. Create `Domains/<domain>/`.
 7. Create the required domain files and directories above.
 8. Ask for a concise domain description and the default language for extracted
@@ -189,7 +189,11 @@ When delegated to create or start a wiki or domain:
 
 Weekly templates are human-facing Obsidian notes. Users may freely customize
 their headings and review style; LoreForge should require only the template
-path, not a strict template body.
+path, not a strict template body. Card, MOC, and focused relationship shapes
+belong in domain `SCHEMA.md` plus `loreforge-card` / `loreforge-moc`
+authoring contracts rather than separate wiki template assets. Relationship
+views are still Atlas/MOC pages with `type: map`, not a separate validator page
+type.
 
 `Shared/Templates/weekly.md`:
 
@@ -483,7 +487,8 @@ source and compile the useful domain slice, not to force a paper-shaped review.
   durable domain pages from it.
 - The manifest should record title, canonical URL or source description,
   retrieval date, source type, source language, `content_hash`, `origin`,
-  `candidate_domains`, `compiled_pages`, status, and local artifact pointers.
+  `candidate_domains`, `compiled_pages`, status, local artifact pointers, and
+  the extraction lineage used to build `origin.md`.
 - Keep `origin.md` in the source language and preserve structure, links, and
   image refs where possible. For human-captured Markdown/HTML/PDF artifacts,
   preserve the original export unchanged under `original/` with the original
@@ -497,6 +502,23 @@ source and compile the useful domain slice, not to force a paper-shaped review.
 - Article images/diagrams, PDFs, and other attachments belong in the raw
   package directory with clear local references from `origin.md` and the
   manifest.
+- For web pages, use a clipper-style capture plan before synthesis: save an
+  original artifact when possible, extract deterministic page variables
+  (title, author, published date, site, language, meta tags, schema.org data,
+  selection/highlights, and clean article content), apply site-specific CSS
+  selectors only when the main extractor misses stable structure, localize
+  important assets, and record the extractor/source-mode/selector decisions in
+  `manifest.md`.
+- Before saving `origin.md`, filter the Markdown body so title, authors,
+  source URL, citation table, publication date, and other fields already
+  promoted to frontmatter or manifest metadata are not duplicated as a nested
+  card.
+- When a search source such as MCP wiki or Confluence is unavailable, record
+  the failure status and substitute source under manifest extraction lineage
+  instead of only burying it in prose limitations.
+- Prompt or LLM-assisted fields are allowed only as a last-mile extraction aid.
+  Do not let them replace the raw source text; record the prompt/model/context
+  or a concise description in the manifest when they affect captured fields.
 - Optional domain Source note: create or update `Domains/<domain>/Sources/<source-id>.md`
   only when the raw package is large, when a source-specific excerpt should stay
   queryable, or when multiple compiled pages need a stable local lens. A source
@@ -519,6 +541,9 @@ source and compile the useful domain slice, not to force a paper-shaped review.
   preserve structure or extract images better than manual conversion.
 - For standard web pages where a lightweight extractor is enough, `defuddle`
   can provide clean Markdown before ingest.
+- Obsidian Web Clipper exports or `obsidian-clipper` CLI/API output can be used
+  as input when available. Treat it as an extraction source for a LoreForge raw
+  package, not as permission to write directly into domain pages.
 - Auth/session files used by capture tools belong in the tool's local `auth/`
   directory or another machine-local path and must not be committed.
 

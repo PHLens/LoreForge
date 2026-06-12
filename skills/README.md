@@ -47,6 +47,14 @@ prefer plain internal wikilinks to raw artifacts/manifests or domain source
 notes; use source footnotes only for ambiguous paragraph-level provenance, not
 YAML source links.
 
+Web capture should borrow the Obsidian Web Clipper shape without making
+Obsidian a dependency: preserve the original artifact when possible, extract
+deterministic variables and selectors, render minimal Web Clipper-like note
+frontmatter in `origin.md`, put cleaned content directly in the note body,
+filter duplicated metadata out of that body, keep important assets wiki-local,
+and record extractor/selector/fallback lineage in the raw manifest before any
+ingest or domain synthesis.
+
 ## Core Workflow
 
 Use `loreforge` as the default user-facing entry point.

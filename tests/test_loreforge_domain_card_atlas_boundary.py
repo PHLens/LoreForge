@@ -99,6 +99,26 @@ def test_moc_skill_adapts_zettelkasten_structure_notes():
     assert "The page acts as a structure note: an entry point with relationship context" in collapsed
 
 
+def test_inline_examples_cover_card_moc_and_relationship_shapes():
+    """Card/MOC shapes should live in skills/schema instead of seeded wiki template files."""
+    card_skill = CARD_SKILL_PATH.read_text()
+    moc_skill = MOC_SKILL_PATH.read_text()
+
+    assert "type: concept" in card_skill
+    assert "aliases:" in card_skill
+    assert "One-sentence direct definition or problem statement." in card_skill
+    assert "## What Is Page Title" in card_skill
+
+    assert "type: map" in moc_skill
+    assert "This view asks: ..." in moc_skill
+    assert "## Key Relationships" in moc_skill
+    assert "## Tradeoffs" in moc_skill
+    assert "This relationship view asks how [[page-a]] and [[page-b]] connect." in moc_skill
+    assert "## Direction" in moc_skill
+    assert "## Tension" in moc_skill
+    assert "not a separate page type" in moc_skill
+
+
 def test_entrypoint_routes_directly_to_leaf_workflows():
     """The main entrypoint should choose Card/MOC leaves without a domain router hop."""
     content = ENTRY_SKILL_PATH.read_text()
@@ -168,6 +188,7 @@ if __name__ == "__main__":
     test_card_skill_adapts_zettelkasten_permanent_notes()
     test_moc_skill_has_hard_view_contract()
     test_moc_skill_adapts_zettelkasten_structure_notes()
+    test_inline_examples_cover_card_moc_and_relationship_shapes()
     test_entrypoint_routes_directly_to_leaf_workflows()
     test_domain_skill_delegates_card_and_moc_authoring()
     test_compiled_page_language_gate_applies_to_all_wiki_pages()

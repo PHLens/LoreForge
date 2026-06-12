@@ -613,6 +613,9 @@ def main() -> int:
         assert (wiki / "Shared" / "Templates").is_dir()
         weekly_template = wiki / "Shared" / "Templates" / "weekly.md"
         assert weekly_template.exists()
+        assert not (wiki / "Shared" / "Templates" / "card.md").exists()
+        assert not (wiki / "Shared" / "Templates" / "moc.md").exists()
+        assert not (wiki / "Shared" / "Templates" / "relationship.md").exists()
         assert not (domain / "Sources").exists()
         assert "Layout: [[wiki-layout]]" in (wiki / "00_System" / "index.md").read_text(encoding="utf-8")
         assert "ai-research" in (wiki / "00_System" / "domains.md").read_text(encoding="utf-8")

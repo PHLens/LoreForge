@@ -132,6 +132,10 @@ links, not source citations.
 
 ## Default Template
 
+Use this default shape when creating a MOC. For a focused relationship between
+two or a few pages, use the relationship view shape below; it is still an
+Atlas/MOC `type: map` page, not a separate page type.
+
 ```markdown
 ---
 title: Page Title
@@ -159,6 +163,36 @@ This view asks: ...
 ```
 
 Use only the sections that help the page. Do not create empty headings.
+
+The default relationship view shape is:
+
+```markdown
+---
+title: Relationship Title
+created: YYYY-MM-DD
+updated: YYYY-MM-DD
+type: map
+tags: []
+confidence: medium
+status: active
+contested: false
+contradictions: []
+---
+
+# Relationship Title
+
+This relationship view asks how [[page-a]] and [[page-b]] connect.
+
+## Relationship
+
+## Direction
+
+## Evidence
+
+## Tension
+
+## Open Questions
+```
 
 ## Acceptance Gate
 

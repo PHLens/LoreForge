@@ -175,6 +175,8 @@ source citations. Do not cite Cards with source-style footnote markers.
 
 ## Default Template
 
+Use this default shape when creating a Card:
+
 ```markdown
 ---
 title: Page Title

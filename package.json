@@ -16,7 +16,7 @@
   ],
   "scripts": {
     "check": "node --check bin/loreforge && node --check lib/*.mjs",
-    "test": "python3 tests/test_loreforge_component_contract.py && node --test tests/*.test.mjs"
+    "test": "python3 tests/test_loreforge_component_contract.py && python3 tests/test_capture_skill_contract.py && node --test tests/*.test.mjs"
   },
   "license": "UNLICENSED"
 }
