@@ -6,6 +6,7 @@ CARD_SKILL_PATH = REPO_ROOT / "skills" / "loreforge-card" / "SKILL.md"
 MOC_SKILL_PATH = REPO_ROOT / "skills" / "loreforge-moc" / "SKILL.md"
 DOMAIN_SKILL_PATH = REPO_ROOT / "skills" / "loreforge-domain" / "SKILL.md"
 ENTRY_SKILL_PATH = REPO_ROOT / "skills" / "loreforge" / "SKILL.md"
+PAPER_SKILL_PATH = REPO_ROOT / "skills" / "loreforge-paper" / "SKILL.md"
 
 
 def test_card_skill_has_hard_authoring_contract():
@@ -182,6 +183,38 @@ def test_compiled_page_language_gate_applies_to_all_wiki_pages():
     assert "Common Card shapes:" not in domain
 
 
+def test_paper_skill_uses_read_only_paper_bundles():
+    """Paper workflow should stay inside existing citekey bundles."""
+    content = PAPER_SKILL_PATH.read_text()
+    collapsed = " ".join(content.split())
+
+    assert "Shared/Papers/<citekey>/" in content
+    assert "AlphaCuTransformationDrivenSynthesis2017" in content
+    assert "If no matching paper bundle exists, stop" in content
+    assert "Do not create paper directories" in content
+    assert "Treat all PDF files in the selected paper directory as raw artifacts" in collapsed
+    assert "read-only" in content
+    assert "write only paper notes under `Shared/Papers/<citekey>/`" in content
+    assert "Creating `<citekey>.md` is allowed" in content
+    assert "Do not use `Shared/Raw/` for paper PDFs or paper notes" in content
+    assert "Writable paths: Markdown note files under Shared/Papers/<citekey>/ only" in content
+    assert "Paper raw package: Shared/Raw/<source-id>/" not in content
+    assert "Save `original/<paper>.pdf` only when" not in content
+
+
+def test_entrypoint_preserves_paper_bundle_boundary():
+    """The user-facing entrypoint should not route paper capture/ingest through raw packages."""
+    content = ENTRY_SKILL_PATH.read_text()
+    collapsed = " ".join(content.split())
+
+    assert "For paper capture requests, delegate to `loreforge-paper`" in content
+    assert "Do not delegate paper capture to" in content
+    assert "`loreforge-capture`" in content
+    assert "For ordinary paper ingest, stop after the paper-note update" in content
+    assert "Only continue to Cards, Atlas, Sources, Spaces, or cross-domain synthesis" in collapsed
+    assert "do not create `Shared/Raw/` paper packages" in content
+
+
 if __name__ == "__main__":
     test_card_skill_has_hard_authoring_contract()
     test_card_skill_defines_split_gate()
@@ -192,4 +225,6 @@ if __name__ == "__main__":
     test_entrypoint_routes_directly_to_leaf_workflows()
     test_domain_skill_delegates_card_and_moc_authoring()
     test_compiled_page_language_gate_applies_to_all_wiki_pages()
+    test_paper_skill_uses_read_only_paper_bundles()
+    test_entrypoint_preserves_paper_bundle_boundary()
     print("All Card / MOC authoring contract tests passed.")

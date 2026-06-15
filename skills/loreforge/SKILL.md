@@ -32,7 +32,7 @@ It delegates durable work to focused workflows:
 |---|---|
 | `loreforge-config` | wiki discovery, registry edits, init config, sync backend, post-write sync |
 | `loreforge-capture` | URL/file/paste/doc/research pack -> raw package under `Shared/Raw/<source-id>/` |
-| `loreforge-paper` | paper-specific capture/ingest flow for arXiv, DOI, PDF, preprint, conference paper, or paper-like technical report |
+| `loreforge-paper` | paper-specific note flow for existing `Shared/Papers/<citekey>/` bundles with read-only PDFs |
 | `plan-docomposer` | decompose personal or research goals into weekly and daily note plans under `Calendar/` |
 | `loreforge-work-item` | project, Jira, issue, MR/PR, bugfix, CI failure, and implementation records under domain `Spaces/projects/` |
 | `loreforge-card` | strict reusable Card authoring under `Domains/<domain>/Cards/` |
@@ -50,6 +50,9 @@ keep the user-facing command simple.
 - inspect available domains before choosing write targets
 - keep each domain expert inside one `Domains/<domain>/` boundary
 - treat raw source packages as shared wiki-root `Shared/Raw/` data
+- treat paper PDFs and notes as shared wiki-root `Shared/Papers/<citekey>/`
+  bundles; PDF files are read-only and paper-note writes stay inside the
+  selected citekey directory
 - gate writes that affect multiple domains, initialize new domains, or convert
   existing repos in place
 - report domains consulted, domains written, changed files, conflicts, and
@@ -199,9 +202,14 @@ updates, report the selected wiki, default domain, backend, and next action.
 ### Capture
 
 1. Resolve the wiki root.
-2. Delegate source preservation to `loreforge-capture`.
-3. Capture source material only.
-4. Stop after raw package creation. Do not route or compile unless the user
+2. For paper capture requests, delegate to `loreforge-paper` and use the
+   existing `Shared/Papers/<citekey>/` bundle. Do not delegate paper capture to
+   `loreforge-capture`, do not create `Shared/Raw/` paper packages, and stop
+   after the paper-note update unless the user also asks for ingest.
+3. For non-paper capture requests, delegate source preservation to
+   `loreforge-capture`.
+4. Capture source material only.
+5. Stop after raw package creation. Do not route or compile unless the user
    asked for ingest.
 
 ### Ingest
@@ -210,17 +218,27 @@ updates, report the selected wiki, default domain, backend, and next action.
 2. If the source is a paper, DOI, arXiv link, PDF paper, conference preprint,
    or paper-like technical report, delegate the paper-specific workflow to
    `loreforge-paper`.
-3. If no raw package exists, delegate non-paper capture to `loreforge-capture`.
-4. Select a primary target domain.
-5. If secondary domains look relevant, list them and ask before writing there.
-6. Make a page-type decision for the compiled output. Delegate reusable Cards
+   For ordinary paper ingest, stop after the paper-note update and post-write
+   sync. Only continue to Cards, Atlas, Sources, Spaces, or cross-domain
+   synthesis when the user explicitly requested that downstream write.
+3. If a downstream paper synthesis was explicitly requested, make a page-type
+   decision after the paper-note update. Delegate reusable Cards to
+   `loreforge-card`, MOC/view pages to `loreforge-moc`, and Source/Space
+   writes to `loreforge-domain`; each downstream workflow must treat the paper
+   bundle and PDFs as read-only sources.
+4. If no raw package exists for a non-paper source, delegate non-paper capture
+   to `loreforge-capture`.
+5. Select a primary target domain for non-paper ingest.
+6. If secondary domains look relevant, list them and ask before writing there.
+7. Make a page-type decision for the compiled output. Delegate reusable Cards
    to `loreforge-card`, MOC/view pages to `loreforge-moc`, and Source/Space
-   updates to `loreforge-domain` or the specific paper/work-item workflow.
-7. Run post-write sync through `loreforge-config`.
+   updates to `loreforge-domain` or the specific work-item workflow.
+8. Run post-write sync through `loreforge-config`.
 
-For sources that matter to multiple domains, reuse the same
-`Shared/Raw/<source-id>/` package. Do not reuse one domain's pages as another
-domain's source of truth.
+For non-paper sources that matter to multiple domains, reuse the same
+`Shared/Raw/<source-id>/` package. For papers, reuse the same
+`Shared/Papers/<citekey>/` bundle and keep PDF files read-only. Do not reuse
+one domain's pages as another domain's source of truth.
 
 ### Query
 
@@ -361,6 +379,7 @@ After delegated work, report:
 - domains consulted
 - domains written
 - raw packages used
+- paper bundles used
 - files changed per domain
 - sync result
 - conflicts or low-confidence areas

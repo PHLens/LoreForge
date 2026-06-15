@@ -72,6 +72,10 @@ wiki/
         original/
         extracted/
         assets/
+    Papers/
+      <citekey>/
+        <citekey> - <paper title>.pdf
+        <citekey>.md
     Templates/
   Domains/
     <domain>/
@@ -104,11 +108,13 @@ metadata out of the body, and record extractor/selector/fallback lineage in
 `manifest.md`. Obsidian Web Clipper exports or `obsidian-clipper` CLI/API
 output can be used as capture input when available, but the durable wiki
 contract remains the LoreForge raw package.
-Paper capture should default to compact metadata-and-text preservation and
-archive PDF binaries only when the user asks or exact/offline audit requires
-the original. `Calendar/dailynotes/` and `Calendar/weeklynotes/` hold dated
-personal planning notes when the wiki role is asked to decompose goals into
-daily or weekly work. `Shared/Templates/` stores reusable wiki templates.
+`Shared/Papers/<citekey>/` stores paper PDFs and paper notes together. Agents
+using `loreforge-paper` may read PDFs there, but must not modify, move, rename,
+delete, copy, or reorganize paper directories or original PDF files; they may
+write only Markdown note files inside the selected paper directory.
+`Calendar/dailynotes/` and `Calendar/weeklynotes/` hold dated personal planning
+notes when the wiki role is asked to decompose goals into daily or weekly work.
+`Shared/Templates/` stores reusable wiki templates.
 `Domains/<domain>/Sources/` is optional and can hold source excerpts or
 source-specific lenses when the raw package is large. `Cards/`, `Atlas/`, and
 `Spaces/` hold the durable synthesis and should prefer plain internal wikilinks
@@ -128,7 +134,7 @@ are needed.
 | `loreforge` | Default main entrypoint for config, capture, ingest, lint, init, import, query, plan, work-item records, and cross-domain coordination |
 | `loreforge-config` | Resolve wiki location, registry, sync backend, and post-write sync |
 | `loreforge-capture` | Preserve raw source packages under `Shared/Raw/<source-id>/` without compiling domain pages |
-| `loreforge-paper` | Route paper-specific capture/ingest for arXiv, DOI, PDF, preprints, conference papers, and paper-like technical reports |
+| `loreforge-paper` | Update paper notes from existing `Shared/Papers/<citekey>/` bundles while treating PDFs as read-only raw artifacts |
 | `plan-docomposer` | Decompose personal or research goals into weekly and daily note plans under `Calendar/` |
 | `loreforge-work-item` | Turn project, Jira, issue, MR/PR, bugfix, CI failure, and implementation context into durable `Spaces/projects/` records |
 | `loreforge-card` | Strict reusable Card authoring under `Domains/<domain>/Cards/` |
@@ -145,9 +151,10 @@ are needed.
 | `obsidian-bases` | Create and edit Obsidian Bases files |
 
 The main entrypoint owns domain selection, config, capture handoff, plan
-handoff, and cross-domain coordination. `loreforge-paper` owns the
-paper-specific ingest shape before bounded domain handoff. `plan-docomposer`
-owns wiki-local goal decomposition into Calendar notes. `loreforge-work-item`
+handoff, and cross-domain coordination. `loreforge-paper` owns paper-note shape
+and related-work linking inside existing `Shared/Papers/<citekey>/` bundles;
+domain handoff happens only as an explicitly requested downstream write.
+`plan-docomposer` owns wiki-local goal decomposition into Calendar notes. `loreforge-work-item`
 owns project record shape before bounded domain handoff. `loreforge-domain`
 owns domain initialization and generic Sources/Spaces maintenance.
 `loreforge-card` and `loreforge-moc` own Card/MOC authoring contracts and

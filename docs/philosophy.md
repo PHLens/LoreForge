@@ -82,6 +82,7 @@ LoreForge
 | Reusable professional concept | LoreForge wiki |
 | Raw source package | LoreForge wiki `Shared/Raw/<source-id>/origin.md` + `manifest.md` |
 | Raw source artifact | LoreForge wiki `Shared/Raw/<source-id>/` |
+| Paper PDF and note bundle | LoreForge wiki `Shared/Papers/<citekey>/` |
 | Reusable template | LoreForge wiki `Shared/Templates/` |
 | Optional domain source note | LoreForge domain `Sources/` note |
 | Durable domain view | LoreForge wiki |
@@ -97,15 +98,18 @@ LoreForge now follows a small core:
    creates `origin.md` plus `manifest.md`, and ingest updates the same package
    while compiling domain knowledge. Reusable templates live in
    `Shared/Templates/`.
-4. Optional domain source notes live in `Domains/<domain>/Sources/` when a raw
+4. Paper PDFs and paper notes live together under `Shared/Papers/<citekey>/`.
+   Paper workflows read PDFs and write only Markdown notes inside the selected
+   citekey directory.
+5. Optional domain source notes live in `Domains/<domain>/Sources/` when a raw
    package is large or needs a stable excerpt.
-5. One expert agent owns and maintains one domain.
-6. The main `loreforge` entrypoint makes page-type decisions before compiled
+6. One expert agent owns and maintains one domain.
+7. The main `loreforge` entrypoint makes page-type decisions before compiled
    writes.
-7. `loreforge-card` and `loreforge-moc` own strict Card/MOC authoring
+8. `loreforge-card` and `loreforge-moc` own strict Card/MOC authoring
    contracts and acceptance gates. `loreforge-domain` handles domain
    initialization, generic orientation, Sources/Spaces updates, and repair.
-8. Human supervision happens through `log.md`, `index.md`, confidence metadata,
+9. Human supervision happens through `log.md`, `index.md`, confidence metadata,
    contradiction records, checks, and git diffs.
 
 The old staged package pipeline is not part of the active core workflow.
