@@ -1,8 +1,8 @@
 ---
 name: loreforge-paper
-description: Internal LoreForge workflow for paper-specific capture and ingest. Use for arXiv, DOI, PDF, conference paper, preprint, or local paper requests when the desired output is a paper note, paper-derived Cards/Atlas updates, or reusable research synthesis. Keeps paper metadata, claims, methods, evaluation, limits, related work links, and domain handoff separate from ordinary single-source ingest.
+description: Internal LoreForge workflow for paper-specific note updates and ingest. Use for arXiv, DOI, PDF, conference paper, preprint, or local paper requests when the source should resolve to an existing `Shared/Papers/<citekey>/` paper bundle. Keeps PDF access read-only, writes only paper notes in the selected citekey directory, and keeps paper metadata, claims, methods, evaluation, limits, related work links, and downstream domain handoff separate from ordinary single-source ingest.
 user-invocable: false
-version: 0.1.0
+version: 0.2.0
 ---
 
 # LoreForge Paper
@@ -13,17 +13,18 @@ single-source ingest.
 This skill owns the paper-specific process:
 
 - paper identity and bibliographic metadata
-- raw paper capture requirements and artifact-size policy
+- existing `Shared/Papers/<citekey>/` bundle resolution
+- read-only PDF handling
 - paper note shape
 - contribution, mechanism, evaluation, and limit extraction
 - related paper / similar problem links
-- handoff to `loreforge-card`, `loreforge-moc`, or `loreforge-domain` for
-  bounded domain writes
+- downstream handoff guidance to `loreforge-card`, `loreforge-moc`, or
+  `loreforge-domain` after the paper note is updated
 
 It does not replace:
 
 - `loreforge` for user-facing routing, domain selection, write gates, and sync
-- `loreforge-capture` for raw package preservation
+- `loreforge-capture` for non-paper raw package preservation
 - `loreforge-card` for reusable Card updates from the paper
 - `loreforge-moc` for paper-derived relationship or proposal views
 - `loreforge-domain` for domain orientation, Source/Space writes, index/log updates, and schema compliance
@@ -47,75 +48,97 @@ pages, use the main `loreforge` entrypoint so it can choose
 
 1. **Resolve context**
    - Use `loreforge` / `loreforge-config` to resolve wiki root and sync backend.
-   - Inspect existing `Shared/Raw/` packages for the same arXiv ID, DOI, title, or PDF hash.
-   - Inspect target domain `SCHEMA.md`, `index.md`, recent `log.md`, and relevant pages before writing.
+   - Resolve the paper to exactly one existing `Shared/Papers/<citekey>/`
+     directory using the user-provided citekey, path, title, DOI/arXiv ID,
+     note frontmatter, PDF filename, or Zotero metadata already present in the
+     bundle.
+   - If no matching paper bundle exists, stop and ask the user to add or import
+     the paper into `Shared/Papers/<citekey>/` first. Do not create paper directories,
+     move files, copy PDFs, or fall back to `Shared/Raw/`.
+   - Use `Shared/Papers/AlphaCuTransformationDrivenSynthesis2017/` as the
+     concrete shape example: one raw PDF and a same-citekey Markdown note live
+     in the citekey directory.
+   - Inspect existing Markdown note files in the selected bundle before
+     writing. Inspect target domain `SCHEMA.md`, `index.md`, recent `log.md`,
+     and relevant pages only for read-only orientation or downstream handoff.
 
-2. **Capture**
-   - If no raw package exists, delegate raw preservation to `loreforge-capture`.
-   - Use the paper artifact policy below. A paper raw package must preserve
-     bibliographic metadata, canonical URL, DOI/arXiv ID when available,
-     agent-readable extracted text or structured notes, extraction method,
-     content hash, and concrete limitations. It does not need to store a PDF
-     binary by default.
-   - Capture-only requests stop after raw package creation unless the user also asks for ingest.
+2. **Read the paper bundle**
+   - Treat all PDF files in the selected paper directory as raw artifacts and
+     read-only. Agents may open, convert, quote within copyright limits,
+     summarize, and cite page locations from PDFs, but must not modify,
+     overwrite, rename, delete, copy, compress, OCR-in-place, or relocate them.
+   - Do not create, move, rename, delete, or otherwise reorganize any directory
+     under `Shared/Papers/`.
+   - If extraction tooling needs scratch output, keep it outside the wiki. Do
+     not write extracted text, manifests, caches, screenshots, or helper files
+     into the paper directory unless they are part of a Markdown note requested
+     by the user.
 
 3. **Route**
    - Select one primary domain by paper substance and user intent.
    - List secondary domains only when they would need their own compiled
      synthesis; ask before writing multiple domains.
-   - Reuse the same raw package for every approved domain.
+   - Domain routing in this skill is advisory. The paper workflow itself must
+     write only paper notes under `Shared/Papers/<citekey>/`.
 
-4. **Compile Paper Knowledge**
-   - Create or update the paper page through the selected domain workflow.
-     Reusable Cards go through `loreforge-card`; Atlas/MOC views go through
-     `loreforge-moc`; Source/Space writes go through `loreforge-domain`.
-   - Put source-specific paper notes in the page type/folder that the domain
-     schema supports, commonly `Spaces/papers/` or `Sources/` when present.
-     If the schema has no paper convention, prefer a source-specific Space or
-     Source note and record the choice in `log.md`.
+4. **Write the paper note**
+   - Write Markdown note files only inside the selected
+     `Shared/Papers/<citekey>/` directory. Creating `<citekey>.md` is allowed
+     when the bundle has no note yet; otherwise update the existing same-citekey
+     note unless the user names a different note in that directory.
+   - Preserve existing frontmatter such as `citekey`, `title`, `aliases`,
+     `authors`, `date`, `conference`, `link`, `zotero_link`, Zotero fields,
+     tags, and library/item IDs. Fill missing fields only from the paper note,
+     PDF title page, filename, DOI/arXiv metadata already available locally, or
+     user-provided context.
+   - Do not write `manifest.md`, `origin.md`, `extracted/`, `original/`,
+     `assets/`, `log.md`, domain pages, or sibling paper notes as part of this
+     workflow.
    - Add broadly reusable concepts to Cards only when the concept is durable
-     beyond the paper. Put proposal/current-argument synthesis in Atlas.
+     beyond the paper and a separate downstream domain write has been
+     explicitly requested or approved. Put proposal/current-argument synthesis
+     in Atlas only through that separate handoff.
 
 5. **Validate And Sync**
-   - Run the native domain validator for every written domain.
+   - Check that the changed paths are only Markdown files under the selected
+     `Shared/Papers/<citekey>/` directory.
+   - Run the native domain validator only if a separate downstream domain write
+     was explicitly performed outside this paper-note workflow.
    - Run configured post-write sync through `loreforge-config`.
-   - Report raw packages used, domain pages changed, validation, sync result,
-     and unresolved confidence limits.
+   - Report the paper bundle used, note files changed, PDF files read,
+     validation/sync result, and unresolved confidence limits.
 
-## Paper Artifact Policy
+## Paper Bundle Policy
 
-Paper capture is metadata-and-text first. Do not save every PDF into the wiki
-by default; otherwise `Shared/Raw/` grows quickly and sync becomes expensive.
+Paper PDFs and notes live together in a citekey-named bundle:
 
-Required for paper raw packages:
+```text
+Shared/Papers/<citekey>/
+  <citekey> - <paper title>.pdf
+  <citekey>.md
+```
 
-- `manifest.md` with title, authors when available, venue/source, canonical URL,
-  DOI/arXiv/OpenReview ID when available, `origin`, `content_hash`,
-  `candidate_domains`, `compiled_pages`, `status`, artifacts, and limitations.
-- `origin.md` with agent-readable paper text, abstract-plus-notes, or a
-  structured extraction sufficient for the requested capture/ingest.
-- Concrete extraction provenance: tool or method, retrieval date, source URL,
-  and missing sections/figures/tables if extraction is incomplete.
+The directory must already exist. Do not create or rename the citekey directory
+and do not move, rename, rewrite, deduplicate, or delete PDFs. The PDF is the
+raw paper artifact; `loreforge-paper` may read it but must not touch it.
 
-Optional artifacts:
+The only wiki writes allowed by this workflow are Markdown note files inside
+the selected `Shared/Papers/<citekey>/` directory. Notes should preserve Zotero
+or importer frontmatter and then hold the durable paper analysis in the body.
+When creating the first note, use `<citekey>.md` so the bundle is easy to scan
+and link.
 
-- Save `original/<paper>.pdf` only when the user explicitly asks to archive the
-  PDF, the source is local/user-provided, the URL is unstable or access-gated,
-  the paper is likely to disappear, figure/table fidelity is required, or
-  exact page-level audit is part of the task.
-- Save HTML snapshots, screenshots, or figure assets only when they materially
-  improve reproducibility or later reuse.
-- If a PDF is not saved, record the canonical URL and identifier in the
-  manifest and list the omission in `limitations`, such as `PDF binary not
-  archived; retrieve from canonical_url/arxiv_id if page-level audit is needed`.
+For capture-only paper requests, update or create the paper note in the
+existing bundle. If the PDF is absent, the citekey is ambiguous, or the source
+is only a URL/DOI/arXiv link without a local bundle, stop and ask for the
+bundle to be added first.
 
-When the user says only "capture paper" or "ingest paper", prefer the compact
-policy unless they also ask to archive originals, preserve attachments, work
-offline, or support exact visual/page audit.
+Do not use `Shared/Raw/` for paper PDFs or paper notes. `Shared/Raw/` remains
+for non-paper clips, web pages, pasted text, logs, and other source packages.
 
 ## Paper Page Shape
 
-A paper page should answer:
+A paper note should answer:
 
 - What problem does the paper solve?
 - What is the core mechanism or method?
@@ -129,15 +152,19 @@ A paper page should answer:
 
 Apply the `loreforge` Compiled Page Language Gate before handoff.
 
-If a placement decision matters for maintainers, put it in `log.md`, not in the
-paper page body.
+Do not include process narration about where the note was placed. If a
+placement or routing decision matters for maintainers, report it in the final
+handoff instead of writing `log.md`.
 
 ## Link And Citation Style
 
-- Prefer inline wikilinks to wiki-local paper raw artifacts, manifests, or
-  source notes, using the file stem and alias syntax when useful. Use source
-  footnotes only when a multi-source paper page needs paragraph-level
-  provenance disambiguation.
+- Prefer inline wikilinks to wiki-local paper notes or PDFs under
+  `Shared/Papers/<citekey>/`, using the file stem and alias syntax when useful.
+  Use source footnotes only when a multi-source paper note needs
+  paragraph-level provenance disambiguation.
+- Link PDFs only as existing artifacts, for example
+  `[[Shared/Papers/<citekey>/<pdf-file>.pdf|paper PDF]]`; never create,
+  rewrite, or relocate the linked PDF.
 - Weave concepts, methods, principles, and mechanisms into prose with
   `[[wiki|readable alias]]` at the point where they are used.
 - Relate the paper to existing papers, Cards, Atlas pages, and Spaces by naming
@@ -151,25 +178,33 @@ paper page body.
   as `[[Domains/gpu-arch-research/Cards/simt-core-pipeline|SIMT core
   pipeline]]` when the target exists in the same wiki.
 
-## Domain Handoff Prompt
+## Paper Note Handoff Prompt
 
-Use this bounded prompt when delegating the actual domain write:
+Use this bounded prompt when delegating the actual paper-note update:
 
 ```text
-Use loreforge-card, loreforge-moc, or loreforge-domain as selected by the page-type decision.
 Wiki root: <wiki-root>
-Domain: <domain>
-Operation: ingest
+Paper bundle: Shared/Papers/<citekey>/
+Operation: paper-note
 Write policy: write-confirmed
-Paper raw package: Shared/Raw/<source-id>/
+Writable paths: Markdown note files under Shared/Papers/<citekey>/ only
+Read-only paths: every PDF and non-Markdown artifact in Shared/Papers/<citekey>/
 Request: Compile this paper using loreforge-paper rules.
 
-Stay inside Domains/<domain>/ for domain pages.
-Use Shared/Raw/ only for raw package metadata updates.
-Orient on SCHEMA.md, index.md, recent log.md, relevant Cards/Atlas/Spaces, and the paper manifest/text.
-Write the paper page as durable paper knowledge, not editor narration.
+Do not create, move, rename, delete, copy, overwrite, OCR-in-place, or otherwise modify directories or PDFs.
+Do not write Shared/Raw/, manifest.md, origin.md, extracted files, domain pages, index.md, or log.md.
+Read the existing paper note and PDF. Use AlphaCuTransformationDrivenSynthesis2017 as the bundle-shape example when needed.
+Write the paper note as durable paper knowledge, not editor narration.
+Preserve existing citekey/Zotero frontmatter and only fill missing metadata from local paper evidence.
 Use natural `[[wiki|alias]]` links for related concepts and similar paper/problem cases.
-Update index.md only if the created/updated page is indexable by the domain schema.
-Insert a newest-first log.md entry.
-Return: pages changed, raw package updates, validation result, unresolved limits, and whether another domain needs a separate synthesis.
+Return: note files changed, PDF files read, validation/sync result, unresolved limits, and whether another domain needs a separate synthesis.
 ```
+
+## Downstream Domain Handoff
+
+If the user explicitly asks for Cards, Atlas views, Sources, Spaces, or
+cross-domain synthesis, finish the paper-note update first and then hand off to
+`loreforge-card`, `loreforge-moc`, or `loreforge-domain` as a separate write
+operation. That downstream operation may write inside `Domains/<domain>/` under
+its own skill contract, but it must treat the paper bundle and PDFs as
+read-only sources.

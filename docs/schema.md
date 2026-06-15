@@ -18,6 +18,10 @@ wiki/
         original/
         extracted/
         assets/
+    Papers/
+      <citekey>/
+        <citekey> - <paper title>.pdf
+        <citekey>.md
     Templates/
   Domains/
     <domain>/
@@ -34,6 +38,8 @@ wiki/
 `index.md`, `domains.md`, and `wiki-layout.md`. `Calendar/` stores dated
 personal notes such as daily notes and weekly planning notes. `Shared/Raw/`
 stores one raw source package per source under `Shared/Raw/<source-id>/`.
+`Shared/Papers/` stores paper bundles under `Shared/Papers/<citekey>/`, with
+raw PDFs and Markdown paper notes in the same citekey directory.
 `Shared/Templates/` stores reusable templates once for the whole wiki. Each
 `Domains/<domain>/` is a self-contained LLM Wiki maintained by one expert
 agent.
@@ -50,6 +56,7 @@ agent.
 | Path | Purpose |
 |---|---|
 | `Shared/Raw/` | Wiki-root raw source area. Capture writes `Shared/Raw/<source-id>/origin.md` and `manifest.md`; ingest updates the same package with candidate domains, compiled page pointers, original artifacts, extracted artifacts, and any source-specific assets |
+| `Shared/Papers/` | Wiki-root paper area. Each `Shared/Papers/<citekey>/` directory stores the original paper PDF(s) and paper note Markdown files; paper agents may read PDFs but write only Markdown notes inside the selected citekey directory |
 | `Shared/Templates/` | Wiki-root reusable note templates, including diary and weekly templates |
 
 ## Domain Files
@@ -140,11 +147,11 @@ the body. If capture falls back from an unavailable search source to public
 pages or alternate APIs, record the unavailable source and substitute source in
 manifest extraction lineage.
 
-For papers, prefer compact metadata-and-text capture. Store identifiers,
-canonical URL, extraction method, `origin.md`, and limitations by default.
-Archive the original PDF only when explicitly requested or when access
-stability, exact page/figure audit, local provenance, or offline reuse requires
-the binary.
+For papers, use `Shared/Papers/<citekey>/` instead of `Shared/Raw/`. The
+original PDF is a read-only raw artifact inside the citekey directory, and the
+agent-owned output is one or more Markdown paper notes in that same directory.
+Agents must not create, rename, move, delete, overwrite, or copy paper
+directories or PDFs.
 
 Compiled domain pages do not carry YAML `sources:` links. Prefer source-backed
 provenance as plain internal wikilinks to wiki-local raw artifacts, raw

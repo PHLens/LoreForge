@@ -72,6 +72,10 @@ wiki/
         original/
         extracted/
         assets/
+    Papers/
+      <citekey>/
+        <citekey> - <paper title>.pdf
+        <citekey>.md
     Templates/
   Domains/
     <domain>/
@@ -104,11 +108,13 @@ metadata out of the body, and record extractor/selector/fallback lineage in
 `manifest.md`. Obsidian Web Clipper exports or `obsidian-clipper` CLI/API
 output can be used as capture input when available, but the durable wiki
 contract remains the LoreForge raw package.
-Paper capture should default to compact metadata-and-text preservation and
-archive PDF binaries only when the user asks or exact/offline audit requires
-the original. `Calendar/dailynotes/` and `Calendar/weeklynotes/` hold dated
-personal planning notes when the wiki role is asked to decompose goals into
-daily or weekly work. `Shared/Templates/` stores reusable wiki templates.
+`Shared/Papers/<citekey>/` stores paper PDFs and paper notes together. Agents
+using `loreforge-paper` may read PDFs there, but must not modify, move, rename,
+delete, copy, or reorganize paper directories or original PDF files; they may
+write only Markdown note files inside the selected paper directory.
+`Calendar/dailynotes/` and `Calendar/weeklynotes/` hold dated personal planning
+notes when the wiki role is asked to decompose goals into daily or weekly work.
+`Shared/Templates/` stores reusable wiki templates.
 `Domains/<domain>/Sources/` is optional and can hold source excerpts or
 source-specific lenses when the raw package is large. `Cards/`, `Atlas/`, and
 `Spaces/` hold the durable synthesis and should prefer plain internal wikilinks
