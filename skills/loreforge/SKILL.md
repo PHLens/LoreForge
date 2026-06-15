@@ -202,9 +202,14 @@ updates, report the selected wiki, default domain, backend, and next action.
 ### Capture
 
 1. Resolve the wiki root.
-2. Delegate source preservation to `loreforge-capture`.
-3. Capture source material only.
-4. Stop after raw package creation. Do not route or compile unless the user
+2. For paper capture requests, delegate to `loreforge-paper` and use the
+   existing `Shared/Papers/<citekey>/` bundle. Do not delegate paper capture to
+   `loreforge-capture`, do not create `Shared/Raw/` paper packages, and stop
+   after the paper-note update unless the user also asks for ingest.
+3. For non-paper capture requests, delegate source preservation to
+   `loreforge-capture`.
+4. Capture source material only.
+5. Stop after raw package creation. Do not route or compile unless the user
    asked for ingest.
 
 ### Ingest
@@ -213,14 +218,22 @@ updates, report the selected wiki, default domain, backend, and next action.
 2. If the source is a paper, DOI, arXiv link, PDF paper, conference preprint,
    or paper-like technical report, delegate the paper-specific workflow to
    `loreforge-paper`.
-3. If no raw package exists for a non-paper source, delegate non-paper capture
+   For ordinary paper ingest, stop after the paper-note update and post-write
+   sync. Only continue to Cards, Atlas, Sources, Spaces, or cross-domain
+   synthesis when the user explicitly requested that downstream write.
+3. If a downstream paper synthesis was explicitly requested, make a page-type
+   decision after the paper-note update. Delegate reusable Cards to
+   `loreforge-card`, MOC/view pages to `loreforge-moc`, and Source/Space
+   writes to `loreforge-domain`; each downstream workflow must treat the paper
+   bundle and PDFs as read-only sources.
+4. If no raw package exists for a non-paper source, delegate non-paper capture
    to `loreforge-capture`.
-4. Select a primary target domain.
-5. If secondary domains look relevant, list them and ask before writing there.
-6. Make a page-type decision for the compiled output. Delegate reusable Cards
+5. Select a primary target domain for non-paper ingest.
+6. If secondary domains look relevant, list them and ask before writing there.
+7. Make a page-type decision for the compiled output. Delegate reusable Cards
    to `loreforge-card`, MOC/view pages to `loreforge-moc`, and Source/Space
-   updates to `loreforge-domain` or the specific paper/work-item workflow.
-7. Run post-write sync through `loreforge-config`.
+   updates to `loreforge-domain` or the specific work-item workflow.
+8. Run post-write sync through `loreforge-config`.
 
 For non-paper sources that matter to multiple domains, reuse the same
 `Shared/Raw/<source-id>/` package. For papers, reuse the same

@@ -134,7 +134,7 @@ are needed.
 | `loreforge` | Default main entrypoint for config, capture, ingest, lint, init, import, query, plan, work-item records, and cross-domain coordination |
 | `loreforge-config` | Resolve wiki location, registry, sync backend, and post-write sync |
 | `loreforge-capture` | Preserve raw source packages under `Shared/Raw/<source-id>/` without compiling domain pages |
-| `loreforge-paper` | Route paper-specific capture/ingest for arXiv, DOI, PDF, preprints, conference papers, and paper-like technical reports |
+| `loreforge-paper` | Update paper notes from existing `Shared/Papers/<citekey>/` bundles while treating PDFs as read-only raw artifacts |
 | `plan-docomposer` | Decompose personal or research goals into weekly and daily note plans under `Calendar/` |
 | `loreforge-work-item` | Turn project, Jira, issue, MR/PR, bugfix, CI failure, and implementation context into durable `Spaces/projects/` records |
 | `loreforge-card` | Strict reusable Card authoring under `Domains/<domain>/Cards/` |
@@ -151,9 +151,10 @@ are needed.
 | `obsidian-bases` | Create and edit Obsidian Bases files |
 
 The main entrypoint owns domain selection, config, capture handoff, plan
-handoff, and cross-domain coordination. `loreforge-paper` owns the
-paper-specific ingest shape before bounded domain handoff. `plan-docomposer`
-owns wiki-local goal decomposition into Calendar notes. `loreforge-work-item`
+handoff, and cross-domain coordination. `loreforge-paper` owns paper-note shape
+and related-work linking inside existing `Shared/Papers/<citekey>/` bundles;
+domain handoff happens only as an explicitly requested downstream write.
+`plan-docomposer` owns wiki-local goal decomposition into Calendar notes. `loreforge-work-item`
 owns project record shape before bounded domain handoff. `loreforge-domain`
 owns domain initialization and generic Sources/Spaces maintenance.
 `loreforge-card` and `loreforge-moc` own Card/MOC authoring contracts and
