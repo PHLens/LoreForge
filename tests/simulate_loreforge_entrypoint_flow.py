@@ -25,6 +25,8 @@ class Route:
     selected: tuple[str, ...]
     secondary: tuple[str, ...]
     requires_confirmation: bool
+    delegate_to: str | None = None
+    stops_after_paper_note: bool = False
 
 
 def write(path: Path, text: str) -> None:
@@ -195,15 +197,54 @@ def operation_for(request: str) -> str:
     return "query"
 
 
+def is_paper_request(request: str) -> bool:
+    lower = request.lower()
+    return any(term in lower for term in ["paper", "doi", "arxiv", "pdf", "preprint", "conference"])
+
+
+def requests_downstream_paper_write(request: str) -> bool:
+    lower = request.lower()
+    downstream_terms = [
+        "card",
+        "atlas",
+        "source note",
+        "space",
+        "domain",
+        "cross-domain",
+        "synthesis",
+    ]
+    return any(term in lower for term in downstream_terms)
+
+
 def route(wiki: Path, request: str) -> Route:
     operation = operation_for(request)
     available = domain_names(wiki)
     request_tokens = tokens(request)
+    paper_delegate = operation == "ingest" and is_paper_request(request)
+    downstream_paper_write = paper_delegate and requests_downstream_paper_write(request)
+
+    if paper_delegate and not downstream_paper_write:
+        return Route(
+            operation,
+            None,
+            ("loreforge-paper",),
+            tuple(),
+            False,
+            delegate_to="loreforge-paper",
+            stops_after_paper_note=True,
+        )
 
     explicit = [name for name in available if name in request.lower()]
     if explicit:
         selected = tuple(explicit)
-        return Route(operation, selected[0], selected, tuple(), False)
+        return Route(
+            operation,
+            selected[0],
+            selected,
+            tuple(),
+            False,
+            delegate_to="loreforge-paper" if paper_delegate else None,
+        )
 
     scores: list[tuple[int, str]] = []
     for domain in available:
@@ -213,7 +254,14 @@ def route(wiki: Path, request: str) -> Route:
 
     matches = [domain for score, domain in scores if score > 0]
     if not matches:
-        return Route(operation, None, tuple(), tuple(), operation != "query")
+        return Route(
+            operation,
+            None,
+            tuple(),
+            tuple(),
+            operation != "query",
+            delegate_to="loreforge-paper" if paper_delegate else None,
+        )
 
     if operation == "query":
         selected = tuple(matches[:2])
@@ -221,7 +269,14 @@ def route(wiki: Path, request: str) -> Route:
 
     primary = matches[0]
     secondary = tuple(matches[1:2])
-    return Route(operation, primary, (primary,), secondary, bool(secondary))
+    return Route(
+        operation,
+        primary,
+        (primary,),
+        secondary,
+        bool(secondary),
+        delegate_to="loreforge-paper" if paper_delegate else None,
+    )
 
 
 def main() -> int:
@@ -297,12 +352,33 @@ def main() -> int:
         assert cross_query.requires_confirmation is False
         print("PASS cross-domain query: can consult multiple domains read-only")
 
-        cross_ingest = route(wiki, "ingest paper about PyTorch compiler runtime profiling for CUDA kernels")
+        paper_ingest = route(wiki, "ingest paper about PyTorch compiler runtime profiling for CUDA kernels")
+        assert paper_ingest.operation == "ingest"
+        assert paper_ingest.delegate_to == "loreforge-paper"
+        assert paper_ingest.stops_after_paper_note is True
+        assert paper_ingest.primary is None
+        assert paper_ingest.secondary == tuple()
+        assert paper_ingest.requires_confirmation is False
+        print("PASS ordinary paper ingest: delegates to loreforge-paper and stops after note update")
+
+        cross_ingest = route(wiki, "ingest source about PyTorch compiler runtime profiling for CUDA kernels")
         assert cross_ingest.operation == "ingest"
         assert cross_ingest.primary in {"gpu-arch-research", "ml-systems"}
         assert cross_ingest.secondary
         assert cross_ingest.requires_confirmation is True
         print("PASS cross-domain ingest: selects primary domain and requires confirmation for secondary writes")
+
+        downstream_paper = route(
+            wiki,
+            "ingest paper about PyTorch compiler runtime profiling for CUDA kernels and create cross-domain synthesis",
+        )
+        assert downstream_paper.operation == "ingest"
+        assert downstream_paper.delegate_to == "loreforge-paper"
+        assert downstream_paper.stops_after_paper_note is False
+        assert downstream_paper.primary in {"gpu-arch-research", "ml-systems"}
+        assert downstream_paper.secondary
+        assert downstream_paper.requires_confirmation is True
+        print("PASS downstream paper ingest: requires explicit domain write confirmation after paper note")
 
         no_match = route(wiki, "ingest source about medieval manuscript preservation")
         assert no_match.primary is None
