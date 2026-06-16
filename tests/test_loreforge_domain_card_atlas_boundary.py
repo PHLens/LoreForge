@@ -7,6 +7,17 @@ MOC_SKILL_PATH = REPO_ROOT / "skills" / "loreforge-moc" / "SKILL.md"
 DOMAIN_SKILL_PATH = REPO_ROOT / "skills" / "loreforge-domain" / "SKILL.md"
 ENTRY_SKILL_PATH = REPO_ROOT / "skills" / "loreforge" / "SKILL.md"
 PAPER_SKILL_PATH = REPO_ROOT / "skills" / "loreforge-paper" / "SKILL.md"
+PAPER_BUNDLE_DOC_PATHS = [
+    REPO_ROOT / "README.md",
+    REPO_ROOT / "docs" / "philosophy.md",
+    REPO_ROOT / "docs" / "schema.md",
+    REPO_ROOT / "skills" / "README.md",
+    REPO_ROOT / "skills" / "loreforge-capture" / "SKILL.md",
+    REPO_ROOT / "skills" / "loreforge-paper" / "SKILL.md",
+    REPO_ROOT / "skills" / "loreforge" / "SKILL.md",
+    REPO_ROOT / "tests" / "README.md",
+    REPO_ROOT / "tests" / "simulate_loreforge_entrypoint_flow.py",
+]
 
 
 def test_card_skill_has_hard_authoring_contract():
@@ -203,6 +214,14 @@ def test_paper_skill_uses_read_only_paper_bundles():
     assert "Save `original/<paper>.pdf` only when" not in content
 
 
+def test_paper_bundle_docs_use_zotero_path_consistently():
+    """Published paper-bundle docs should not drift back to the old path."""
+    for path in PAPER_BUNDLE_DOC_PATHS:
+        content = path.read_text()
+        assert "Shared/Zotero" in content, f"{path} should mention Shared/Zotero"
+        assert "Shared/Papers" not in content, f"{path} still mentions Shared/Papers"
+
+
 def test_entrypoint_preserves_paper_bundle_boundary():
     """The user-facing entrypoint should not route paper capture/ingest through raw packages."""
     content = ENTRY_SKILL_PATH.read_text()
@@ -228,5 +247,6 @@ if __name__ == "__main__":
     test_domain_skill_delegates_card_and_moc_authoring()
     test_compiled_page_language_gate_applies_to_all_wiki_pages()
     test_paper_skill_uses_read_only_paper_bundles()
+    test_paper_bundle_docs_use_zotero_path_consistently()
     test_entrypoint_preserves_paper_bundle_boundary()
     print("All Card / MOC authoring contract tests passed.")
