@@ -204,16 +204,33 @@ def is_paper_request(request: str) -> bool:
 
 def requests_downstream_paper_write(request: str) -> bool:
     lower = request.lower()
-    downstream_terms = [
-        "card",
-        "atlas",
-        "source note",
-        "space",
-        "domain",
-        "cross-domain",
-        "synthesis",
+    downstream_phrases = [
+        "create card",
+        "create cards",
+        "update card",
+        "update cards",
+        "write card",
+        "write cards",
+        "create atlas",
+        "create atlas view",
+        "update atlas",
+        "write atlas",
+        "create moc",
+        "update moc",
+        "write moc",
+        "create source note",
+        "update source note",
+        "write source note",
+        "create space",
+        "update space",
+        "write space",
+        "domain write",
+        "write domain",
+        "write to domain",
+        "update domain",
+        "cross-domain synthesis",
     ]
-    return any(term in lower for term in downstream_terms)
+    return any(phrase in lower for phrase in downstream_phrases)
 
 
 def route(wiki: Path, request: str) -> Route:
@@ -360,6 +377,17 @@ def main() -> int:
         assert paper_ingest.secondary == tuple()
         assert paper_ingest.requires_confirmation is False
         print("PASS ordinary paper ingest: delegates to loreforge-paper and stops after note update")
+
+        for subject_request in [
+            "ingest paper about domain adaptation for CUDA kernels",
+            "ingest paper about program synthesis for CUDA kernels",
+            "ingest paper about state-space models for inference",
+        ]:
+            subject_paper = route(wiki, subject_request)
+            assert subject_paper.delegate_to == "loreforge-paper"
+            assert subject_paper.stops_after_paper_note is True
+            assert subject_paper.requires_confirmation is False
+        print("PASS paper subject terms: do not imply downstream domain writes")
 
         cross_ingest = route(wiki, "ingest source about PyTorch compiler runtime profiling for CUDA kernels")
         assert cross_ingest.operation == "ingest"
