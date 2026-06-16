@@ -7,6 +7,17 @@ MOC_SKILL_PATH = REPO_ROOT / "skills" / "loreforge-moc" / "SKILL.md"
 DOMAIN_SKILL_PATH = REPO_ROOT / "skills" / "loreforge-domain" / "SKILL.md"
 ENTRY_SKILL_PATH = REPO_ROOT / "skills" / "loreforge" / "SKILL.md"
 PAPER_SKILL_PATH = REPO_ROOT / "skills" / "loreforge-paper" / "SKILL.md"
+PAPER_BUNDLE_DOC_PATHS = [
+    REPO_ROOT / "README.md",
+    REPO_ROOT / "docs" / "philosophy.md",
+    REPO_ROOT / "docs" / "schema.md",
+    REPO_ROOT / "skills" / "README.md",
+    REPO_ROOT / "skills" / "loreforge-capture" / "SKILL.md",
+    REPO_ROOT / "skills" / "loreforge-paper" / "SKILL.md",
+    REPO_ROOT / "skills" / "loreforge" / "SKILL.md",
+    REPO_ROOT / "tests" / "README.md",
+    REPO_ROOT / "tests" / "simulate_loreforge_entrypoint_flow.py",
+]
 
 
 def test_card_skill_has_hard_authoring_contract():
@@ -188,18 +199,27 @@ def test_paper_skill_uses_read_only_paper_bundles():
     content = PAPER_SKILL_PATH.read_text()
     collapsed = " ".join(content.split())
 
-    assert "Shared/Papers/<citekey>/" in content
+    assert "Shared/Zotero/<citekey>/" in content
+    assert "Shared/Papers" not in content
     assert "AlphaCuTransformationDrivenSynthesis2017" in content
     assert "If no matching paper bundle exists, stop" in content
     assert "Do not create paper directories" in content
     assert "Treat all PDF files in the selected paper directory as raw artifacts" in collapsed
     assert "read-only" in content
-    assert "write only paper notes under `Shared/Papers/<citekey>/`" in content
+    assert "write only paper notes under `Shared/Zotero/<citekey>/`" in content
     assert "Creating `<citekey>.md` is allowed" in content
     assert "Do not use `Shared/Raw/` for paper PDFs or paper notes" in content
-    assert "Writable paths: Markdown note files under Shared/Papers/<citekey>/ only" in content
+    assert "Writable paths: Markdown note files under Shared/Zotero/<citekey>/ only" in content
     assert "Paper raw package: Shared/Raw/<source-id>/" not in content
     assert "Save `original/<paper>.pdf` only when" not in content
+
+
+def test_paper_bundle_docs_use_zotero_path_consistently():
+    """Published paper-bundle docs should not drift back to the old path."""
+    for path in PAPER_BUNDLE_DOC_PATHS:
+        content = path.read_text()
+        assert "Shared/Zotero" in content, f"{path} should mention Shared/Zotero"
+        assert "Shared/Papers" not in content, f"{path} still mentions Shared/Papers"
 
 
 def test_entrypoint_preserves_paper_bundle_boundary():
@@ -208,6 +228,7 @@ def test_entrypoint_preserves_paper_bundle_boundary():
     collapsed = " ".join(content.split())
 
     assert "For paper capture requests, delegate to `loreforge-paper`" in content
+    assert "Shared/Papers" not in content
     assert "Do not delegate paper capture to" in content
     assert "`loreforge-capture`" in content
     assert "For ordinary paper ingest, stop after the paper-note update" in content
@@ -226,5 +247,6 @@ if __name__ == "__main__":
     test_domain_skill_delegates_card_and_moc_authoring()
     test_compiled_page_language_gate_applies_to_all_wiki_pages()
     test_paper_skill_uses_read_only_paper_bundles()
+    test_paper_bundle_docs_use_zotero_path_consistently()
     test_entrypoint_preserves_paper_bundle_boundary()
     print("All Card / MOC authoring contract tests passed.")

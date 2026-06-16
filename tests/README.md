@@ -21,6 +21,6 @@ update boundaries on a temporary fixture copy. They also smoke-test entrypoint
 routing, paper workflow delegation, config discovery, initialization, sync
 backend setup for new and existing wikis, raw source packages under
 `Shared/Raw/<source-id>/` with `origin.md` plus `manifest.md`, paper bundles
-under `Shared/Papers/<citekey>/` with read-only PDFs and note-only writes, and
+under `Shared/Zotero/<citekey>/` with read-only PDFs and note-only writes, and
 source import behavior. The native domain validator can also clean orphan
 footnote definitions with `--fix`.
