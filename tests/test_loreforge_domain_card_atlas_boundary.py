@@ -188,16 +188,17 @@ def test_paper_skill_uses_read_only_paper_bundles():
     content = PAPER_SKILL_PATH.read_text()
     collapsed = " ".join(content.split())
 
-    assert "Shared/Papers/<citekey>/" in content
+    assert "Shared/Zotero/<citekey>/" in content
+    assert "Shared/Papers" not in content
     assert "AlphaCuTransformationDrivenSynthesis2017" in content
     assert "If no matching paper bundle exists, stop" in content
     assert "Do not create paper directories" in content
     assert "Treat all PDF files in the selected paper directory as raw artifacts" in collapsed
     assert "read-only" in content
-    assert "write only paper notes under `Shared/Papers/<citekey>/`" in content
+    assert "write only paper notes under `Shared/Zotero/<citekey>/`" in content
     assert "Creating `<citekey>.md` is allowed" in content
     assert "Do not use `Shared/Raw/` for paper PDFs or paper notes" in content
-    assert "Writable paths: Markdown note files under Shared/Papers/<citekey>/ only" in content
+    assert "Writable paths: Markdown note files under Shared/Zotero/<citekey>/ only" in content
     assert "Paper raw package: Shared/Raw/<source-id>/" not in content
     assert "Save `original/<paper>.pdf` only when" not in content
 
@@ -208,6 +209,7 @@ def test_entrypoint_preserves_paper_bundle_boundary():
     collapsed = " ".join(content.split())
 
     assert "For paper capture requests, delegate to `loreforge-paper`" in content
+    assert "Shared/Papers" not in content
     assert "Do not delegate paper capture to" in content
     assert "`loreforge-capture`" in content
     assert "For ordinary paper ingest, stop after the paper-note update" in content

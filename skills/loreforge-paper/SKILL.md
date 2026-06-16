@@ -1,6 +1,6 @@
 ---
 name: loreforge-paper
-description: Internal LoreForge workflow for paper-specific note updates and ingest. Use for arXiv, DOI, PDF, conference paper, preprint, or local paper requests when the source should resolve to an existing `Shared/Papers/<citekey>/` paper bundle. Keeps PDF access read-only, writes only paper notes in the selected citekey directory, and keeps paper metadata, claims, methods, evaluation, limits, related work links, and downstream domain handoff separate from ordinary single-source ingest.
+description: Internal LoreForge workflow for paper-specific note updates and ingest. Use for arXiv, DOI, PDF, conference paper, preprint, or local paper requests when the source should resolve to an existing `Shared/Zotero/<citekey>/` paper bundle. Keeps PDF access read-only, writes only paper notes in the selected citekey directory, and keeps paper metadata, claims, methods, evaluation, limits, related work links, and downstream domain handoff separate from ordinary single-source ingest.
 user-invocable: false
 version: 0.2.0
 ---
@@ -13,7 +13,7 @@ single-source ingest.
 This skill owns the paper-specific process:
 
 - paper identity and bibliographic metadata
-- existing `Shared/Papers/<citekey>/` bundle resolution
+- existing `Shared/Zotero/<citekey>/` bundle resolution
 - read-only PDF handling
 - paper note shape
 - contribution, mechanism, evaluation, and limit extraction
@@ -48,14 +48,14 @@ pages, use the main `loreforge` entrypoint so it can choose
 
 1. **Resolve context**
    - Use `loreforge` / `loreforge-config` to resolve wiki root and sync backend.
-   - Resolve the paper to exactly one existing `Shared/Papers/<citekey>/`
+   - Resolve the paper to exactly one existing `Shared/Zotero/<citekey>/`
      directory using the user-provided citekey, path, title, DOI/arXiv ID,
      note frontmatter, PDF filename, or Zotero metadata already present in the
      bundle.
    - If no matching paper bundle exists, stop and ask the user to add or import
-     the paper into `Shared/Papers/<citekey>/` first. Do not create paper directories,
+     the paper into `Shared/Zotero/<citekey>/` first. Do not create paper directories,
      move files, copy PDFs, or fall back to `Shared/Raw/`.
-   - Use `Shared/Papers/AlphaCuTransformationDrivenSynthesis2017/` as the
+   - Use `Shared/Zotero/AlphaCuTransformationDrivenSynthesis2017/` as the
      concrete shape example: one raw PDF and a same-citekey Markdown note live
      in the citekey directory.
    - Inspect existing Markdown note files in the selected bundle before
@@ -68,7 +68,7 @@ pages, use the main `loreforge` entrypoint so it can choose
      summarize, and cite page locations from PDFs, but must not modify,
      overwrite, rename, delete, copy, compress, OCR-in-place, or relocate them.
    - Do not create, move, rename, delete, or otherwise reorganize any directory
-     under `Shared/Papers/`.
+     under `Shared/Zotero/`.
    - If extraction tooling needs scratch output, keep it outside the wiki. Do
      not write extracted text, manifests, caches, screenshots, or helper files
      into the paper directory unless they are part of a Markdown note requested
@@ -79,11 +79,11 @@ pages, use the main `loreforge` entrypoint so it can choose
    - List secondary domains only when they would need their own compiled
      synthesis; ask before writing multiple domains.
    - Domain routing in this skill is advisory. The paper workflow itself must
-     write only paper notes under `Shared/Papers/<citekey>/`.
+     write only paper notes under `Shared/Zotero/<citekey>/`.
 
 4. **Write the paper note**
    - Write Markdown note files only inside the selected
-     `Shared/Papers/<citekey>/` directory. Creating `<citekey>.md` is allowed
+     `Shared/Zotero/<citekey>/` directory. Creating `<citekey>.md` is allowed
      when the bundle has no note yet; otherwise update the existing same-citekey
      note unless the user names a different note in that directory.
    - Preserve existing frontmatter such as `citekey`, `title`, `aliases`,
@@ -101,7 +101,7 @@ pages, use the main `loreforge` entrypoint so it can choose
 
 5. **Validate And Sync**
    - Check that the changed paths are only Markdown files under the selected
-     `Shared/Papers/<citekey>/` directory.
+     `Shared/Zotero/<citekey>/` directory.
    - Run the native domain validator only if a separate downstream domain write
      was explicitly performed outside this paper-note workflow.
    - Run configured post-write sync through `loreforge-config`.
@@ -113,7 +113,7 @@ pages, use the main `loreforge` entrypoint so it can choose
 Paper PDFs and notes live together in a citekey-named bundle:
 
 ```text
-Shared/Papers/<citekey>/
+Shared/Zotero/<citekey>/
   <citekey> - <paper title>.pdf
   <citekey>.md
 ```
@@ -123,7 +123,7 @@ and do not move, rename, rewrite, deduplicate, or delete PDFs. The PDF is the
 raw paper artifact; `loreforge-paper` may read it but must not touch it.
 
 The only wiki writes allowed by this workflow are Markdown note files inside
-the selected `Shared/Papers/<citekey>/` directory. Notes should preserve Zotero
+the selected `Shared/Zotero/<citekey>/` directory. Notes should preserve Zotero
 or importer frontmatter and then hold the durable paper analysis in the body.
 When creating the first note, use `<citekey>.md` so the bundle is easy to scan
 and link.
@@ -159,11 +159,11 @@ handoff instead of writing `log.md`.
 ## Link And Citation Style
 
 - Prefer inline wikilinks to wiki-local paper notes or PDFs under
-  `Shared/Papers/<citekey>/`, using the file stem and alias syntax when useful.
+  `Shared/Zotero/<citekey>/`, using the file stem and alias syntax when useful.
   Use source footnotes only when a multi-source paper note needs
   paragraph-level provenance disambiguation.
 - Link PDFs only as existing artifacts, for example
-  `[[Shared/Papers/<citekey>/<pdf-file>.pdf|paper PDF]]`; never create,
+  `[[Shared/Zotero/<citekey>/<pdf-file>.pdf|paper PDF]]`; never create,
   rewrite, or relocate the linked PDF.
 - Weave concepts, methods, principles, and mechanisms into prose with
   `[[wiki|readable alias]]` at the point where they are used.
@@ -184,11 +184,11 @@ Use this bounded prompt when delegating the actual paper-note update:
 
 ```text
 Wiki root: <wiki-root>
-Paper bundle: Shared/Papers/<citekey>/
+Paper bundle: Shared/Zotero/<citekey>/
 Operation: paper-note
 Write policy: write-confirmed
-Writable paths: Markdown note files under Shared/Papers/<citekey>/ only
-Read-only paths: every PDF and non-Markdown artifact in Shared/Papers/<citekey>/
+Writable paths: Markdown note files under Shared/Zotero/<citekey>/ only
+Read-only paths: every PDF and non-Markdown artifact in Shared/Zotero/<citekey>/
 Request: Compile this paper using loreforge-paper rules.
 
 Do not create, move, rename, delete, copy, overwrite, OCR-in-place, or otherwise modify directories or PDFs.

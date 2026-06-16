@@ -82,7 +82,7 @@ LoreForge
 | Reusable professional concept | LoreForge wiki |
 | Raw source package | LoreForge wiki `Shared/Raw/<source-id>/origin.md` + `manifest.md` |
 | Raw source artifact | LoreForge wiki `Shared/Raw/<source-id>/` |
-| Paper PDF and note bundle | LoreForge wiki `Shared/Papers/<citekey>/` |
+| Zotero paper PDF and note bundle | LoreForge wiki `Shared/Zotero/<citekey>/` |
 | Reusable template | LoreForge wiki `Shared/Templates/` |
 | Optional domain source note | LoreForge domain `Sources/` note |
 | Durable domain view | LoreForge wiki |
@@ -98,7 +98,7 @@ LoreForge now follows a small core:
    creates `origin.md` plus `manifest.md`, and ingest updates the same package
    while compiling domain knowledge. Reusable templates live in
    `Shared/Templates/`.
-4. Paper PDFs and paper notes live together under `Shared/Papers/<citekey>/`.
+4. Zotero paper PDFs and paper notes live together under `Shared/Zotero/<citekey>/`.
    Paper workflows read PDFs and write only Markdown notes inside the selected
    citekey directory.
 5. Optional domain source notes live in `Domains/<domain>/Sources/` when a raw

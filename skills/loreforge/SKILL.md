@@ -32,7 +32,7 @@ It delegates durable work to focused workflows:
 |---|---|
 | `loreforge-config` | wiki discovery, registry edits, init config, sync backend, post-write sync |
 | `loreforge-capture` | URL/file/paste/doc/research pack -> raw package under `Shared/Raw/<source-id>/` |
-| `loreforge-paper` | paper-specific note flow for existing `Shared/Papers/<citekey>/` bundles with read-only PDFs |
+| `loreforge-paper` | paper-specific note flow for existing `Shared/Zotero/<citekey>/` bundles with read-only PDFs |
 | `plan-docomposer` | decompose personal or research goals into weekly and daily note plans under `Calendar/` |
 | `loreforge-work-item` | project, Jira, issue, MR/PR, bugfix, CI failure, and implementation records under domain `Spaces/projects/` |
 | `loreforge-card` | strict reusable Card authoring under `Domains/<domain>/Cards/` |
@@ -50,7 +50,7 @@ keep the user-facing command simple.
 - inspect available domains before choosing write targets
 - keep each domain expert inside one `Domains/<domain>/` boundary
 - treat raw source packages as shared wiki-root `Shared/Raw/` data
-- treat paper PDFs and notes as shared wiki-root `Shared/Papers/<citekey>/`
+- treat paper PDFs and notes as shared wiki-root `Shared/Zotero/<citekey>/`
   bundles; PDF files are read-only and paper-note writes stay inside the
   selected citekey directory
 - gate writes that affect multiple domains, initialize new domains, or convert
@@ -97,7 +97,9 @@ reading domain files or writing local changes. Read:
 
 1. `00_System/domains.md`
 2. `00_System/index.md` and `00_System/wiki-layout.md` if present
-3. wiki-root `Shared/Raw/` when checking whether a source already exists
+3. wiki-root `Shared/Raw/` for non-paper source packages and
+   `Shared/Zotero/` for paper bundles when checking whether a source already
+   exists
 4. candidate `Domains/<domain>/SCHEMA.md`
 5. candidate `Domains/<domain>/index.md` when more evidence is needed
 
@@ -203,7 +205,7 @@ updates, report the selected wiki, default domain, backend, and next action.
 
 1. Resolve the wiki root.
 2. For paper capture requests, delegate to `loreforge-paper` and use the
-   existing `Shared/Papers/<citekey>/` bundle. Do not delegate paper capture to
+   existing `Shared/Zotero/<citekey>/` bundle. Do not delegate paper capture to
    `loreforge-capture`, do not create `Shared/Raw/` paper packages, and stop
    after the paper-note update unless the user also asks for ingest.
 3. For non-paper capture requests, delegate source preservation to
@@ -237,7 +239,7 @@ updates, report the selected wiki, default domain, backend, and next action.
 
 For non-paper sources that matter to multiple domains, reuse the same
 `Shared/Raw/<source-id>/` package. For papers, reuse the same
-`Shared/Papers/<citekey>/` bundle and keep PDF files read-only. Do not reuse
+`Shared/Zotero/<citekey>/` bundle and keep PDF files read-only. Do not reuse
 one domain's pages as another domain's source of truth.
 
 ### Query

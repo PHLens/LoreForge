@@ -12,7 +12,7 @@ needed.
 | `loreforge` | Default user entrypoint for config, capture, ingest, lint, init, import, query, plan, work-item records, and cross-domain coordination |
 | `loreforge-config` | Resolve wiki location, registry, sync backend, and post-write sync |
 | `loreforge-capture` | Preserve raw clips under `Shared/Raw/` without compiling domain pages |
-| `loreforge-paper` | Update paper notes from existing `Shared/Papers/<citekey>/` bundles while treating PDFs as read-only raw artifacts |
+| `loreforge-paper` | Update paper notes from existing `Shared/Zotero/<citekey>/` bundles while treating PDFs as read-only raw artifacts |
 | `plan-docomposer` | Decompose personal or research goals into weekly and daily note plans under `Calendar/` |
 | `loreforge-work-item` | Turn project, Jira, issue, MR/PR, bugfix, CI failure, and implementation context into durable `Spaces/projects/` records |
 | `loreforge-card` | Strict reusable Card authoring under `Domains/<domain>/Cards/` |
@@ -38,7 +38,7 @@ The `loreforge` skill owns intent classification, config/sync resolution,
 source capture handoff, plan handoff, domain routing, write gates, and subagent
 fan-out. `loreforge-paper` owns paper-specific page shape and related-work
 linking before bounded domain handoff; it writes only Markdown note files
-inside the selected `Shared/Papers/<citekey>/` directory and never modifies
+inside the selected `Shared/Zotero/<citekey>/` directory and never modifies
 paper PDFs or directory structure. `plan-docomposer` owns goal-to-weekly and
 daily note decomposition in the wiki Calendar layer. `loreforge-work-item`
 owns durable project record shape before bounded domain handoff. The domain

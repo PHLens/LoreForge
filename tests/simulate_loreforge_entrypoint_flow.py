@@ -101,19 +101,19 @@ def assert_skill_contract() -> None:
         "loreforge-moc",
         "loreforge-domain",
         "ordinary articles, blogs, docs, transcripts, reports, local notes, or web",
-        "Shared/Papers/<citekey>/",
+        "Shared/Zotero/<citekey>/",
         "AlphaCuTransformationDrivenSynthesis2017",
         "If no matching paper bundle exists, stop",
         "Do not create paper directories",
         "Treat all PDF files in the selected paper directory as raw artifacts and",
         "read-only",
-        "write only paper notes under `Shared/Papers/<citekey>/`",
+        "write only paper notes under `Shared/Zotero/<citekey>/`",
         "Creating `<citekey>.md` is allowed",
         "Do not use `Shared/Raw/` for paper PDFs or paper notes",
         "Paper Bundle Policy",
         "Paper Page Shape",
         "Paper Note Handoff Prompt",
-        "Writable paths: Markdown note files under Shared/Papers/<citekey>/ only",
+        "Writable paths: Markdown note files under Shared/Zotero/<citekey>/ only",
     ]
     missing_paper = [item for item in paper_required if item not in paper_skill]
     if missing_paper:
