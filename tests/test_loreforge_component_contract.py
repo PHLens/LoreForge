@@ -210,7 +210,7 @@ created: 2026-01-01
 updated: 2026-01-01
 type: concept
 aliases:
-  - Legacy pointer
+  - Legacy import pointer
 tags: [agent]
 status: active
 ---
@@ -224,6 +224,71 @@ Legacy imports can be named without making the legacy vault part of validation: 
         result = run("validate", "--wiki", wiki.as_posix(), "--domain", "ai-research", "--json")
         payload = json.loads(result.stdout)
         assert payload["ok"] is True
+
+
+def test_validate_rejects_title_only_card_aliases() -> None:
+    with tempfile.TemporaryDirectory(prefix="loreforge-component-") as tmp:
+        wiki = Path(tmp) / "wiki"
+        seed_domain(wiki)
+        write(wiki / "Domains" / "ai-research" / "index.md", "# Index\n- [[alias-card]]\n")
+        write(
+            wiki / "Domains" / "ai-research" / "Cards" / "alias-card.md",
+            """---
+title: Alias Card
+created: 2026-01-01
+updated: 2026-01-01
+type: concept
+aliases:
+  - Alias Card!
+  - alias-card?
+tags: [agent]
+status: active
+---
+
+# Alias Card
+
+This card only repeats its title and page stem as aliases with punctuation-only variants.
+""",
+        )
+
+        result = run("validate", "--wiki", wiki.as_posix(), "--domain", "ai-research", "--json", check=False)
+        assert result.returncode == 1
+        payload = json.loads(result.stdout)
+        codes = {item["code"] for item in payload["domains"][0]["issues"]}
+        assert "uninformative-card-aliases" in codes
+
+
+def test_validate_rejects_redundant_card_aliases() -> None:
+    with tempfile.TemporaryDirectory(prefix="loreforge-component-") as tmp:
+        wiki = Path(tmp) / "wiki"
+        seed_domain(wiki)
+        write(wiki / "Domains" / "ai-research" / "index.md", "# Index\n- [[alias-card]]\n")
+        write(
+            wiki / "Domains" / "ai-research" / "Cards" / "alias-card.md",
+            """---
+title: Alias Card
+created: 2026-01-01
+updated: 2026-01-01
+type: concept
+aliases:
+  - Alias Card
+  - Agent alias pattern
+tags: [agent]
+status: active
+---
+
+# Alias Card
+
+This card has one useful alias and one alias that only repeats its title.
+""",
+        )
+
+        result = run("validate", "--wiki", wiki.as_posix(), "--domain", "ai-research", "--json", check=False)
+        assert result.returncode == 1
+        payload = json.loads(result.stdout)
+        issues = payload["domains"][0]["issues"]
+        assert "redundant-card-aliases" in {item["code"] for item in issues}
+        assert any("Alias Card" in item["message"] for item in issues)
 
 
 def test_init_is_read_only_plan() -> None:
@@ -290,6 +355,8 @@ if __name__ == "__main__":
     test_shared_validator_module_importable()
     test_validate_reports_paper_note_format_errors()
     test_validate_ignores_legacy_directory()
+    test_validate_rejects_title_only_card_aliases()
+    test_validate_rejects_redundant_card_aliases()
     test_init_is_read_only_plan()
     test_cli_setup_writes_bootstrap_files()
     print("LoreForge component contract tests passed.")
