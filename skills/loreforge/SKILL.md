@@ -206,8 +206,9 @@ updates, report the selected wiki, default domain, backend, and next action.
 1. Resolve the wiki root.
 2. For paper capture requests, delegate to `loreforge-paper` and use the
    existing `Shared/Zotero/<citekey>/` bundle. Do not delegate paper capture to
-   `loreforge-capture`, do not create `Shared/Raw/` paper packages, and stop
-   after the paper-note update unless the user also asks for ingest.
+   `loreforge-capture`, do not create or update `Shared/Raw/` paper packages
+   or paper manifests, and stop after the paper-note update unless the user
+   also asks for ingest.
 3. For non-paper capture requests, delegate source preservation to
    `loreforge-capture`.
 4. Capture source material only.
@@ -222,7 +223,9 @@ updates, report the selected wiki, default domain, backend, and next action.
    `loreforge-paper`.
    For ordinary paper ingest, stop after the paper-note update and post-write
    sync. Only continue to Cards, Atlas, Sources, Spaces, or cross-domain
-   synthesis when the user explicitly requested that downstream write.
+   synthesis when the user explicitly requested that downstream write. Zotero
+   remains the paper manifest/metadata system; do not create parallel
+   `Shared/Raw/` paper manifests during ingest.
 3. If a downstream paper synthesis was explicitly requested, make a page-type
    decision after the paper-note update. Delegate reusable Cards to
    `loreforge-card`, MOC/view pages to `loreforge-moc`, and Source/Space

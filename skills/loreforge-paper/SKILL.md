@@ -1,6 +1,6 @@
 ---
 name: loreforge-paper
-description: Internal LoreForge workflow for paper-specific note updates and ingest. Use for arXiv, DOI, PDF, conference paper, preprint, or local paper requests when the source should resolve to an existing `Shared/Zotero/<citekey>/` paper bundle. Keeps PDF access read-only, writes only paper notes in the selected citekey directory, and keeps paper metadata, claims, methods, evaluation, limits, related work links, and downstream domain handoff separate from ordinary single-source ingest.
+description: Internal LoreForge workflow for paper-specific note updates and ingest. Use for arXiv, DOI, PDF, conference paper, preprint, or local paper requests when the source should resolve to an existing `Shared/Zotero/<citekey>/` paper bundle. Treats Zotero as the paper manifest/metadata system, keeps PDF access read-only, writes only paper notes in the selected citekey directory, and keeps claims, methods, evaluation, limits, related work links, and downstream domain handoff separate from ordinary single-source ingest.
 user-invocable: false
 version: 0.2.0
 ---
@@ -12,7 +12,7 @@ single-source ingest.
 
 This skill owns the paper-specific process:
 
-- paper identity and bibliographic metadata
+- paper note content and local paper identity resolution
 - existing `Shared/Zotero/<citekey>/` bundle resolution
 - read-only PDF handling
 - paper note shape
@@ -91,9 +91,13 @@ pages, use the main `loreforge` entrypoint so it can choose
      tags, and library/item IDs. Fill missing fields only from the paper note,
      PDF title page, filename, DOI/arXiv metadata already available locally, or
      user-provided context.
+   - Treat Zotero/exporter frontmatter and Zotero URIs as the paper manifest
+     surface. Do not create, update, or backfill parallel LoreForge paper
+     manifests with `source_id`, `content_hash`, `candidate_domains`,
+     `compiled_pages`, or lifecycle state.
    - Do not write `manifest.md`, `origin.md`, `extracted/`, `original/`,
-     `assets/`, `log.md`, domain pages, or sibling paper notes as part of this
-     workflow.
+     `assets/`, `log.md`, domain pages, raw packages, registries, or sibling
+     paper notes as part of this workflow.
    - Add broadly reusable concepts to Cards only when the concept is durable
      beyond the paper and a separate downstream domain write has been
      explicitly requested or approved. Put proposal/current-argument synthesis
@@ -122,6 +126,12 @@ The directory must already exist. Do not create or rename the citekey directory
 and do not move, rename, rewrite, deduplicate, or delete PDFs. The PDF is the
 raw paper artifact; `loreforge-paper` may read it but must not touch it.
 
+Zotero owns paper manifest management. The citekey directory, Zotero URI,
+Zotero/exporter frontmatter, PDF filename, and optional Zotero-exported note
+are the durable source record for papers. Do not mirror that state into
+`Shared/Raw/<source-id>/manifest.md`, a paper registry, a raw package, or a
+domain `Sources/` note just to satisfy LoreForge provenance bookkeeping.
+
 The only wiki writes allowed by this workflow are Markdown note files inside
 the selected `Shared/Zotero/<citekey>/` directory. Notes should preserve Zotero
 or importer frontmatter and then hold the durable paper analysis in the body.
@@ -133,8 +143,9 @@ existing bundle. If the PDF is absent, the citekey is ambiguous, or the source
 is only a URL/DOI/arXiv link without a local bundle, stop and ask for the
 bundle to be added first.
 
-Do not use `Shared/Raw/` for paper PDFs or paper notes. `Shared/Raw/` remains
-for non-paper clips, web pages, pasted text, logs, and other source packages.
+Do not use `Shared/Raw/` for paper PDFs, paper notes, paper manifests, or
+paper lifecycle metadata. `Shared/Raw/` remains for non-paper clips, web pages,
+pasted text, logs, and other source packages.
 
 ## Paper Page Shape
 
@@ -192,7 +203,7 @@ Read-only paths: every PDF and non-Markdown artifact in Shared/Zotero/<citekey>/
 Request: Compile this paper using loreforge-paper rules.
 
 Do not create, move, rename, delete, copy, overwrite, OCR-in-place, or otherwise modify directories or PDFs.
-Do not write Shared/Raw/, manifest.md, origin.md, extracted files, domain pages, index.md, or log.md.
+Do not write Shared/Raw/, manifest.md, origin.md, extracted files, paper registries, domain pages, index.md, or log.md.
 Read the existing paper note and PDF. Use AlphaCuTransformationDrivenSynthesis2017 as the bundle-shape example when needed.
 Write the paper note as durable paper knowledge, not editor narration.
 Preserve existing citekey/Zotero frontmatter and only fill missing metadata from local paper evidence.
