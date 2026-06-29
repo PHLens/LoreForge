@@ -436,6 +436,11 @@ the paper-specific shape from `loreforge-paper`: paper identity, problem,
 mechanism, assumptions, evaluation signal, limits, reusable implications,
 natural concept links, and related paper/problem cases.
 
+For Zotero-managed papers, do not require or create `Shared/Raw/` paper
+packages, paper manifests, `origin.md`, or domain `Sources/` notes just for
+provenance. Treat `Shared/Zotero/<citekey>/` plus the paper note frontmatter as
+the source record, and keep PDFs read-only.
+
 Do not mix the paper workflow into ordinary single-source ingest. If a paper
 request reaches this skill without paper-specific context, read
 `skills/loreforge-paper/SKILL.md` before writing the domain page.
@@ -479,6 +484,11 @@ source and compile the useful domain slice, not to force a paper-shaped review.
   of writing them here.
 
 ### Source Capture Policy
+
+This policy applies to non-paper sources. Research papers, paper PDFs, arXiv,
+DOI, conference papers, preprints, and paper-like technical reports use
+`loreforge-paper` and Zotero-managed `Shared/Zotero/<citekey>/` bundles instead
+of `Shared/Raw/` manifests.
 
 - Preserve the shared raw source before synthesizing cards.
 - Capture writes the raw source package only. It does not create Cards, Atlas

@@ -36,11 +36,16 @@ Do not:
 Accept:
 
 - URLs and web pages
-- PDFs and local files
+- non-paper PDFs and local files
 - pasted text
 - exported docs, human clipper captures, or repos
 - `topic-research` research packs
 - `convert-to-markdown` or `defuddle` output
+
+Do not accept research papers, conference PDFs, arXiv/DOI/OpenReview sources,
+or paper-like technical reports here. Delegate those to `loreforge-paper`,
+which uses `Shared/Zotero/<citekey>/` and does not create paper raw packages or
+paper manifests.
 
 Use helper skills as needed:
 
