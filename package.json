@@ -12,7 +12,13 @@
     "docs/",
     "lib/",
     "skills/",
-    "templates/"
+    "templates/",
+    "!**/__pycache__/**",
+    "!**/*.py[cod]",
+    "!skills/**/scripts/.venv/**",
+    "!skills/**/scripts/auth/*.json",
+    "!skills/**/scripts/output/**",
+    "!skills/**/scripts/outputs/**"
   ],
   "scripts": {
     "check": "node --check bin/loreforge && node --check lib/*.mjs",

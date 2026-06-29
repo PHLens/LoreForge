@@ -3,6 +3,8 @@
 Run the native domain verification fixture:
 
 ```bash
+PYTHONPATH=lib python3 -m loreforge_validator
+PYTHONPATH=lib python3 -m loreforge_validator --fix /path/to/domain
 python3 skills/loreforge-domain/scripts/validate_native_domain.py
 python3 skills/loreforge-domain/scripts/validate_native_domain.py --fix /path/to/domain
 python3 tests/test_loreforge_domain_footnote_convention.py
@@ -23,4 +25,5 @@ backend setup for new and existing wikis, raw source packages under
 `Shared/Raw/<source-id>/` with `origin.md` plus `manifest.md`, paper bundles
 under `Shared/Zotero/<citekey>/` with read-only PDFs and note-only writes, and
 source import behavior. The native domain validator can also clean orphan
-footnote definitions with `--fix`.
+footnote definitions with `--fix`. The `validate_native_domain.py` command is a
+compatibility wrapper around the shared `loreforge_validator` module.

@@ -14,7 +14,10 @@ try:
 except ModuleNotFoundError:  # pragma: no cover - Python < 3.11 fallback
     import tomli as tomllib
 
-from validate_native_domain import Issue, validate_domain
+REPO_ROOT = Path(__file__).resolve().parents[3]
+sys.path.insert(0, str(REPO_ROOT / "lib"))
+
+from loreforge_validator import Issue, validate_domain  # noqa: E402
 
 
 CONTRACT_VERSION = "0.1"
