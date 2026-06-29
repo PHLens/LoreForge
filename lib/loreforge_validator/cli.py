@@ -56,13 +56,9 @@ def main(argv: list[str] | None = None) -> int:
     root = Path(__file__).resolve().parents[2] / "tests" / "fixtures" / "native-domain"
     valid = root / "valid" / "wiki" / "Domains" / "ai-research"
     invalid = root / "invalid" / "wiki" / "Domains" / "ai-research"
+    invalid_research = root / "invalid" / "wiki" / "Domains" / "research"
     invalid_expected = {
         "invalid-raw-status",
-        "missing-paper-field",
-        "missing-paper-heading",
-        "missing-paper-pdf",
-        "missing-paper-pdf-link",
-        "missing-paper-section",
         "broken-wikilink",
         "cross-domain-link",
         "missing-compiled-page",
@@ -75,15 +71,24 @@ def main(argv: list[str] | None = None) -> int:
         "missing-index-entry",
         "log-order",
         "orphan-footnote-definition",
-        "paper-note-citekey-mismatch",
-        "paper-note-name-mismatch",
         "raw-content-hash-mismatch",
         "raw-source-id-mismatch",
         "unexpected-raw-file",
         "tag-sprawl",
         "unknown-tag",
     }
+    invalid_research_expected = {
+        "missing-paper-field",
+        "missing-paper-heading",
+        "missing-paper-pdf-link",
+        "missing-paper-section",
+        "missing-zotero-link",
+        "paper-note-citekey-mismatch",
+        "paper-note-location",
+        "paper-note-name-mismatch",
+    }
 
     ok = run_fixture("valid fixture", valid, set())
     ok = run_fixture("invalid fixture", invalid, invalid_expected) and ok
+    ok = run_fixture("invalid research fixture", invalid_research, invalid_research_expected) and ok
     return 0 if ok else 1

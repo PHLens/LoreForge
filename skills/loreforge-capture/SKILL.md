@@ -44,8 +44,9 @@ Accept:
 
 Do not accept research papers, conference PDFs, arXiv/DOI/OpenReview sources,
 or paper-like technical reports here. Delegate those to `loreforge-paper`,
-which uses `Shared/Zotero/<citekey>/` and does not create paper raw packages or
-paper manifests.
+which uses Zotero-managed raw files outside the vault and writes notes under
+`Domains/research/Spaces/papers/`. It does not create paper raw packages,
+`Shared/Zotero/` vault bundles, copied PDFs, or paper manifests.
 
 Use helper skills as needed:
 
@@ -153,9 +154,10 @@ Shared/Raw/<source-id>/
 ```
 
 Only `manifest.md` and `origin.md` are required. Create `original/`,
-`extracted/`, and `assets/` only when useful. Paper PDFs and paper notes belong
-under `Shared/Zotero/<citekey>/` instead of `Shared/Raw/`; see
-`loreforge-paper` for the read-only PDF and paper-note write policy.
+`extracted/`, and `assets/` only when useful. Paper PDFs stay in Zotero outside
+the vault, and paper notes belong under `Domains/research/Spaces/papers/`
+instead of `Shared/Raw/`; see `loreforge-paper` for the read-only PDF and
+paper-note write policy.
 
 Use `origin.md` for canonical agent-readable source text or for a thin wrapper
 around preserved artifacts. For human-captured Markdown/HTML/PDF, keep the

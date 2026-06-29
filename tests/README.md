@@ -22,8 +22,8 @@ the read-only external component contract, and smoke-test query, ingest, and
 update boundaries on a temporary fixture copy. They also smoke-test entrypoint
 routing, paper workflow delegation, config discovery, initialization, sync
 backend setup for new and existing wikis, raw source packages under
-`Shared/Raw/<source-id>/` with `origin.md` plus `manifest.md`, paper bundles
-under `Shared/Zotero/<citekey>/` with read-only PDFs and note-only writes, and
-source import behavior. The native domain validator can also clean orphan
+`Shared/Raw/<source-id>/` with `origin.md` plus `manifest.md`, Zotero-managed
+paper notes under `Domains/research/Spaces/papers/` with read-only external
+PDFs and Zotero URI jump links, and source import behavior. The native domain validator can also clean orphan
 footnote definitions with `--fix`. The `validate_native_domain.py` command is a
 compatibility wrapper around the shared `loreforge_validator` module.

@@ -18,7 +18,7 @@ from .markdown import (
     wikilinks,
 )
 from .model import Issue
-from .papers import validate_zotero_paper_notes
+from .papers import PAPER_NOTES_RELATIVE_DIR, validate_zotero_paper_notes
 from .paths import (
     is_cross_domain_link,
     is_legacy_wiki_path,
@@ -137,6 +137,15 @@ def active_pages(domain: Path) -> list[Path]:
     return sorted(pages)
 
 
+def is_paper_note(page: Path, wiki: Path | None) -> bool:
+    if wiki is None:
+        return False
+    try:
+        return page.resolve().relative_to((wiki / PAPER_NOTES_RELATIVE_DIR).resolve()).suffix == ".md"
+    except ValueError:
+        return False
+
+
 def archived_pages(domain: Path) -> list[Path]:
     archive = domain / "Spaces" / "_archive"
     if not archive.exists():
@@ -195,9 +204,12 @@ def validate_domain(domain: Path) -> list[Issue]:
             issues.append(Issue("missing-frontmatter", page_rel, "page lacks YAML frontmatter"))
             continue
 
-        for field in REQUIRED_FRONTMATTER:
-            if field not in fields:
-                issues.append(Issue("missing-frontmatter-field", page_rel, f"missing `{field}`"))
+        paper_note = is_paper_note(page, wiki)
+
+        if not paper_note:
+            for field in REQUIRED_FRONTMATTER:
+                if field not in fields:
+                    issues.append(Issue("missing-frontmatter-field", page_rel, f"missing `{field}`"))
 
         if page_rel.startswith("Cards/"):
             for field in REQUIRED_CARD_FRONTMATTER:
@@ -243,15 +255,16 @@ def validate_domain(domain: Path) -> list[Issue]:
             )
 
         expected = expected_type(page, domain)
-        if expected and fields.get("type") != expected:
+        if not paper_note and expected and fields.get("type") != expected:
             issues.append(Issue("wrong-page-type", page_rel, f"expected type `{expected}`"))
 
-        unknown = list_value(fields.get("tags", "[]")) - allowed_tags
-        for tag in sorted(unknown):
-            issues.append(Issue("unknown-tag", page_rel, f"`{tag}` not in SCHEMA.md taxonomy"))
+        if not paper_note:
+            unknown = list_value(fields.get("tags", "[]")) - allowed_tags
+            for tag in sorted(unknown):
+                issues.append(Issue("unknown-tag", page_rel, f"`{tag}` not in SCHEMA.md taxonomy"))
 
         tags = list_value(fields.get("tags", "[]"))
-        if len(tags) > MAX_TAGS_PER_PAGE:
+        if not paper_note and len(tags) > MAX_TAGS_PER_PAGE:
             issues.append(
                 Issue(
                     "tag-sprawl",
@@ -267,7 +280,9 @@ def validate_domain(domain: Path) -> list[Issue]:
         for label in sorted(defined - refs):
             issues.append(Issue("orphan-footnote-definition", page_rel, f"`[^{label}]` definition has no body references"))
 
-        if should_index(page, domain, fields):
+        if paper_note:
+            pass
+        elif should_index(page, domain, fields):
             if not has_page_link(index_text, page, domain, wiki):
                 issues.append(Issue("missing-index-entry", page_rel, "indexable page is absent from index.md"))
         elif has_page_link(index_text, page, domain, wiki):
@@ -330,6 +345,7 @@ def validate_domain(domain: Path) -> list[Issue]:
 
     if wiki is not None:
         issues.extend(validate_raw_packages(wiki))
+    if wiki is not None and domain == (wiki / "Domains" / "research").resolve():
         issues.extend(validate_zotero_paper_notes(wiki))
 
     return sorted(issues, key=lambda issue: (issue.code, issue.path, issue.message))

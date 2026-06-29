@@ -18,12 +18,17 @@ wiki/
         original/
         extracted/
         assets/
-    Zotero/
-      <citekey>/
-        <citekey> - <paper title>.pdf
-        <citekey>.md
     Templates/
   Domains/
+    research/
+      SCHEMA.md
+      index.md
+      log.md
+      Atlas/
+      Cards/
+      Sources/  # optional compiled source excerpts
+      Spaces/
+        papers/  # Zotero-managed paper notes
     <domain>/
       SCHEMA.md
       index.md
@@ -38,11 +43,12 @@ wiki/
 `index.md`, `domains.md`, and `wiki-layout.md`. `Calendar/` stores dated
 personal notes such as daily notes and weekly planning notes. `Shared/Raw/`
 stores one raw source package per source under `Shared/Raw/<source-id>/`.
-`Shared/Zotero/` stores Zotero paper bundles under `Shared/Zotero/<citekey>/`, with
-raw PDFs and Markdown paper notes in the same citekey directory.
 `Shared/Templates/` stores reusable templates once for the whole wiki. Each
 `Domains/<domain>/` is a self-contained LLM Wiki maintained by one expert
 agent.
+Paper raw files are managed by Zotero outside the vault; Markdown paper notes
+live under `Domains/research/Spaces/papers/<citekey>.md` and use `zotero://`
+PDF jump links.
 
 ## Calendar Files
 
@@ -56,7 +62,6 @@ agent.
 | Path | Purpose |
 |---|---|
 | `Shared/Raw/` | Wiki-root raw source area. Capture writes `Shared/Raw/<source-id>/origin.md` and `manifest.md`; ingest updates the same package with candidate domains, compiled page pointers, original artifacts, extracted artifacts, and any source-specific assets |
-| `Shared/Zotero/` | Wiki-root Zotero paper area. Each `Shared/Zotero/<citekey>/` directory stores the original paper PDF(s) and paper note Markdown files; paper agents may read PDFs but write only Markdown notes inside the selected citekey directory |
 | `Shared/Templates/` | Wiki-root reusable note templates, including diary and weekly templates |
 
 ## Domain Files
@@ -115,6 +120,11 @@ archived, renamed, or materially changed. Insert a concise newest-first
 `log.md` entry directly below the log heading and instruction block, before the
 previous newest entry.
 
+Paper notes under `Domains/research/Spaces/papers/` are exempt from domain
+`index.md` and `log.md` maintenance. Zotero metadata and paper-note
+frontmatter are their provenance surface, and the paper workflow writes only
+the paper-note Markdown file.
+
 ## Source Capture
 
 Raw source packages preserve the source language by default. Capture derives a
@@ -147,11 +157,13 @@ the body. If capture falls back from an unavailable search source to public
 pages or alternate APIs, record the unavailable source and substitute source in
 manifest extraction lineage.
 
-For papers, use `Shared/Zotero/<citekey>/` instead of `Shared/Raw/`. The
-original PDF is a read-only raw artifact inside the citekey directory, and the
-agent-owned output is one or more Markdown paper notes in that same directory.
-Agents must not create, rename, move, delete, overwrite, or copy paper
-directories or PDFs.
+For papers, use Zotero instead of `Shared/Raw/` or wiki-local PDF storage.
+The original PDF is a read-only Zotero-managed raw artifact outside the vault,
+and the agent-owned output is a Markdown paper note under
+`Domains/research/Spaces/papers/<citekey>.md`. Agents must not create, rename,
+move, delete, overwrite, copy, or reorganize paper PDFs or Zotero attachment
+directories. The paper note should store the PDF jump as a Zotero URI such as
+`[PDF](zotero://open-pdf/...)`.
 
 Compiled domain pages do not carry YAML `sources:` links. Prefer source-backed
 provenance as plain internal wikilinks to wiki-local raw artifacts, raw

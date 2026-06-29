@@ -30,6 +30,8 @@ Always:
 - query existing knowledge first
 - update pages directly after orientation
 - keep `index.md` and `log.md` current
+- except for paper-note-only writes under `Domains/research/Spaces/papers/`,
+  which are owned by `loreforge-paper` and do not update `index.md` or `log.md`
 - delegate Card authoring to `loreforge-card`
 - delegate Atlas/MOC authoring to `loreforge-moc`
 - write equations and derivations with Obsidian-compatible LaTeX: inline math
@@ -317,6 +319,9 @@ Adapt to the user's domain. The schema constrains agent behavior and ensures con
 - When updating a page, always bump the `updated` date
 - Every new page must be added to `index.md` under the correct section
 - Every action must be inserted into `log.md` as the newest entry
+- Paper-note-only writes under `Domains/research/Spaces/papers/` are exempt
+  from `index.md` and `log.md` maintenance; only explicit downstream domain
+  writes use the ordinary index/log rules.
 - Optional `related:: [[concept-a]], [[concept-b|Readable label]]` fields may
   be used near the top of Cards or Atlas pages as a light navigation seed for
   relevant pages that are not naturally mentioned in the body. Use aliases when
@@ -439,8 +444,9 @@ natural concept links, and related paper/problem cases.
 
 For Zotero-managed papers, do not require or create `Shared/Raw/` paper
 packages, paper manifests, `origin.md`, or domain `Sources/` notes just for
-provenance. Treat `Shared/Zotero/<citekey>/` plus the paper note frontmatter as
-the source record, and keep PDFs read-only.
+provenance. Treat the Zotero item plus
+`Domains/research/Spaces/papers/<citekey>.md` frontmatter as the source record,
+keep Zotero PDFs read-only, and keep paper raw files outside the vault.
 
 Do not mix the paper workflow into ordinary single-source ingest. If a paper
 request reaches this skill without paper-specific context, read
@@ -488,8 +494,8 @@ source and compile the useful domain slice, not to force a paper-shaped review.
 
 This policy applies to non-paper sources. Research papers, paper PDFs, arXiv,
 DOI, conference papers, preprints, and paper-like technical reports use
-`loreforge-paper` and Zotero-managed `Shared/Zotero/<citekey>/` bundles instead
-of `Shared/Raw/` manifests.
+`loreforge-paper`, Zotero-managed raw files outside the vault, and paper notes
+under `Domains/research/Spaces/papers/` instead of `Shared/Raw/` manifests.
 
 - Preserve the shared raw source before synthesizing cards.
 - Capture writes the raw source package only. It does not create Cards, Atlas
