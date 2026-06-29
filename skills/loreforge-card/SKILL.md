@@ -73,8 +73,8 @@ Required shape:
   `aliases`, `tags`, `confidence`, `status`, `contested`, and
   `contradictions`.
 - `aliases` must contain at least one human-searchable name, acronym, spelling
-  variant, Chinese/English term, or short readable label. Do not use aliases as
-  a tag dump.
+  variant, Chinese/English term, or short readable label. Do not repeat the
+  canonical `title` or filename stem, and do not use aliases as a tag dump.
 - H1 matches the title.
 - First body paragraph is a direct definition or problem statement. Do not
   start with "this Card explains", "this page discusses", or equivalent
@@ -184,7 +184,7 @@ created: YYYY-MM-DD
 updated: YYYY-MM-DD
 type: concept
 aliases:
-  - Page Title
+  - alternate searchable name
 tags: []
 confidence: medium
 status: active
@@ -216,7 +216,8 @@ Before reporting completion, check:
   mechanism, pattern, tradeoff, or comparison.
 - The page is not mainly a source summary, project record, proposal argument,
   or MOC.
-- Frontmatter includes non-empty `aliases`.
+- Frontmatter includes non-empty `aliases` with at least one search alias that
+  is not the `title` or filename stem.
 - The first body paragraph is a direct definition or problem statement.
 - The Card is self-contained, written in domain words, and has one focus object.
 - The Split Gate was checked; oversized umbrella Cards were split or handed to

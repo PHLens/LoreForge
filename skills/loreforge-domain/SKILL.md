@@ -311,7 +311,8 @@ Adapt to the user's domain. The schema constrains agent behavior and ensures con
 - Every wiki page starts with YAML frontmatter (see below)
 - Every Card frontmatter includes `aliases`, a short list of human-searchable
   names, acronyms, spelling variants, or common Chinese/English names. Keep
-  `title` as the canonical page name; use `aliases` only to improve search.
+  `title` as the canonical page name; use `aliases` only to improve search, and
+  do not repeat the title or filename stem as an alias.
 - Use `[[wikilinks]]` to link between pages (minimum 2 outbound links per page)
 - When updating a page, always bump the `updated` date
 - Every new page must be added to `index.md` under the correct section

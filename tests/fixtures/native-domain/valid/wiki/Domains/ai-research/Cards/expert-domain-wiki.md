@@ -4,7 +4,6 @@ created: 2026-04-29
 updated: 2026-04-29
 type: concept
 aliases:
-  - Expert domain wiki
   - domain-owned wiki
 tags: [wiki, agent, concept]
 confidence: medium

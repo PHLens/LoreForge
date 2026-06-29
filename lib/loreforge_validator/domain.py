@@ -3,9 +3,11 @@
 from __future__ import annotations
 
 import re
+import unicodedata
 from pathlib import Path
 
 from .markdown import (
+    clean_scalar,
     footnote_labels,
     frontmatter,
     list_value,
@@ -56,6 +58,27 @@ EXPECTED_TYPE_BY_DIR = {
 }
 
 MAX_TAGS_PER_PAGE = 3
+
+
+def normalized_alias_value(value: str) -> str:
+    value = clean_scalar(value).casefold()
+    return "".join(
+        char for char in value if unicodedata.category(char)[0] not in {"P", "Z"}
+    )
+
+
+def redundant_card_aliases(page: Path, fields: dict[str, str]) -> set[str]:
+    aliases = list_value(fields.get("aliases", ""))
+    title = normalized_alias_value(fields.get("title", ""))
+    stem = normalized_alias_value(page.stem)
+    blocked = {value for value in {title, stem} if value}
+    return {alias for alias in aliases if normalized_alias_value(alias) in blocked}
+
+
+def meaningful_card_aliases(page: Path, fields: dict[str, str]) -> set[str]:
+    aliases = list_value(fields.get("aliases", ""))
+    redundant = redundant_card_aliases(page, fields)
+    return aliases - redundant
 
 
 def log_entry_dates(text: str) -> list[str]:
@@ -172,6 +195,25 @@ def validate_domain(domain: Path) -> list[Issue]:
                             "`aliases` must contain at least one human-searchable alias",
                         )
                     )
+                elif not meaningful_card_aliases(page, fields):
+                    issues.append(
+                        Issue(
+                            "uninformative-card-aliases",
+                            page_rel,
+                            "`aliases` must include at least one search alias different from title and page stem",
+                        )
+                    )
+                else:
+                    redundant_aliases = redundant_card_aliases(page, fields)
+                    if redundant_aliases:
+                        formatted = ", ".join(f"`{alias}`" for alias in sorted(redundant_aliases))
+                        issues.append(
+                            Issue(
+                                "redundant-card-aliases",
+                                page_rel,
+                                f"`aliases` repeats the canonical title or page stem: {formatted}",
+                            )
+                        )
 
         if "sources" in fields:
             issues.append(
