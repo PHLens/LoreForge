@@ -194,33 +194,35 @@ def test_compiled_page_language_gate_applies_to_all_wiki_pages():
     assert "Common Card shapes:" not in domain
 
 
-def test_paper_skill_uses_read_only_paper_bundles():
-    """Paper workflow should stay inside existing citekey bundles."""
+def test_paper_skill_uses_zotero_managed_raw_files_and_research_notes():
+    """Paper workflow should keep raw files in Zotero and notes in research Spaces."""
     content = PAPER_SKILL_PATH.read_text()
     collapsed = " ".join(content.split())
 
-    assert "Shared/Zotero/<citekey>/" in content
     assert "Shared/Papers" not in content
-    assert "AlphaCuTransformationDrivenSynthesis2017" in content
+    assert "Shared/Zotero/<citekey>/" not in content
+    assert "Domains/research/Spaces/papers/<citekey>.md" in content
     assert "paper note template" in content
     assert "### How does this paper solved it?" in content
-    assert "If no matching paper bundle exists, stop" in content
-    assert "Do not create paper directories" in content
-    assert "Treat all PDF files in the selected paper directory as raw artifacts" in collapsed
+    assert "If the paper cannot be resolved to one Zotero item, stop" in content
+    assert "Do not create paper raw packages" in content
+    assert "Treat Zotero-managed PDF files, snapshots, and attachment directories as raw artifacts outside the vault" in collapsed
     assert "read-only" in content
-    assert "write only paper notes under `Shared/Zotero/<citekey>/`" in content
+    assert "write only Markdown paper notes under `Domains/research/Spaces/papers/`" in content
     assert "Creating `<citekey>.md` is allowed" in content
-    assert "Do not use `Shared/Raw/` for paper PDFs, paper notes, paper manifests" in content
-    assert "Writable paths: Markdown note files under Shared/Zotero/<citekey>/ only" in content
+    assert "Do not use `Shared/Raw/` for paper PDFs or paper notes" in content
+    assert "Writable paths: Markdown note files under Domains/research/Spaces/papers/ only" in content
+    assert "[PDF](zotero://open-pdf/...)" in content
     assert "Paper raw package: Shared/Raw/<source-id>/" not in content
     assert "Save `original/<paper>.pdf` only when" not in content
 
 
-def test_paper_bundle_docs_use_zotero_path_consistently():
-    """Published paper-bundle docs should not drift back to the old path."""
+def test_paper_docs_use_research_papers_path_consistently():
+    """Published paper docs should not drift back to wiki-local Zotero bundles."""
     for path in PAPER_BUNDLE_DOC_PATHS:
         content = path.read_text()
-        assert "Shared/Zotero" in content, f"{path} should mention Shared/Zotero"
+        assert "Domains/research/Spaces/papers" in content, f"{path} should mention research paper notes"
+        assert "Shared/Zotero/<citekey>/" not in content, f"{path} still mentions wiki-local Zotero bundles"
         assert "Shared/Papers" not in content, f"{path} still mentions Shared/Papers"
 
 
@@ -249,7 +251,7 @@ if __name__ == "__main__":
     test_entrypoint_routes_directly_to_leaf_workflows()
     test_domain_skill_delegates_card_and_moc_authoring()
     test_compiled_page_language_gate_applies_to_all_wiki_pages()
-    test_paper_skill_uses_read_only_paper_bundles()
-    test_paper_bundle_docs_use_zotero_path_consistently()
+    test_paper_skill_uses_zotero_managed_raw_files_and_research_notes()
+    test_paper_docs_use_research_papers_path_consistently()
     test_entrypoint_preserves_paper_bundle_boundary()
     print("All Card / MOC authoring contract tests passed.")

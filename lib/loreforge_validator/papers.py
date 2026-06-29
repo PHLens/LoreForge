@@ -5,11 +5,12 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
-from .markdown import clean_scalar, frontmatter, heading_exists, wikilinks
+from .markdown import clean_scalar, frontmatter, heading_exists, split_frontmatter
 from .model import Issue
-from .paths import LEGACY_TOP_LEVEL_DIRS, rel
+from .paths import rel
 
 
+PAPER_NOTES_RELATIVE_DIR = Path("Domains") / "research" / "Spaces" / "papers"
 PAPER_NOTE_REQUIRED_FRONTMATTER = [
     "citekey",
     "title",
@@ -52,12 +53,11 @@ PAPER_NOTE_REQUIRED_SECTION_GROUPS = [
 ]
 
 
-def paper_pdf_link_exists(note: Path, wiki: Path, links: list[str]) -> bool:
-    for target in links:
-        if not target.lower().endswith(".pdf"):
-            continue
-        candidate = wiki / target if "/" in target else note.parent / target
-        if candidate.exists():
+def has_zotero_pdf_link(body: str, zotero_link: str) -> bool:
+    if not zotero_link.startswith("zotero://open-pdf/"):
+        return False
+    for match in re.finditer(r"^\s*\[PDF\]\(\s*(zotero://open-pdf/[^)\s]+)\s*\)\s*$", body, flags=re.IGNORECASE | re.MULTILINE):
+        if match.group(1) == zotero_link:
             return True
     return False
 
@@ -65,28 +65,25 @@ def paper_pdf_link_exists(note: Path, wiki: Path, links: list[str]) -> bool:
 def validate_zotero_paper_notes(wiki: Path) -> list[Issue]:
     wiki = wiki.resolve()
     issues: list[Issue] = []
-    zotero_root = wiki / "Shared" / "Zotero"
-    if not zotero_root.exists():
+    paper_notes_root = wiki / PAPER_NOTES_RELATIVE_DIR
+    if not paper_notes_root.exists():
         return issues
 
-    for note in sorted(zotero_root.rglob("*.md")):
+    for note in sorted(paper_notes_root.rglob("*.md")):
         note_rel = rel(note, wiki)
-        parts = note.relative_to(zotero_root).parts
-        if not parts or parts[0] in LEGACY_TOP_LEVEL_DIRS:
-            continue
-        if len(parts) != 2:
-            continue
 
-        citekey = parts[0]
-        if note.name != f"{citekey}.md":
+        parts = note.relative_to(paper_notes_root).parts
+        if len(parts) != 1:
             issues.append(
                 Issue(
-                    "paper-note-name-mismatch",
+                    "paper-note-location",
                     note_rel,
-                    f"paper note filename should be `{citekey}.md` inside Shared/Zotero/{citekey}/",
+                    "paper notes should be flat files directly under Domains/research/Spaces/papers/",
                 )
             )
+            continue
 
+        citekey = note.stem
         text = note.read_text()
         fields = frontmatter(text)
         if fields is None:
@@ -99,24 +96,39 @@ def validate_zotero_paper_notes(wiki: Path) -> list[Issue]:
 
         frontmatter_citekey = fields.get("citekey")
         if frontmatter_citekey and clean_scalar(frontmatter_citekey) != citekey:
+            expected_name = f"{clean_scalar(frontmatter_citekey)}.md"
+            issues.append(
+                Issue(
+                    "paper-note-name-mismatch",
+                    note_rel,
+                    f"paper note filename should be `{expected_name}` to match frontmatter `citekey`",
+                )
+            )
             issues.append(
                 Issue(
                     "paper-note-citekey-mismatch",
                     note_rel,
-                    f"`citekey` should match bundle folder `{citekey}`",
+                    f"`citekey` should match paper note filename `{citekey}.md`",
                 )
             )
 
-        pdfs = sorted(path for path in note.parent.iterdir() if path.is_file() and path.suffix.lower() == ".pdf")
-        if not pdfs:
-            issues.append(Issue("missing-paper-pdf", rel(note.parent, wiki), "paper bundle has a note but no PDF"))
+        zotero_link = clean_scalar(fields.get("zotero_link", ""))
+        if not zotero_link.startswith("zotero://open-pdf/"):
+            issues.append(
+                Issue(
+                    "missing-zotero-link",
+                    note_rel,
+                    "`zotero_link` should contain a Zotero PDF URI such as `zotero://open-pdf/...`",
+                )
+            )
 
-        if not paper_pdf_link_exists(note, wiki, wikilinks(text)):
+        _, body = split_frontmatter(text)
+        if not has_zotero_pdf_link(body, zotero_link):
             issues.append(
                 Issue(
                     "missing-paper-pdf-link",
                     note_rel,
-                    "paper note should link to an existing PDF in its bundle",
+                    "paper note should use a Zotero URI for the PDF jump link, for example `[PDF](zotero://open-pdf/...)`",
                 )
             )
 

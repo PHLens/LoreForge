@@ -30,18 +30,21 @@ Always:
    - Verify local artifact pointers and `compiled_pages`.
 
 2. **Zotero paper note format**
-   - Validate existing notes at `Shared/Zotero/<citekey>/<citekey>.md`.
+   - Validate existing notes at `Domains/research/Spaces/papers/<citekey>.md`.
    - Require Zotero paper-note frontmatter fields: `citekey`, `title`,
      `aliases`, `authors`, `date`, `category`, `keywords`, `conference`,
      `link`, `create_date`, `zotero_link`, `zotero_folder`, `abstract`,
      `tags`, `$version`, `$libraryID`, and `$itemKey`.
-   - Require a same-bundle PDF link and the paper reading template:
+   - Require `zotero_link` to contain a `zotero://open-pdf/...` URI and require
+     the paper body to include a Zotero PDF jump link such as
+     `[PDF](zotero://open-pdf/...)`.
+   - Require the paper reading template:
      `Summary` with `What's the problem?`, `How does this paper solved it?`,
      and `What's the improvements?`, followed by `Strengths`,
      `Weakness`, `Detailed Comments`, `Ideas for improvement(How Can I do
      better)`, and `Lessons learned`.
-   - Do not require every Zotero PDF bundle to have a note; only validate
-     Markdown notes that already exist.
+   - Do not require every Zotero item to have a note; only validate Markdown
+     notes that already exist.
 
 3. **Native domain contract**
    - Prefer:

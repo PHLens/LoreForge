@@ -82,7 +82,8 @@ LoreForge
 | Reusable professional concept | LoreForge wiki |
 | Raw source package | LoreForge wiki `Shared/Raw/<source-id>/origin.md` + `manifest.md` |
 | Raw source artifact | LoreForge wiki `Shared/Raw/<source-id>/` |
-| Zotero paper PDF and note bundle | LoreForge wiki `Shared/Zotero/<citekey>/` |
+| Zotero paper PDF/raw attachments | Zotero storage outside the LoreForge vault |
+| Zotero-managed paper note | LoreForge wiki `Domains/research/Spaces/papers/<citekey>.md` |
 | Reusable template | LoreForge wiki `Shared/Templates/` |
 | Optional domain source note | LoreForge domain `Sources/` note |
 | Durable domain view | LoreForge wiki |
@@ -98,9 +99,9 @@ LoreForge now follows a small core:
    creates `origin.md` plus `manifest.md`, and ingest updates the same package
    while compiling domain knowledge. Reusable templates live in
    `Shared/Templates/`.
-4. Zotero paper PDFs and paper notes live together under `Shared/Zotero/<citekey>/`.
-   Paper workflows read PDFs and write only Markdown notes inside the selected
-   citekey directory.
+4. Zotero owns paper PDFs and other raw attachments outside the vault. Paper
+   workflows read those files as read-only raw artifacts, write Markdown notes
+   under `Domains/research/Spaces/papers/`, and use `zotero://` PDF jump links.
 5. Optional domain source notes live in `Domains/<domain>/Sources/` when a raw
    package is large or needs a stable excerpt.
 6. One expert agent owns and maintains one domain.

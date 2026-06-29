@@ -49,11 +49,28 @@ def seed_domain(wiki: Path, domain: str = "ai-research") -> None:
     (wiki / "Shared" / "Raw").mkdir(parents=True)
 
 
-def seed_valid_paper_note(wiki: Path) -> None:
-    bundle = wiki / "Shared" / "Zotero" / "examplePaper2026"
-    write(bundle / "examplePaper2026 - Example Paper.pdf", "%PDF placeholder\n")
+def seed_research_paper_space(wiki: Path) -> None:
+    domain_root = wiki / "Domains" / "research"
     write(
-        bundle / "examplePaper2026.md",
+        domain_root / "SCHEMA.md",
+        """# Research
+
+## Tag Taxonomy
+- topic: paper
+""",
+    )
+    write(domain_root / "index.md", "# Index\n")
+    write(domain_root / "log.md", "# Log\n")
+    (domain_root / "Atlas").mkdir(parents=True)
+    (domain_root / "Cards").mkdir(parents=True)
+    (domain_root / "Spaces" / "papers").mkdir(parents=True)
+
+
+def seed_valid_paper_note(wiki: Path) -> None:
+    seed_research_paper_space(wiki)
+    papers = wiki / "Domains" / "research" / "Spaces" / "papers"
+    write(
+        papers / "examplePaper2026.md",
         """---
 citekey: examplePaper2026
 title: "Example Paper"
@@ -67,7 +84,7 @@ keywords:
 conference: "ExampleConf 2026"
 link: "https://example.com/paper"
 create_date: "2026/01/01 00:00:00"
-zotero_link: ""
+zotero_link: "zotero://open-pdf/0_EXAMPLE"
 zotero_folder:
   - Papers
 abstract: "Example abstract."
@@ -79,7 +96,7 @@ $itemKey: EXAMPLE
 
 # Example Paper
 
-[[examplePaper2026 - Example Paper.pdf|PDF]]
+[PDF](zotero://open-pdf/0_EXAMPLE)
 
 ## Summary
 
@@ -152,10 +169,12 @@ def test_validate_contract() -> None:
         wiki = Path(tmp) / "wiki"
         seed_domain(wiki)
         seed_valid_paper_note(wiki)
-        result = run("validate", "--wiki", wiki.as_posix(), "--domain", "ai-research", "--json")
+        result = run("validate", "--wiki", wiki.as_posix(), "--all-domains", "--json")
         payload = json.loads(result.stdout)
         assert payload["ok"] is True
-        assert payload["domains"][0]["ok"] is True
+        domains = {item["name"]: item for item in payload["domains"]}
+        assert domains["ai-research"]["ok"] is True
+        assert domains["research"]["ok"] is True
 
 
 def test_shared_validator_module_importable() -> None:
@@ -169,8 +188,9 @@ def test_validate_reports_paper_note_format_errors() -> None:
     with tempfile.TemporaryDirectory(prefix="loreforge-component-") as tmp:
         wiki = Path(tmp) / "wiki"
         seed_domain(wiki)
+        seed_research_paper_space(wiki)
         write(
-            wiki / "Shared" / "Zotero" / "badPaper" / "wrong-name.md",
+            wiki / "Domains" / "research" / "Spaces" / "papers" / "wrong-name.md",
             """---
 citekey: otherPaper
 title: "Bad Paper"
@@ -182,7 +202,7 @@ This body intentionally lacks the paper-note shape.
 """,
         )
 
-        result = run("validate", "--wiki", wiki.as_posix(), "--domain", "ai-research", "--json", check=False)
+        result = run("validate", "--wiki", wiki.as_posix(), "--domain", "research", "--json", check=False)
         assert result.returncode == 1
         payload = json.loads(result.stdout)
         issues = payload["domains"][0]["issues"]
@@ -190,10 +210,315 @@ This body intentionally lacks the paper-note shape.
         assert "paper-note-name-mismatch" in codes
         assert "paper-note-citekey-mismatch" in codes
         assert "missing-paper-field" in codes
-        assert "missing-paper-pdf" in codes
+        assert "missing-zotero-link" in codes
         assert "missing-paper-pdf-link" in codes
         assert "missing-paper-heading" in codes
         assert "missing-paper-section" in codes
+
+
+def test_validate_rejects_malformed_zotero_pdf_links() -> None:
+    with tempfile.TemporaryDirectory(prefix="loreforge-component-") as tmp:
+        wiki = Path(tmp) / "wiki"
+        seed_domain(wiki)
+        seed_research_paper_space(wiki)
+        write(
+            wiki / "Domains" / "research" / "Spaces" / "papers" / "badPdfLink.md",
+            """---
+citekey: badPdfLink
+title: "Bad PDF Link"
+aliases:
+  - Bad PDF Link
+authors: "Ada Lovelace"
+date: "2026"
+category: "Example"
+keywords: []
+conference: "ExampleConf"
+link: "https://example.com/bad"
+create_date: "2026/01/01 00:00:00"
+zotero_link: "zotero://select/library/items/BADPDF"
+zotero_folder: []
+abstract: "Example abstract."
+tags: []
+$version: 1
+$libraryID: 1
+$itemKey: BADPDF
+---
+
+# Bad PDF Link
+
+[[badPdfLink - Bad PDF Link.pdf|PDF]]
+
+zotero://select/library/items/BADPDF
+
+## Summary
+
+### What's the problem?
+
+Invalid link shape.
+
+### How does this paper solved it?
+
+It does not use a Zotero PDF jump.
+
+### What's the improvements?
+
+None.
+
+## Strengths
+
+Focused invalid fixture.
+
+## Weakness
+
+Invalid PDF link.
+
+## Detailed Comments
+
+This body has no `[PDF](zotero://open-pdf/...)` link.
+
+## Ideas for improvement(How Can I do better)
+
+Use a Zotero open-pdf link.
+
+## Lessons learned
+
+Validate the body link shape.
+""",
+        )
+
+        result = run("validate", "--wiki", wiki.as_posix(), "--domain", "research", "--json", check=False)
+        assert result.returncode == 1
+        payload = json.loads(result.stdout)
+        codes = {item["code"] for item in payload["domains"][0]["issues"]}
+        assert "missing-zotero-link" in codes
+        assert "missing-paper-pdf-link" in codes
+
+
+def test_validate_rejects_bare_zotero_pdf_uri_without_markdown_pdf_link() -> None:
+    with tempfile.TemporaryDirectory(prefix="loreforge-component-") as tmp:
+        wiki = Path(tmp) / "wiki"
+        seed_domain(wiki)
+        seed_research_paper_space(wiki)
+        write(
+            wiki / "Domains" / "research" / "Spaces" / "papers" / "barePdfUri.md",
+            """---
+citekey: barePdfUri
+title: "Bare PDF URI"
+aliases:
+  - Bare PDF URI
+authors: "Ada Lovelace"
+date: "2026"
+category: "Example"
+keywords: []
+conference: "ExampleConf"
+link: "https://example.com/bare"
+create_date: "2026/01/01 00:00:00"
+zotero_link: "zotero://open-pdf/0_BAREPDF"
+zotero_folder: []
+abstract: "Example abstract."
+tags: []
+$version: 1
+$libraryID: 1
+$itemKey: BAREPDF
+---
+
+# Bare PDF URI
+
+zotero://open-pdf/0_BAREPDF
+
+## Summary
+
+### What's the problem?
+
+The body has a bare Zotero PDF URI but no Markdown PDF link.
+
+### How does this paper solved it?
+
+It does not.
+
+### What's the improvements?
+
+None.
+
+## Strengths
+
+Focused invalid fixture.
+
+## Weakness
+
+Missing Markdown PDF link.
+
+## Detailed Comments
+
+The frontmatter URI is valid, but the body link contract is not satisfied.
+
+## Ideas for improvement(How Can I do better)
+
+Use `[PDF](zotero://open-pdf/...)`.
+
+## Lessons learned
+
+Validation must require the Markdown PDF link shape.
+""",
+        )
+
+        result = run("validate", "--wiki", wiki.as_posix(), "--domain", "research", "--json", check=False)
+        assert result.returncode == 1
+        payload = json.loads(result.stdout)
+        codes = {item["code"] for item in payload["domains"][0]["issues"]}
+        assert "missing-zotero-link" not in codes
+        assert "missing-paper-pdf-link" in codes
+
+
+def test_validate_rejects_mismatched_zotero_pdf_link_target() -> None:
+    with tempfile.TemporaryDirectory(prefix="loreforge-component-") as tmp:
+        wiki = Path(tmp) / "wiki"
+        seed_domain(wiki)
+        seed_research_paper_space(wiki)
+        write(
+            wiki / "Domains" / "research" / "Spaces" / "papers" / "mismatchedPdfUri.md",
+            """---
+citekey: mismatchedPdfUri
+title: "Mismatched PDF URI"
+aliases:
+  - Mismatched PDF URI
+authors: "Ada Lovelace"
+date: "2026"
+category: "Example"
+keywords: []
+conference: "ExampleConf"
+link: "https://example.com/mismatch"
+create_date: "2026/01/01 00:00:00"
+zotero_link: "zotero://open-pdf/0_EXPECTED"
+zotero_folder: []
+abstract: "Example abstract."
+tags: []
+$version: 1
+$libraryID: 1
+$itemKey: MISMATCH
+---
+
+# Mismatched PDF URI
+
+[PDF](zotero://open-pdf/0_OTHER)
+
+## Summary
+
+### What's the problem?
+
+The body opens a different Zotero attachment than frontmatter.
+
+### How does this paper solved it?
+
+It does not.
+
+### What's the improvements?
+
+None.
+
+## Strengths
+
+Focused invalid fixture.
+
+## Weakness
+
+Mismatched PDF target.
+
+## Detailed Comments
+
+The body PDF link must equal `zotero_link`.
+
+## Ideas for improvement(How Can I do better)
+
+Use the same open-pdf URI in frontmatter and body.
+
+## Lessons learned
+
+Validation must compare the two URI values.
+""",
+        )
+
+        result = run("validate", "--wiki", wiki.as_posix(), "--domain", "research", "--json", check=False)
+        assert result.returncode == 1
+        payload = json.loads(result.stdout)
+        codes = {item["code"] for item in payload["domains"][0]["issues"]}
+        assert "missing-zotero-link" not in codes
+        assert "missing-paper-pdf-link" in codes
+
+
+def test_validate_rejects_nested_paper_notes() -> None:
+    with tempfile.TemporaryDirectory(prefix="loreforge-component-") as tmp:
+        wiki = Path(tmp) / "wiki"
+        seed_domain(wiki)
+        seed_research_paper_space(wiki)
+        write(
+            wiki / "Domains" / "research" / "Spaces" / "papers" / "nestedPaper" / "nestedPaper.md",
+            """---
+citekey: nestedPaper
+title: "Nested Paper"
+aliases:
+  - Nested Paper
+authors: "Ada Lovelace"
+date: "2026"
+category: "Example"
+keywords: []
+conference: "ExampleConf"
+link: "https://example.com/nested"
+create_date: "2026/01/01 00:00:00"
+zotero_link: "zotero://open-pdf/0_NESTED"
+zotero_folder: []
+abstract: "Example abstract."
+tags: []
+$version: 1
+$libraryID: 1
+$itemKey: NESTED
+---
+
+# Nested Paper
+
+[PDF](zotero://open-pdf/0_NESTED)
+
+## Summary
+
+### What's the problem?
+
+Nested location.
+
+### How does this paper solved it?
+
+It is nested.
+
+### What's the improvements?
+
+None.
+
+## Strengths
+
+Focused invalid fixture.
+
+## Weakness
+
+Nested location.
+
+## Detailed Comments
+
+Nested notes are not allowed.
+
+## Ideas for improvement(How Can I do better)
+
+Move it to the flat papers directory.
+
+## Lessons learned
+
+Paper notes should be flat files.
+""",
+        )
+
+        result = run("validate", "--wiki", wiki.as_posix(), "--domain", "research", "--json", check=False)
+        assert result.returncode == 1
+        payload = json.loads(result.stdout)
+        codes = {item["code"] for item in payload["domains"][0]["issues"]}
+        assert "paper-note-location" in codes
 
 
 def test_validate_ignores_legacy_directory() -> None:
@@ -435,6 +760,10 @@ if __name__ == "__main__":
     test_validate_contract()
     test_shared_validator_module_importable()
     test_validate_reports_paper_note_format_errors()
+    test_validate_rejects_malformed_zotero_pdf_links()
+    test_validate_rejects_bare_zotero_pdf_uri_without_markdown_pdf_link()
+    test_validate_rejects_mismatched_zotero_pdf_link_target()
+    test_validate_rejects_nested_paper_notes()
     test_validate_ignores_legacy_directory()
     test_validate_rejects_title_only_card_aliases()
     test_validate_rejects_redundant_card_aliases()
