@@ -202,13 +202,15 @@ def test_paper_skill_uses_read_only_paper_bundles():
     assert "Shared/Zotero/<citekey>/" in content
     assert "Shared/Papers" not in content
     assert "AlphaCuTransformationDrivenSynthesis2017" in content
+    assert "paper note template" in content
+    assert "### How does this paper solved it?" in content
     assert "If no matching paper bundle exists, stop" in content
     assert "Do not create paper directories" in content
     assert "Treat all PDF files in the selected paper directory as raw artifacts" in collapsed
     assert "read-only" in content
     assert "write only paper notes under `Shared/Zotero/<citekey>/`" in content
     assert "Creating `<citekey>.md` is allowed" in content
-    assert "Do not use `Shared/Raw/` for paper PDFs or paper notes" in content
+    assert "Do not use `Shared/Raw/` for paper PDFs, paper notes, paper manifests" in content
     assert "Writable paths: Markdown note files under Shared/Zotero/<citekey>/ only" in content
     assert "Paper raw package: Shared/Raw/<source-id>/" not in content
     assert "Save `original/<paper>.pdf` only when" not in content
@@ -233,7 +235,8 @@ def test_entrypoint_preserves_paper_bundle_boundary():
     assert "`loreforge-capture`" in content
     assert "For ordinary paper ingest, stop after the paper-note update" in content
     assert "Only continue to Cards, Atlas, Sources, Spaces, or cross-domain synthesis" in collapsed
-    assert "do not create `Shared/Raw/` paper packages" in content
+    assert "do not create or update `Shared/Raw/` paper packages" in content
+    assert "or paper manifests" in content
 
 
 if __name__ == "__main__":

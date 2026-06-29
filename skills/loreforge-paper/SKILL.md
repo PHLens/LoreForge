@@ -135,6 +135,9 @@ domain `Sources/` note just to satisfy LoreForge provenance bookkeeping.
 The only wiki writes allowed by this workflow are Markdown note files inside
 the selected `Shared/Zotero/<citekey>/` directory. Notes should preserve Zotero
 or importer frontmatter and then hold the durable paper analysis in the body.
+Use the paper note template: Zotero metadata frontmatter followed by a
+`Summary` section with problem, method, and improvement subsections, then
+strengths, weakness, detailed comments, improvement ideas, and lessons learned.
 When creating the first note, use `<citekey>.md` so the bundle is easy to scan
 and link.
 
@@ -149,7 +152,53 @@ pasted text, logs, and other source packages.
 
 ## Paper Page Shape
 
-A paper note should answer:
+Use this paper note frontmatter and body shape:
+
+```markdown
+---
+citekey: <citekey>
+title: '<paper title>'
+aliases: <short alias or list>
+authors: <author list>
+date: '<publication date>'
+category: <research category>
+keywords: []
+conference: <venue>
+link: <DOI/arXiv/landing page>
+create_date: <Zotero note creation date>
+zotero_link: <zotero://...>
+zotero_folder: []
+abstract: <paper abstract>
+tags: []
+$version: <Zotero note version>
+$libraryID: <Zotero library id>
+$itemKey: <Zotero item key>
+---
+
+# <paper title>
+
+[[<citekey> - <paper title>.pdf|PDF]]
+
+## Summary
+
+### What's the problem?
+
+### How does this paper solved it?
+
+### What's the improvements?
+
+## Strengths
+
+## Weakness
+
+## Detailed Comments
+
+## Ideas for improvement(How Can I do better)
+
+## Lessons learned
+```
+
+The sections should answer:
 
 - What problem does the paper solve?
 - What is the core mechanism or method?
@@ -204,7 +253,9 @@ Request: Compile this paper using loreforge-paper rules.
 
 Do not create, move, rename, delete, copy, overwrite, OCR-in-place, or otherwise modify directories or PDFs.
 Do not write Shared/Raw/, manifest.md, origin.md, extracted files, paper registries, domain pages, index.md, or log.md.
-Read the existing paper note and PDF. Use AlphaCuTransformationDrivenSynthesis2017 as the bundle-shape example when needed.
+Read the existing paper note and PDF. Use AlphaCuTransformationDrivenSynthesis2017
+as the bundle-shape example when needed, and use the paper note template for
+the body shape.
 Write the paper note as durable paper knowledge, not editor narration.
 Preserve existing citekey/Zotero frontmatter and only fill missing metadata from local paper evidence.
 Use natural `[[wiki|alias]]` links for related concepts and similar paper/problem cases.
