@@ -11,7 +11,7 @@ LoreForge owns:
 - `~/.config/loreforge/registry.toml`
 - LoreForge wiki roots listed in that registry
 - `Calendar/`, `Shared/`, and `Domains/` inside a wiki root
-- domain validation through `skills/loreforge-domain/scripts/validate_native_domain.py`
+- domain validation through the shared Python `loreforge_validator` module
 - sync helpers such as `skills/loreforge-domain/scripts/sync_rclone.sh`
 
 Noesis or another orchestrator may own its own control-plane manifest, but
@@ -30,7 +30,7 @@ Operations:
 
 - `status`: report registry availability, selected wiki, sync backend, and
   discovered domains.
-- `validate`: run the existing native-domain validator for one domain or all
+- `validate`: run the shared validator for one domain or all
   domains.
 - `init`: return an init plan and registry entry shape. This operation is
   intentionally proposal-only; it does not write files.
@@ -48,9 +48,10 @@ loreforge init --wiki /path/to/wiki --domain ai-research --sync rclone --remote 
 loreforge setup --wiki /path/to/wiki --domain ai-research --sync local --json
 ```
 
-The CLI is the external contract. Its current implementation delegates to the
-Python component adapter under `skills/loreforge-domain/scripts/`; callers should
-not depend on that internal path.
+The CLI is the external contract. Its current implementation delegates through a
+Python component adapter under `skills/loreforge-domain/scripts/`, which imports
+the shared `loreforge_validator` module; callers should not depend on either
+internal path.
 
 ## JSON Shape
 

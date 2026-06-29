@@ -146,8 +146,9 @@ existing bundle. If the PDF is absent, the citekey is ambiguous, or the source
 is only a URL/DOI/arXiv link without a local bundle, stop and ask for the
 bundle to be added first.
 
-Do not use `Shared/Raw/` for paper PDFs, paper notes, paper manifests, or
-paper lifecycle metadata. `Shared/Raw/` remains for non-paper clips, web pages,
+Do not use `Shared/Raw/` for paper PDFs or paper notes. Do not use
+`Shared/Raw/` for paper manifests or paper lifecycle metadata. `Shared/Raw/`
+remains for non-paper clips, web pages,
 pasted text, logs, and other source packages.
 
 ## Paper Page Shape

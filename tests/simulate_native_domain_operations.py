@@ -15,9 +15,9 @@ import tempfile
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(REPO_ROOT / "skills" / "loreforge-domain" / "scripts"))
+sys.path.insert(0, str(REPO_ROOT / "lib"))
 
-from validate_native_domain import validate_domain
+from loreforge_validator import validate_domain
 
 
 TODAY = "2026-04-29"

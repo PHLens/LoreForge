@@ -9,7 +9,8 @@ version: 0.2.0
 
 Run a findings-first check on a LoreForge wiki or domain. This workflow
 verifies raw package integrity, domain structure, links, provenance, and review
-signals. It may use the validator bundled with `loreforge-domain`.
+signals. It may use the shared Python `loreforge_validator` module through the
+CLI or compatibility wrapper.
 
 Always:
 
@@ -44,6 +45,13 @@ Always:
 
 3. **Native domain contract**
    - Prefer:
+
+     ```bash
+     PYTHONPATH=lib python3 -m loreforge_validator <domain-path>
+     PYTHONPATH=lib python3 -m loreforge_validator --fix <domain-path>
+     ```
+
+   - The compatibility wrapper remains valid for older workflows:
 
      ```bash
      python3 skills/loreforge-domain/scripts/validate_native_domain.py <domain-path>

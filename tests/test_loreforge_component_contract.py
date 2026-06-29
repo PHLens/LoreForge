@@ -12,6 +12,9 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 SCRIPT = REPO_ROOT / "skills" / "loreforge-domain" / "scripts" / "loreforge_component.py"
+sys.path.insert(0, str(REPO_ROOT / "lib"))
+
+from loreforge_validator import Issue, validate_domain
 
 
 def run(*args: str, check: bool = True) -> subprocess.CompletedProcess[str]:
@@ -155,6 +158,13 @@ def test_validate_contract() -> None:
         assert payload["domains"][0]["ok"] is True
 
 
+def test_shared_validator_module_importable() -> None:
+    domain = REPO_ROOT / "tests" / "fixtures" / "native-domain" / "valid" / "wiki" / "Domains" / "ai-research"
+    issues = validate_domain(domain)
+    assert issues == []
+    assert Issue("code", "path", "message").line() == "code: path: message"
+
+
 def test_validate_reports_paper_note_format_errors() -> None:
     with tempfile.TemporaryDirectory(prefix="loreforge-component-") as tmp:
         wiki = Path(tmp) / "wiki"
@@ -277,6 +287,7 @@ def test_cli_setup_writes_bootstrap_files() -> None:
 if __name__ == "__main__":
     test_status_contract()
     test_validate_contract()
+    test_shared_validator_module_importable()
     test_validate_reports_paper_note_format_errors()
     test_validate_ignores_legacy_directory()
     test_init_is_read_only_plan()
