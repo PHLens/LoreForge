@@ -46,6 +46,75 @@ def seed_domain(wiki: Path, domain: str = "ai-research") -> None:
     (wiki / "Shared" / "Raw").mkdir(parents=True)
 
 
+def seed_valid_paper_note(wiki: Path) -> None:
+    bundle = wiki / "Shared" / "Zotero" / "examplePaper2026"
+    write(bundle / "examplePaper2026 - Example Paper.pdf", "%PDF placeholder\n")
+    write(
+        bundle / "examplePaper2026.md",
+        """---
+citekey: examplePaper2026
+title: "Example Paper"
+aliases:
+  - Example Paper
+authors: "Ada Lovelace"
+date: "2026"
+category: "Example"
+keywords:
+  - example
+conference: "ExampleConf 2026"
+link: "https://example.com/paper"
+create_date: "2026/01/01 00:00:00"
+zotero_link: ""
+zotero_folder:
+  - Papers
+abstract: "Example abstract."
+tags: []
+$version: 1
+$libraryID: 1
+$itemKey: EXAMPLE
+---
+
+# Example Paper
+
+[[examplePaper2026 - Example Paper.pdf|PDF]]
+
+## Summary
+
+### What's the problem?
+
+Example problem.
+
+### How does this paper solved it?
+
+Example mechanism.
+
+### What's the improvements?
+
+Example improvement.
+
+## Strengths
+
+Example strengths.
+
+## Weakness
+
+Example weakness.
+
+## Detailed Comments
+
+Example details.
+
+## Ideas for improvement(How Can I do better)
+
+Example improvement ideas.
+
+## Lessons learned
+
+Example lessons.
+""",
+    )
+
+
 def test_status_contract() -> None:
     with tempfile.TemporaryDirectory(prefix="loreforge-component-") as tmp:
         root = Path(tmp)
@@ -79,10 +148,72 @@ def test_validate_contract() -> None:
     with tempfile.TemporaryDirectory(prefix="loreforge-component-") as tmp:
         wiki = Path(tmp) / "wiki"
         seed_domain(wiki)
+        seed_valid_paper_note(wiki)
         result = run("validate", "--wiki", wiki.as_posix(), "--domain", "ai-research", "--json")
         payload = json.loads(result.stdout)
         assert payload["ok"] is True
         assert payload["domains"][0]["ok"] is True
+
+
+def test_validate_reports_paper_note_format_errors() -> None:
+    with tempfile.TemporaryDirectory(prefix="loreforge-component-") as tmp:
+        wiki = Path(tmp) / "wiki"
+        seed_domain(wiki)
+        write(
+            wiki / "Shared" / "Zotero" / "badPaper" / "wrong-name.md",
+            """---
+citekey: otherPaper
+title: "Bad Paper"
+aliases: []
+tags: []
+---
+
+This body intentionally lacks the paper-note shape.
+""",
+        )
+
+        result = run("validate", "--wiki", wiki.as_posix(), "--domain", "ai-research", "--json", check=False)
+        assert result.returncode == 1
+        payload = json.loads(result.stdout)
+        issues = payload["domains"][0]["issues"]
+        codes = {item["code"] for item in issues}
+        assert "paper-note-name-mismatch" in codes
+        assert "paper-note-citekey-mismatch" in codes
+        assert "missing-paper-field" in codes
+        assert "missing-paper-pdf" in codes
+        assert "missing-paper-pdf-link" in codes
+        assert "missing-paper-heading" in codes
+        assert "missing-paper-section" in codes
+
+
+def test_validate_ignores_legacy_directory() -> None:
+    with tempfile.TemporaryDirectory(prefix="loreforge-component-") as tmp:
+        wiki = Path(tmp) / "wiki"
+        seed_domain(wiki)
+        write(wiki / "90-Legacy" / "bad-note.md", "# Missing frontmatter in ignored legacy note\n")
+        write(wiki / "Domains" / "ai-research" / "index.md", "# Index\n- [[legacy-pointer]]\n")
+        write(
+            wiki / "Domains" / "ai-research" / "Cards" / "legacy-pointer.md",
+            """---
+title: Legacy Pointer
+created: 2026-01-01
+updated: 2026-01-01
+type: concept
+aliases:
+  - Legacy pointer
+tags: [agent]
+status: active
+---
+
+# Legacy Pointer
+
+Legacy imports can be named without making the legacy vault part of validation: [[90-Legacy/missing-page]].
+""",
+        )
+
+        result = run("validate", "--wiki", wiki.as_posix(), "--domain", "ai-research", "--json")
+        payload = json.loads(result.stdout)
+        assert payload["ok"] is True
 
 
 def test_init_is_read_only_plan() -> None:
@@ -146,6 +277,8 @@ def test_cli_setup_writes_bootstrap_files() -> None:
 if __name__ == "__main__":
     test_status_contract()
     test_validate_contract()
+    test_validate_reports_paper_note_format_errors()
+    test_validate_ignores_legacy_directory()
     test_init_is_read_only_plan()
     test_cli_setup_writes_bootstrap_files()
     print("LoreForge component contract tests passed.")

@@ -58,6 +58,48 @@ RAW_REQUIRED_FRONTMATTER = [
     "compiled_pages",
 ]
 RAW_STATUS_VALUES = {"captured", "compiled", "stale", "blocked"}
+LEGACY_TOP_LEVEL_DIRS = {"90-Legacy"}
+
+PAPER_NOTE_REQUIRED_FRONTMATTER = [
+    "citekey",
+    "title",
+    "aliases",
+    "authors",
+    "date",
+    "category",
+    "keywords",
+    "conference",
+    "link",
+    "create_date",
+    "zotero_link",
+    "zotero_folder",
+    "abstract",
+    "tags",
+    "$version",
+    "$libraryID",
+    "$itemKey",
+]
+PAPER_NOTE_REQUIRED_SECTION_GROUPS = [
+    ("Summary", ("## Summary",)),
+    ("What's the problem?", ("### What's the problem?",)),
+    (
+        "How does this paper solved it?",
+        ("### How does this paper solved it?", "### How does this paper sovled it?"),
+    ),
+    ("What's the improvements?", ("### What's the improvements?",)),
+    ("Strengths", ("## Strengths",)),
+    ("Weakness", ("## Weakness", "## Weaknesses")),
+    ("Detailed Comments", ("## Detailed Comments",)),
+    (
+        "Ideas for improvement",
+        (
+            "## Ideas for improvement(How Can I do better)",
+            "## Ideas for improvement (How Can I do better)",
+            "## Ideas for improvement",
+        ),
+    ),
+    ("Lessons learned", ("## Lessons learned",)),
+]
 
 FOOTNOTE_REF_RE = re.compile(r"(?<!\^)\[\^([^\]]+)\](?!:)")
 FOOTNOTE_DEF_RE = re.compile(r"^\[\^([^\]]+)\]:\s*(.*)$")
@@ -271,6 +313,9 @@ def is_cross_domain_link(target: str) -> bool:
 
 
 def wikilink_target_exists(target: str, domain: Path, wiki: Path | None, known_stems: set[str]) -> bool:
+    if is_legacy_wiki_path(target):
+        return True
+
     if "/" not in target:
         return target in known_stems
 
@@ -325,6 +370,29 @@ def is_wiki_local_path(value: str) -> bool:
     if "\\tmp\\" in value or "/tmp/" in value or value.startswith("tmp/"):
         return False
     return True
+
+
+def is_legacy_wiki_path(value: str) -> bool:
+    normalized = value.lstrip("/")
+    return normalized.split("/", 1)[0] in LEGACY_TOP_LEVEL_DIRS
+
+
+def clean_scalar(value: str) -> str:
+    return value.strip().strip("\"'")
+
+
+def heading_exists(text: str, heading: str) -> bool:
+    return re.search(rf"^{re.escape(heading)}\s*$", text, flags=re.MULTILINE) is not None
+
+
+def paper_pdf_link_exists(note: Path, wiki: Path, links: list[str]) -> bool:
+    for target in links:
+        if not target.lower().endswith(".pdf"):
+            continue
+        candidate = wiki / target if "/" in target else note.parent / target
+        if candidate.exists():
+            return True
+    return False
 
 
 def validate_raw_packages(wiki: Path) -> list[Issue]:
@@ -431,6 +499,75 @@ def validate_raw_packages(wiki: Path) -> list[Issue]:
                     issues.append(Issue("missing-raw-artifact", manifest_rel, f"`{value}` does not exist"))
                 if field == "compiled_pages" and value and not target.exists():
                     issues.append(Issue("missing-compiled-page", manifest_rel, f"`{value}` does not exist"))
+
+    return sorted(issues, key=lambda issue: (issue.code, issue.path, issue.message))
+
+
+def validate_zotero_paper_notes(wiki: Path) -> list[Issue]:
+    wiki = wiki.resolve()
+    issues: list[Issue] = []
+    zotero_root = wiki / "Shared" / "Zotero"
+    if not zotero_root.exists():
+        return issues
+
+    for note in sorted(zotero_root.rglob("*.md")):
+        note_rel = rel(note, wiki)
+        parts = note.relative_to(zotero_root).parts
+        if not parts or parts[0] in LEGACY_TOP_LEVEL_DIRS:
+            continue
+        if len(parts) != 2:
+            continue
+
+        citekey = parts[0]
+        if note.name != f"{citekey}.md":
+            issues.append(
+                Issue(
+                    "paper-note-name-mismatch",
+                    note_rel,
+                    f"paper note filename should be `{citekey}.md` inside Shared/Zotero/{citekey}/",
+                )
+            )
+
+        text = note.read_text()
+        fields = frontmatter(text)
+        if fields is None:
+            issues.append(Issue("missing-paper-frontmatter", note_rel, "paper note lacks YAML frontmatter"))
+            continue
+
+        for field in PAPER_NOTE_REQUIRED_FRONTMATTER:
+            if field not in fields:
+                issues.append(Issue("missing-paper-field", note_rel, f"missing `{field}`"))
+
+        frontmatter_citekey = fields.get("citekey")
+        if frontmatter_citekey and clean_scalar(frontmatter_citekey) != citekey:
+            issues.append(
+                Issue(
+                    "paper-note-citekey-mismatch",
+                    note_rel,
+                    f"`citekey` should match bundle folder `{citekey}`",
+                )
+            )
+
+        pdfs = sorted(path for path in note.parent.iterdir() if path.is_file() and path.suffix.lower() == ".pdf")
+        if not pdfs:
+            issues.append(Issue("missing-paper-pdf", rel(note.parent, wiki), "paper bundle has a note but no PDF"))
+
+        if not paper_pdf_link_exists(note, wiki, wikilinks(text)):
+            issues.append(Issue("missing-paper-pdf-link", note_rel, "paper note should link to an existing PDF in its bundle"))
+
+        if not re.search(r"^# .+", text, flags=re.MULTILINE):
+            issues.append(Issue("missing-paper-heading", note_rel, "paper note should have a top-level `#` title"))
+
+        for label, headings in PAPER_NOTE_REQUIRED_SECTION_GROUPS:
+            if not any(heading_exists(text, heading) for heading in headings):
+                accepted = "`, `".join(headings)
+                issues.append(
+                    Issue(
+                        "missing-paper-section",
+                        note_rel,
+                        f"missing `{label}` section; accepted headings: `{accepted}`",
+                    )
+                )
 
     return sorted(issues, key=lambda issue: (issue.code, issue.path, issue.message))
 
@@ -577,6 +714,7 @@ def validate_domain(domain: Path) -> list[Issue]:
 
     if wiki is not None:
         issues.extend(validate_raw_packages(wiki))
+        issues.extend(validate_zotero_paper_notes(wiki))
 
     return sorted(issues, key=lambda issue: (issue.code, issue.path, issue.message))
 
@@ -642,6 +780,11 @@ def main(argv: list[str]) -> int:
     invalid = root / "invalid" / "wiki" / "Domains" / "ai-research"
     invalid_expected = {
         "invalid-raw-status",
+        "missing-paper-field",
+        "missing-paper-heading",
+        "missing-paper-pdf",
+        "missing-paper-pdf-link",
+        "missing-paper-section",
         "broken-wikilink",
         "cross-domain-link",
         "missing-compiled-page",
@@ -654,6 +797,8 @@ def main(argv: list[str]) -> int:
         "missing-index-entry",
         "log-order",
         "orphan-footnote-definition",
+        "paper-note-citekey-mismatch",
+        "paper-note-name-mismatch",
         "raw-content-hash-mismatch",
         "raw-source-id-mismatch",
         "unexpected-raw-file",

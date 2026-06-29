@@ -15,6 +15,7 @@ Always:
 
 - resolve wiki/domain with `loreforge-config`
 - inspect raw package integrity before domain provenance checks
+- skip `90-Legacy/` and other legacy imports as validation targets
 - keep findings concrete with file paths
 - separate blocking integrity issues from style or maintenance issues
 
@@ -27,7 +28,21 @@ Always:
    - Verify `content_hash` when present.
    - Verify local artifact pointers and `compiled_pages`.
 
-2. **Native domain contract**
+2. **Zotero paper note format**
+   - Validate existing notes at `Shared/Zotero/<citekey>/<citekey>.md`.
+   - Require Zotero paper-note frontmatter fields: `citekey`, `title`,
+     `aliases`, `authors`, `date`, `category`, `keywords`, `conference`,
+     `link`, `create_date`, `zotero_link`, `zotero_folder`, `abstract`,
+     `tags`, `$version`, `$libraryID`, and `$itemKey`.
+   - Require a same-bundle PDF link and the paper reading template:
+     `Summary` with `What's the problem?`, `How does this paper solved it?`,
+     and `What's the improvements?`, followed by `Strengths`,
+     `Weakness`, `Detailed Comments`, `Ideas for improvement(How Can I do
+     better)`, and `Lessons learned`.
+   - Do not require every Zotero PDF bundle to have a note; only validate
+     Markdown notes that already exist.
+
+3. **Native domain contract**
    - Prefer:
 
      ```bash
@@ -38,13 +53,15 @@ Always:
    - `--fix` may remove orphan footnote definitions. Missing definitions still
      require manual repair.
 
-3. **Links and provenance**
+4. **Links and provenance**
    - Broken `[[wikilinks]]`
    - Footnote markers without definitions
    - Footnote definitions without markers
    - Provenance pointing to non-existent raw manifests or domain source notes
+   - Path-qualified links into `90-Legacy/` are ignored by validation because
+     legacy imports are not active LoreForge pages.
 
-4. **Domain quality**
+5. **Domain quality**
    - Missing or stale index entries
    - Orphan pages with no inbound links
    - Pages over 200 lines
@@ -52,7 +69,7 @@ Always:
    - Pages with more than 3 tags
    - `confidence: low`, `contested: true`, or contradiction markers
 
-5. **Log maintenance**
+6. **Log maintenance**
    - Newest-first order
    - More than 500 entries should trigger log rotation guidance
 
