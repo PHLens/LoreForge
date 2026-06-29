@@ -291,6 +291,87 @@ This card has one useful alias and one alias that only repeats its title.
         assert any("Alias Card" in item["message"] for item in issues)
 
 
+def test_validate_accepts_path_qualified_index_links() -> None:
+    with tempfile.TemporaryDirectory(prefix="loreforge-component-") as tmp:
+        wiki = Path(tmp) / "wiki"
+        seed_domain(wiki)
+        write(wiki / "Domains" / "ai-research" / "index.md", "# Index\n- [[Cards/path-card|Path Card]]\n")
+        write(
+            wiki / "Domains" / "ai-research" / "Cards" / "path-card.md",
+            """---
+title: Path Card
+created: 2026-01-01
+updated: 2026-01-01
+type: concept
+aliases:
+  - Path-qualified card
+tags: [agent]
+status: active
+---
+
+# Path Card
+
+Index entries may use domain-relative paths when a merged domain needs stable link identity.
+""",
+        )
+
+        result = run("validate", "--wiki", wiki.as_posix(), "--domain", "ai-research", "--json")
+        payload = json.loads(result.stdout)
+        assert payload["ok"] is True
+
+
+def test_validate_rejects_ambiguous_bare_wikilinks_for_duplicate_stems() -> None:
+    with tempfile.TemporaryDirectory(prefix="loreforge-component-") as tmp:
+        wiki = Path(tmp) / "wiki"
+        seed_domain(wiki)
+        write(
+            wiki / "Domains" / "ai-research" / "index.md",
+            "# Index\n"
+            "- [[Spaces/projects/a/research-plan|A research plan]]\n"
+            "- [[Spaces/projects/b/research-plan|B research plan]]\n"
+            "- [[Cards/planning-card]]\n",
+        )
+        for project in ("a", "b"):
+            write(
+                wiki / "Domains" / "ai-research" / "Spaces" / "projects" / project / "research-plan.md",
+                f"""---
+title: Project {project.upper()} Research Plan
+created: 2026-01-01
+updated: 2026-01-01
+type: space
+tags: [project]
+status: active
+---
+
+# Project {project.upper()} Research Plan
+""",
+            )
+        write(
+            wiki / "Domains" / "ai-research" / "Cards" / "planning-card.md",
+            """---
+title: Planning Card
+created: 2026-01-01
+updated: 2026-01-01
+type: concept
+aliases:
+  - Research planning
+tags: [agent]
+status: active
+---
+
+# Planning Card
+
+The bare link [[research-plan]] is ambiguous after domains are merged.
+""",
+        )
+
+        result = run("validate", "--wiki", wiki.as_posix(), "--domain", "ai-research", "--json", check=False)
+        assert result.returncode == 1
+        payload = json.loads(result.stdout)
+        codes = {item["code"] for item in payload["domains"][0]["issues"]}
+        assert "ambiguous-wikilink" in codes
+
+
 def test_init_is_read_only_plan() -> None:
     with tempfile.TemporaryDirectory(prefix="loreforge-component-") as tmp:
         wiki = Path(tmp) / "planned-wiki"
@@ -357,6 +438,8 @@ if __name__ == "__main__":
     test_validate_ignores_legacy_directory()
     test_validate_rejects_title_only_card_aliases()
     test_validate_rejects_redundant_card_aliases()
+    test_validate_accepts_path_qualified_index_links()
+    test_validate_rejects_ambiguous_bare_wikilinks_for_duplicate_stems()
     test_init_is_read_only_plan()
     test_cli_setup_writes_bootstrap_files()
     print("LoreForge component contract tests passed.")

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import re
 import unicodedata
+from collections import Counter
 from pathlib import Path
 
 from .markdown import (
@@ -107,6 +108,21 @@ def wikilink_target_exists(target: str, domain: Path, wiki: Path | None, known_s
     return any(candidate.exists() for candidate in candidates)
 
 
+def page_link_targets(page: Path, domain: Path, wiki: Path | None) -> set[str]:
+    domain_rel = rel(page, domain)
+    domain_rel_no_suffix = domain_rel.removesuffix(".md")
+    targets = {page.stem, domain_rel, domain_rel_no_suffix}
+    if wiki is not None:
+        wiki_rel = rel(page, wiki)
+        targets.update({wiki_rel, wiki_rel.removesuffix(".md")})
+    return {target for target in targets if target}
+
+
+def has_page_link(text: str, page: Path, domain: Path, wiki: Path | None) -> bool:
+    targets = set(wikilinks(text))
+    return bool(targets & page_link_targets(page, domain, wiki))
+
+
 def active_pages(domain: Path) -> list[Path]:
     pages: list[Path] = []
     for dirname in PAGE_DIRS:
@@ -169,6 +185,7 @@ def validate_domain(domain: Path) -> list[Issue]:
     pages = active_pages(domain)
     archived = archived_pages(domain)
     known_stems = {page.stem for page in pages}
+    duplicate_stems = {stem for stem, count in Counter(page.stem for page in pages).items() if count > 1}
 
     for page in pages:
         page_rel = rel(page, domain)
@@ -251,14 +268,22 @@ def validate_domain(domain: Path) -> list[Issue]:
             issues.append(Issue("orphan-footnote-definition", page_rel, f"`[^{label}]` definition has no body references"))
 
         if should_index(page, domain, fields):
-            if f"[[{page.stem}]]" not in index_text:
+            if not has_page_link(index_text, page, domain, wiki):
                 issues.append(Issue("missing-index-entry", page_rel, "indexable page is absent from index.md"))
-        elif f"[[{page.stem}]]" in index_text:
+        elif has_page_link(index_text, page, domain, wiki):
             issues.append(Issue("unexpected-index-entry", page_rel, "non-indexable Space appears in index.md"))
 
         for target in wikilinks(text):
             if is_cross_domain_link(target):
                 issues.append(Issue("cross-domain-link", page_rel, f"`[[{target}]]` uses an unsafe path"))
+            elif "/" not in target and target in duplicate_stems:
+                issues.append(
+                    Issue(
+                        "ambiguous-wikilink",
+                        page_rel,
+                        f"`[[{target}]]` matches multiple active pages; use a path-qualified link",
+                    )
+                )
             elif not wikilink_target_exists(target, domain, wiki, known_stems):
                 issues.append(
                     Issue("broken-wikilink", page_rel, f"`[[{target}]]` has no active page")
@@ -280,6 +305,14 @@ def validate_domain(domain: Path) -> list[Issue]:
         for target in wikilinks(index_text):
             if is_cross_domain_link(target):
                 issues.append(Issue("cross-domain-link", "index.md", f"`[[{target}]]` uses an unsafe path"))
+            elif "/" not in target and target in duplicate_stems:
+                issues.append(
+                    Issue(
+                        "ambiguous-wikilink",
+                        "index.md",
+                        f"`[[{target}]]` matches multiple active pages; use a path-qualified link",
+                    )
+                )
             elif not wikilink_target_exists(target, domain, wiki, known_stems):
                 issues.append(Issue("broken-wikilink", "index.md", f"`[[{target}]]` has no active page"))
 
