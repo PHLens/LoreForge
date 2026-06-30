@@ -57,15 +57,15 @@ When working in the current LoreForge wiki, use these defaults unless the user
 or config says otherwise:
 
 - daily folder: `Calendar/dailynotes`
-- daily template: `Shared/Templates/diary`
+- daily template: `Extras/Templates/diary`
 - weekly folder: `Calendar/weeklynotes`
 - weekly naming format: `gggg-[W]ww`, such as `2026-W21`
-- weekly template path: `Shared/Templates/weekly`
+- weekly template path: `Extras/Templates/weekly`
 
 If weekly folders or templates are missing and the user asked you to implement
 the skill's note support, run the LoreForge wiki initialization/repair flow so
 the wiki instance owns `Calendar/weeklynotes/` and
-`Shared/Templates/weekly.md`. Preserve an existing wiki template unless the
+`Extras/Templates/weekly.md`. Preserve an existing wiki template unless the
 user explicitly asks to rewrite it. Do not keep note templates bundled inside
 this skill. If the user only asked for a plan draft, output the Markdown blocks
 without editing files.
@@ -80,7 +80,7 @@ Before editing notes:
 - Insert under the matching heading; create the heading only if missing.
 - Avoid rewriting unrelated sections.
 - For daily notes, use `## TODO` for executable tasks and `## Memos` for context.
-- For weekly notes, adapt to the wiki-owned `Shared/Templates/weekly.md`
+- For weekly notes, adapt to the wiki-owned `Extras/Templates/weekly.md`
   headings. If a section is missing, prefer adding a small `This Week`,
   `Daily Notes`, or `Review` section over rewriting the template.
 - Treat daily-note links as navigation. Put concrete day-level actions in the

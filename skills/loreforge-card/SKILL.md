@@ -1,13 +1,13 @@
 ---
 name: loreforge-card
-description: Internal LoreForge leaf workflow for creating or updating reusable Card pages under Domains/<domain>/Cards with a strict page-type decision, narrow Card structure, provenance rules, and post-write acceptance gate.
+description: Internal LoreForge leaf workflow for creating or updating reusable Card pages under Cards/<domain>/ with a strict page-type decision, narrow Card structure, provenance rules, and post-write acceptance gate.
 user-invocable: false
 version: 0.1.0
 ---
 
 # LoreForge Card
 
-Use this workflow only for `Domains/<domain>/Cards/` pages. It is a leaf
+Use this workflow only for `Cards/<domain>/` pages. It is a leaf
 authoring workflow, not a router. The `loreforge` entrypoint chooses this
 workflow after resolving wiki, domain, write permission, and sync. If called
 directly, assume those values are already resolved.
@@ -39,12 +39,14 @@ question.
 
 Read before writing:
 
-1. `Domains/<domain>/SCHEMA.md`
-2. `Domains/<domain>/index.md`
-3. latest 20-30 entries from `Domains/<domain>/log.md`
-4. existing Card candidates from `Cards/`
-5. relevant `Atlas/`, `Sources/`, and `Spaces/` pages
-6. `Shared/Raw/<source-id>/manifest.md` when provenance matters
+1. `00_System/card-policy.md`
+2. `00_System/card-domains.md`
+3. `00_System/agent-policy.md`
+4. optional `00_System/card-index.json`; treat it as a cache, not source of
+   truth
+5. existing Card candidates from `Cards/<domain>/`
+6. relevant root `Atlas/`, `Sources/`, and `Spaces/` pages
+7. `Sources/Raw/<source-id>/manifest.md` when provenance matters
 
 Search for the topic before creating a new page. Update an existing Card when a
 stable concept already exists.
@@ -82,7 +84,8 @@ Required shape:
 - Body focuses on definition, mechanism, constraints, examples, limits, and
   open questions.
 - At least two meaningful outbound `[[wikilinks]]` when related pages exist.
-- Update `index.md` under `## Cards` and insert a newest-first `log.md` entry.
+- Write only the Card file under `Cards/<domain>/` unless the caller
+  explicitly authorizes a related policy, Atlas, Source, or Space edit.
 
 ## Zettelkasten Adaptation
 
@@ -100,8 +103,9 @@ Treat Cards as Zettelkasten-style permanent notes for this domain:
   the Card. The body must carry the definition and relationships.
 
 Do not copy the physical Zettelkasten numbering/sequence system into
-LoreForge. Stable filenames, aliases, natural wikilinks, `index.md`, `log.md`,
-and MOCs provide the digital navigation layer.
+LoreForge. Stable filenames, aliases, natural wikilinks, root `Atlas/` MOCs,
+and generated `00_System/card-index.json` caches provide the digital navigation
+layer.
 
 ## Writing Style
 
@@ -151,7 +155,7 @@ When splitting:
 2. Create each extracted Card through the normal Card hard gate and default
    template.
 3. Give each extracted Card its own `aliases`, direct first paragraph, natural
-   wikilinks, provenance, `index.md` entry, and `log.md` entry.
+   wikilinks, and provenance.
 4. Replace extracted detail in the original Card with a concise summary and
    semantic links to the new Cards.
 5. If the useful artifact is a view over the new Card set, create or update a
@@ -161,9 +165,11 @@ When splitting:
 
 Do not use YAML `sources:` for compiled-page provenance.
 
-For wiki-local raw artifacts, manifests, or domain Source notes, prefer inline wikilinks.
-Use the filename or stem with an alias when useful:
-`[[source-artifact-or-manifest|readable source alias]]`.
+For wiki-local raw artifacts, manifests, paper notes, or Source notes, prefer inline wikilinks, path-qualified from the wiki root, such as
+`[[Sources/Raw/<source-id>/manifest|readable source alias]]` or
+`[[Sources/Papers/<citekey>|paper alias]]`. Do not use bare source filenames
+for provenance in root-layout Cards; legacy Source notes should be migrated or
+handled only during explicit legacy repair.
 
 Use source footnotes only when paragraph-level provenance would otherwise be
 ambiguous, especially in multi-source synthesis. In a single-source Card, link
@@ -225,7 +231,10 @@ Before reporting completion, check:
 - Related pages are linked naturally in the body.
 - Provenance is represented with wiki-local links or sparse footnotes only
   where useful.
-- `index.md` and `log.md` were updated.
+- The write stays within `Cards/<domain>/`, or the handoff explicitly reports
+  any separately authorized write.
+- The pre-write gate in `00_System/agent-policy.md` was followed and the
+  post-write validator is expected to pass.
 
 If any item fails, repair the page before handoff or report a blocker instead
 of landing a weak Card.

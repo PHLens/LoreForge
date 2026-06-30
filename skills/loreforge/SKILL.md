@@ -31,13 +31,13 @@ It delegates durable work to focused workflows:
 | Workflow | Use For |
 |---|---|
 | `loreforge-config` | wiki discovery, registry edits, init config, sync backend, post-write sync |
-| `loreforge-capture` | URL/file/paste/doc/research pack -> raw package under `Shared/Raw/<source-id>/` |
-| `loreforge-paper` | paper-specific note flow using Zotero-managed raw files and `Domains/research/Spaces/papers/<citekey>.md` notes |
+| `loreforge-capture` | URL/file/paste/doc/research pack -> raw package under `Sources/Raw/<source-id>/` |
+| `loreforge-paper` | paper-specific note flow using Zotero-managed raw files and `Sources/Papers/<citekey>.md` notes |
 | `plan-docomposer` | decompose personal or research goals into weekly and daily note plans under `Calendar/` |
-| `loreforge-work-item` | project, Jira, issue, MR/PR, bugfix, CI failure, and implementation records under domain `Spaces/projects/` |
-| `loreforge-card` | strict reusable Card authoring under `Domains/<domain>/Cards/` |
-| `loreforge-moc` | strict Atlas/MOC view authoring under `Domains/<domain>/Atlas/` |
-| `loreforge-domain` | domain initialization, generic domain orientation, Sources/Spaces updates, and legacy domain repair |
+| `loreforge-work-item` | project, Jira, issue, MR/PR, bugfix, CI failure, and implementation records under root `Spaces/` |
+| `loreforge-card` | strict reusable Card authoring under `Cards/<domain>/` |
+| `loreforge-moc` | strict root Atlas/MOC view authoring under `Atlas/` |
+| `loreforge-domain` | Card-domain orientation, generic Sources/Spaces updates, and legacy domain repair |
 | `loreforge-check` | lint, audit, structural checks, raw package integrity, validator execution |
 | `loreforge-import` | existing repo/vault/folder/export -> source capture and native domain ingest |
 
@@ -47,12 +47,12 @@ keep the user-facing command simple.
 ## Always
 
 - resolve the active wiki before writing
-- inspect available domains before choosing write targets
-- keep each domain expert inside one `Domains/<domain>/` boundary
-- treat raw source packages as shared wiki-root `Shared/Raw/` data
+- inspect available Card domains before choosing write targets
+- keep Card work inside one `Cards/<domain>/` boundary
+- treat raw source packages as wiki-root `Sources/Raw/` data
 - treat paper raw files as Zotero-managed external artifacts; paper-note writes
-  stay inside `Domains/research/Spaces/papers/` and PDF jump links use
-  `zotero://` URIs
+  stay inside `Sources/Papers/` and PDF jump links use `zotero://` URIs
+- read centralized policy from `00_System/` before write-capable work
 - gate writes that affect multiple domains, initialize new domains, or convert
   existing repos in place
 - report domains consulted, domains written, changed files, conflicts, and
@@ -96,12 +96,15 @@ sync backend. For rclone-backed wikis, pull the configured remote before
 reading domain files or writing local changes. Read:
 
 1. `00_System/domains.md`
-2. `00_System/index.md` and `00_System/wiki-layout.md` if present
-3. wiki-root `Shared/Raw/` for non-paper source packages and
-   `Domains/research/Spaces/papers/` for existing paper notes when checking
-   whether a source already exists
-4. candidate `Domains/<domain>/SCHEMA.md`
-5. candidate `Domains/<domain>/index.md` when more evidence is needed
+2. `00_System/wiki-layout.md`, `00_System/card-policy.md`,
+   `00_System/card-domains.md`, and `00_System/agent-policy.md` when present
+3. `00_System/card-index.json` when present; treat it as a cache, not source
+   of truth
+4. wiki-root `Sources/Raw/` for non-paper source packages and
+   `Sources/Papers/` for existing paper notes when checking whether a source
+   already exists
+5. candidate root `Atlas/`, `Spaces/`, and `Cards/<domain>/` pages when more
+   evidence is needed
 
 Ignore `.obsidian*` directories. They are editor profile state.
 
@@ -110,10 +113,10 @@ Ignore `.obsidian*` directories. They are editor profile state.
 Build candidates from:
 
 - explicit domain names in the user request
-- domain purpose in `00_System/domains.md`
-- domain boundary and out-of-scope rules in `SCHEMA.md`
-- tags and sections in `SCHEMA.md`
-- relevant entries in `index.md`
+- Card-domain purpose in `00_System/domains.md`
+- boundary, out-of-scope, and taxonomy rules in `00_System/card-domains.md`
+- relevant entries in `00_System/card-index.json` when present
+- existing pages under `Cards/<domain>/`
 - source title, URL, filename, abstract, headings, and user intent
 
 Routing rules:
@@ -138,14 +141,15 @@ closed when the choice is weak:
 - `card`: stable reusable concept, mechanism, method, pattern, tradeoff,
   comparison, or decision framework. Delegate directly to `loreforge-card`.
 - `moc`: question-driven view, problem framing, proposal/project view, or
-  relationship map across multiple pages. Delegate directly to `loreforge-moc`.
+  relationship map across multiple pages. Delegate directly to `loreforge-moc`
+  only when the user asks for a root `Atlas/` view.
 - `source`: source excerpt or source-specific lens. Use `loreforge-domain` for
-  bounded `Sources/` work after capture.
+  bounded root `Sources/` work after capture.
 - `space`: person, organization, project, tool, system, or context record. Use
   `loreforge-work-item` for project records or `loreforge-domain` for other
-  bounded `Spaces/` work.
+  bounded root `Spaces/` work.
 
-Formal project artifacts under `Spaces/projects/`, including
+Formal project artifacts under root `Spaces/`, including
 `proposal*.md`, `research-plan*.md`, `literature-survey*.md`, experimental
 protocols, and project design notes, are `space` pages handled through
 `loreforge-work-item` / `loreforge-domain`. They must not be routed to Cards as
@@ -159,13 +163,14 @@ choose the more conservative Source/Space path.
 
 Apply this gate to every synthesized LoreForge wiki page: Cards, Atlas/MOCs,
 Sources, Spaces, paper notes, work items, project artifacts, and related-work
-surveys. Raw captures and `log.md` entries are exempt because they preserve
-source text and audit history.
+surveys. Raw captures, transaction snapshots, and system audit records are
+exempt because they preserve source text and operational history.
 
 - Write the durable artifact itself: definition, mechanism, relationship,
   evidence, decision, plan, status, or reusable implication.
 - Keep process, placement, routing, and edit-history commentary out of page
-  bodies. Put wiki-maintenance facts in `log.md`.
+  bodies. Put wiki-maintenance facts in final handoff, validator output, or a
+  high-risk transaction record when policy requires one.
 - Avoid self-describing boilerplate such as "this page records", "this Card
   explains", "current draft", "here we...", "moved from", "renamed from", or
   "I added".
@@ -189,7 +194,7 @@ updates, report the selected wiki, default domain, backend, and next action.
 2. Delegate goal decomposition, weekly allocation, and daily projection to
    `plan-docomposer`.
 3. Write only `Calendar/dailynotes/`, `Calendar/weeklynotes/`, and
-   `Shared/Templates/` unless the user explicitly asks for a durable domain
+   `Extras/Templates/` unless the user explicitly asks for a durable domain
    rollup.
 4. Do not turn plan notes into agent memory, source capture, or domain ingest.
 5. Run the configured post-write sync through `loreforge-config` after edits.
@@ -206,8 +211,8 @@ updates, report the selected wiki, default domain, backend, and next action.
 1. Resolve the wiki root.
 2. For paper capture requests, delegate to `loreforge-paper` and resolve the
    raw paper through Zotero. Do not delegate paper capture to
-   `loreforge-capture`, do not create or update `Shared/Raw/` paper packages,
-   `Shared/Zotero/` vault bundles, copied PDFs, or paper manifests, and stop
+   `loreforge-capture`, do not create or update `Sources/Raw/` paper packages,
+   wiki-local Zotero vault bundles, copied PDFs, or paper manifests, and stop
    after the paper-note update unless the user also asks for ingest.
 3. For non-paper capture requests, delegate source preservation to
    `loreforge-capture`.
@@ -225,7 +230,7 @@ updates, report the selected wiki, default domain, backend, and next action.
    sync. Only continue to Cards, Atlas, Sources, Spaces, or cross-domain
    synthesis when the user explicitly requested that downstream write. Zotero
    remains the paper manifest/metadata/raw-file system; do not create parallel
-   `Shared/Raw/` paper manifests or wiki-local PDF copies during ingest.
+   `Sources/Raw/` paper manifests or wiki-local PDF copies during ingest.
 3. If a downstream paper synthesis was explicitly requested, make a page-type
    decision after the paper-note update. Delegate reusable Cards to
    `loreforge-card`, MOC/view pages to `loreforge-moc`, and Source/Space
@@ -241,15 +246,15 @@ updates, report the selected wiki, default domain, backend, and next action.
 8. Run post-write sync through `loreforge-config`.
 
 For non-paper sources that matter to multiple domains, reuse the same
-`Shared/Raw/<source-id>/` package. For papers, reuse the same Zotero item and
-the same `Domains/research/Spaces/papers/<citekey>.md` note; keep Zotero raw
+`Sources/Raw/<source-id>/` package. For papers, reuse the same Zotero item and
+the same `Sources/Papers/<citekey>.md` note; keep Zotero raw
 files read-only and outside the vault. Do not reuse one domain's pages as
 another domain's source of truth.
 
-Paper notes under `Domains/research/Spaces/papers/` are exempt from ordinary
-domain `index.md` and `log.md` maintenance. The paper workflow writes only the
+Paper notes under `Sources/Papers/` are not Cards and are not maintained through
+per-domain `index.md` or `log.md`. The paper workflow writes only the
 paper-note Markdown file unless the user explicitly requests a downstream
-domain write.
+Card, Atlas, Source, or Space write.
 
 ### Query
 
@@ -262,16 +267,16 @@ domain write.
 
 Use this path when the user asks to save current project work, a Jira/issue, an
 MR/PR, a bugfix, a CI failure, implementation details, verification status, or a
-work item under `Spaces/projects/`. Use the same path for formal project
-project artifacts such as proposals, research plans, literature surveys,
+work item under root `Spaces/`. Use the same path for formal project artifacts
+such as proposals, research plans, literature surveys,
 experimental protocols, and project design notes.
 
-1. Select one primary domain for the project/system.
+1. Select one primary Card domain for conceptual context.
 2. Delegate work-item shaping and bounded domain write guidance to
    `loreforge-work-item`.
-3. Let the domain expert create or update the project/work-item Space under the
-   selected domain.
-4. Preserve diagrams or source artifacts under `Shared/Raw/` only when they add
+3. Let the workflow create or update the project/work-item Space under root
+   `Spaces/`.
+4. Preserve diagrams or source artifacts under `Sources/Raw/` only when they add
    durable context.
 5. Run post-write sync through `loreforge-config`.
 
@@ -321,11 +326,13 @@ Domain: <domain>
 Write policy: <write-confirmed>
 Request: <user request>
 Source/provenance context: <raw package, source note, or none>
-Target page: <existing or proposed Cards/<slug>.md>
+Target page: <existing or proposed Cards/<domain>/<slug>.md>
 
-Orient on SCHEMA.md, index.md, recent log.md, and relevant pages.
+Orient on 00_System/card-policy.md, 00_System/card-domains.md, optional
+00_System/card-index.json, existing Cards/<domain>/ pages, relevant
+Atlas/Sources/Spaces pages, and source manifests when provenance matters.
 Make page_type_decision before writing.
-Update only Domains/<domain>/Cards/, index.md, and log.md unless explicitly asked.
+Update only Cards/<domain>/ unless explicitly asked.
 Run the Card acceptance gate before handoff.
 Return: page_type_decision, files changed, acceptance checklist, unresolved conflicts, confidence.
 ```
@@ -341,9 +348,11 @@ View question: <problem, claim, project, decision, or comparison>
 Request: <user request>
 Target page: <existing or proposed Atlas/<slug>.md>
 
-Orient on SCHEMA.md, index.md, recent log.md, and relevant Cards/Spaces/Sources.
+Orient on 00_System/card-policy.md, 00_System/card-domains.md, optional
+00_System/card-index.json, relevant Cards/Spaces/Sources, and existing Atlas
+views.
 Make page_type_decision before writing.
-Update only Domains/<domain>/Atlas/, index.md, and log.md unless explicitly asked.
+Update only Atlas/ unless explicitly asked.
 Run the MOC acceptance gate before handoff.
 Return: page_type_decision, files changed, acceptance checklist, unresolved conflicts, confidence.
 ```
@@ -359,11 +368,16 @@ Operation: <query|ingest|update|initialize>
 Write policy: <read-only|write-confirmed>
 Request: <user request>
 
-Stay inside Domains/<domain>/ for domain pages.
-Use Shared/Raw/ only for raw source packages.
-Orient on SCHEMA.md, index.md, recent log.md, and relevant pages.
+Stay inside the allowed root area for the requested page type:
+Cards/<domain>/, Sources/, Spaces/, or Atlas/.
+Use Sources/Raw/ only for raw source packages.
+Orient on 00_System/card-policy.md, 00_System/card-domains.md,
+00_System/agent-policy.md, optional 00_System/card-index.json, and relevant
+pages.
 If Write policy is read-only, do not create or update wiki files.
-If Write policy is write-confirmed, update index.md and insert a newest-first log.md entry, except for paper-note-only writes under Domains/research/Spaces/papers/.
+If Write policy is write-confirmed, follow the pre-write gate in
+00_System/agent-policy.md and rely on the validator after writing; write a
+transaction snapshot only when the policy marks the operation high risk.
 Return: answer or change summary, files changed, unresolved conflicts, confidence, and whether another domain should be consulted.
 ```
 

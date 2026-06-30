@@ -1,13 +1,13 @@
 ---
 name: loreforge-moc
-description: Internal LoreForge leaf workflow for creating or updating Atlas/MOC pages under Domains/<domain>/Atlas with a strict view decision, human-readable relationship structure, and post-write acceptance gate.
+description: Internal LoreForge leaf workflow for creating or updating root Atlas/MOC pages under Atlas/ with a strict view decision, human-readable relationship structure, and post-write acceptance gate.
 user-invocable: false
 version: 0.1.0
 ---
 
 # LoreForge MOC
 
-Use this workflow only for `Domains/<domain>/Atlas/` pages that act as Maps of
+Use this workflow only for root `Atlas/` pages that act as Maps of
 Content, question-driven views, proposal views, or problem framing pages. It is
 a leaf authoring workflow, not a router. The `loreforge` entrypoint chooses
 this workflow after resolving wiki, domain, write permission, and sync.
@@ -38,11 +38,13 @@ question.
 
 Read before writing:
 
-1. `Domains/<domain>/SCHEMA.md`
-2. `Domains/<domain>/index.md`
-3. latest 20-30 entries from `Domains/<domain>/log.md`
-4. relevant `Cards/`, `Spaces/`, `Sources/`, and existing `Atlas/` pages
-5. `Shared/Raw/<source-id>/manifest.md` when provenance matters
+1. `00_System/card-policy.md`
+2. `00_System/card-domains.md`
+3. `00_System/agent-policy.md`
+4. optional `00_System/card-index.json`; treat it as a cache, not source of
+   truth
+5. relevant `Cards/`, `Spaces/`, `Sources/`, and existing `Atlas/` pages
+6. `Sources/Raw/<source-id>/manifest.md` when provenance matters
 
 Search for the topic before creating a new page. Update an existing MOC when a
 view already exists.
@@ -59,9 +61,9 @@ Create or update a MOC only for:
 Do not use a MOC for:
 
 - a single stable concept that belongs in a Card
-- a mechanical inventory that belongs in `index.md`
+- a mechanical inventory that belongs in a generated card index or Base view
 - a paper-shaped review or long source summary
-- a project record that belongs in `Spaces/projects/`
+- a project record that belongs in root `Spaces/`
 
 Required shape:
 
@@ -74,7 +76,8 @@ Required shape:
   prose with readable aliases where useful.
 - Includes current judgment, interpretation, tradeoffs, open decisions, or
   remaining questions when the view calls for them.
-- Update `index.md` under `## Atlas` and insert a newest-first `log.md` entry.
+- Write only the Atlas page under `Atlas/` unless the caller explicitly
+  authorizes a related Card, Source, Space, or policy edit.
 
 ## Zettelkasten Adaptation
 
@@ -91,8 +94,8 @@ Treat MOCs as Zettelkasten-style structure notes for this domain:
   Cards and keep the MOC as the relationship view.
 
 Do not copy the physical Zettelkasten numbering/sequence system into
-LoreForge. Use readable filenames, aliases, natural wikilinks, `index.md`,
-`log.md`, and MOCs as the navigation layer.
+LoreForge. Use readable filenames, aliases, natural wikilinks, generated card
+indexes, Bases, and MOCs as the navigation layer.
 
 ## Writing Style
 
@@ -123,9 +126,11 @@ Cards and link to them naturally.
 
 Do not use YAML `sources:` for compiled-page provenance.
 
-For wiki-local raw artifacts, manifests, or domain Source notes, prefer inline
-wikilinks using the filename or stem with an alias when useful. Use source
-footnotes only when paragraph-level provenance would otherwise be ambiguous.
+For wiki-local raw artifacts, manifests, paper notes, or Source notes, prefer
+path-qualified inline wikilinks from the wiki root, such as
+`[[Sources/Raw/<source-id>/manifest|readable source alias]]` or
+`[[Sources/Papers/<citekey>|paper alias]]`. Use source footnotes only when
+paragraph-level provenance would otherwise be ambiguous.
 
 Cards, Spaces, and Atlas pages linked from the MOC are semantic knowledge
 links, not source citations.
@@ -207,7 +212,10 @@ Before reporting completion, check:
 - Links are woven naturally into the body rather than listed mechanically.
 - Reusable definitions stay in Cards; project/current-view commentary stays in
   the MOC.
-- `index.md` and `log.md` were updated.
+- The write stays within `Atlas/`, or the handoff explicitly reports any
+  separately authorized write.
+- The pre-write gate in `00_System/agent-policy.md` was followed and the
+  post-write validator is expected to pass.
 
 If any item fails, repair the page before handoff or report a blocker instead
 of landing a weak MOC.
