@@ -59,12 +59,21 @@ The domain skill expects this shape:
 
 ```text
 wiki/
-  00_System/
-    ...
+  00_System/       # layout, domain registry, card policy, agent policy
+    index.md
+    wiki-layout.md
+    domains.md
+    card-policy.md
+    card-domains.md
+    agent-policy.md
+    card-index.json  # optional generated cache
+  Atlas/           # root human-facing views and MOCs
   Calendar/
     dailynotes/
     weeklynotes/
-  Shared/
+  Cards/
+    <domain>/      # agent-maintained reusable Cards
+  Sources/
     Raw/
       <source-id>/
         manifest.md
@@ -72,35 +81,22 @@ wiki/
         original/
         extracted/
         assets/
+    Papers/        # Zotero-backed paper notes
+    Clippings/
+  Spaces/          # projects, people, tools, systems, contexts
+  Extras/
     Templates/
-  Domains/
-    research/
-      SCHEMA.md
-      index.md
-      log.md
-      Atlas/
-      Cards/
-      Sources/  # optional compiled source excerpts
-      Spaces/
-        papers/  # Zotero-managed paper notes
-    <domain>/
-      SCHEMA.md
-      index.md
-      log.md
-      Atlas/
-      Cards/
-      Sources/  # optional compiled source excerpts
-      Spaces/
+    Img/
+    Excalidraw/
+  z-Legacy/
 ```
 
-Each domain is a self-contained LLM Wiki owned by one expert agent. The agent
-orients on `SCHEMA.md`, `index.md`, recent `log.md`, and relevant pages before
-querying, ingesting, updating, reviewing, or running a Check.
+Each Card domain lives under `Cards/<domain>/`. Agents orient on centralized
+policy in `00_System/card-domains.md`, `00_System/card-policy.md`, and
+`00_System/agent-policy.md`, then inspect relevant Cards, Atlas views, Sources,
+and Spaces before querying, ingesting, updating, reviewing, or running a Check.
 
-`Extras/` is optional for a domain and only used when the domain truly needs
-its own non-source attachments.
-
-`Shared/Raw/<source-id>/` stores the canonical raw source package:
+`Sources/Raw/<source-id>/` stores the canonical non-paper raw source package:
 `origin.md` keeps the agent-readable source text, and `manifest.md` keeps
 metadata, source hash, compiled page pointers, and links to original/extracted
 artifacts when those artifacts are stored. `original/`, `extracted/`, and
@@ -116,17 +112,18 @@ contract remains the LoreForge raw package.
 Paper raw files are managed by Zotero outside the vault. Agents using
 `loreforge-paper` may read Zotero PDFs, but must not modify, move, rename,
 delete, copy, or reorganize Zotero attachments; they write Markdown paper notes
-under `Domains/research/Spaces/papers/<citekey>.md` and use `zotero://` PDF
-jump links.
+under `Sources/Papers/<citekey>.md` and use `zotero://` PDF jump links.
 `Calendar/dailynotes/` and `Calendar/weeklynotes/` hold dated personal planning
 notes when the wiki role is asked to decompose goals into daily or weekly work.
-`Shared/Templates/` stores reusable wiki templates.
-`Domains/<domain>/Sources/` is optional and can hold source excerpts or
-source-specific lenses when the raw package is large. `Cards/`, `Atlas/`, and
-`Spaces/` hold the durable synthesis and should prefer plain internal wikilinks
-to wiki-local raw artifacts, raw manifests, or domain source notes; use
-source footnotes only when paragraph-level provenance would otherwise be ambiguous.
-Do not use YAML source links.
+`Extras/Templates/` stores reusable wiki templates, and `Extras/Img/` stores
+shared image assets.
+Root `Sources/` can hold source excerpts or source-specific lenses when a raw
+package is large. `Cards/<domain>/`, root `Atlas/`, and root `Spaces/` hold
+durable synthesis. For source provenance, use path-qualified wikilinks such as
+`[[Sources/Raw/<source-id>/manifest|readable source alias]]` or
+`[[Sources/Papers/<citekey>|paper alias]]`; use source footnotes only when
+paragraph-level provenance would otherwise be ambiguous. Do not use YAML source
+links.
 
 ## Skills
 
@@ -139,12 +136,12 @@ are needed.
 |---|---|
 | `loreforge` | Default main entrypoint for config, capture, ingest, lint, init, import, query, plan, work-item records, and cross-domain coordination |
 | `loreforge-config` | Resolve wiki location, registry, sync backend, and post-write sync |
-| `loreforge-capture` | Preserve raw source packages under `Shared/Raw/<source-id>/` without compiling domain pages |
-| `loreforge-paper` | Update paper notes under `Domains/research/Spaces/papers/` while treating Zotero-managed PDFs as read-only raw artifacts outside the vault |
+| `loreforge-capture` | Preserve raw source packages under `Sources/Raw/<source-id>/` without compiling domain pages |
+| `loreforge-paper` | Update paper notes under `Sources/Papers/` while treating Zotero-managed PDFs as read-only raw artifacts outside the vault |
 | `plan-docomposer` | Decompose personal or research goals into weekly and daily note plans under `Calendar/` |
-| `loreforge-work-item` | Turn project, Jira, issue, MR/PR, bugfix, CI failure, and implementation context into durable `Spaces/projects/` records |
-| `loreforge-card` | Strict reusable Card authoring under `Domains/<domain>/Cards/` |
-| `loreforge-moc` | Strict Atlas/MOC view authoring under `Domains/<domain>/Atlas/` |
+| `loreforge-work-item` | Turn project, Jira, issue, MR/PR, bugfix, CI failure, and implementation context into durable root `Spaces/projects/` records |
+| `loreforge-card` | Strict reusable Card authoring under `Cards/<domain>/` |
+| `loreforge-moc` | Strict root Atlas/MOC view authoring under `Atlas/` |
 | `loreforge-check` | Lint, audit, and structural checks for raw packages and native domains |
 | `loreforge-import` | Treat existing repos, vaults, folders, and exports as source material |
 | `loreforge-domain` | Domain initialization, generic domain orientation, Sources/Spaces updates, and legacy domain repair |
@@ -159,15 +156,16 @@ are needed.
 The main entrypoint owns domain selection, config, capture handoff, plan
 handoff, and cross-domain coordination. `loreforge-paper` owns paper-note shape
 and related-work linking for Zotero-managed papers under
-`Domains/research/Spaces/papers/`; domain handoff happens only as an explicitly
+`Sources/Papers/`; domain handoff happens only as an explicitly
 requested downstream write.
 `plan-docomposer` owns wiki-local goal decomposition into Calendar notes. `loreforge-work-item`
-owns project record shape before bounded domain handoff. `loreforge-domain`
-owns domain initialization and generic Sources/Spaces maintenance.
+owns project record shape before bounded root `Spaces/` writes.
+`loreforge-domain` owns Card-domain orientation, root-layout initialization,
+generic Sources/Spaces maintenance, and legacy domain repair.
 `loreforge-card` and `loreforge-moc` own Card/MOC authoring contracts and
 acceptance gates. Helper skills produce capture input or Obsidian-specific
-artifacts; they should not replace routing, domain orientation, index, log,
-and check workflow.
+artifacts; they should not replace routing, domain orientation, centralized
+policy, validator checks, and post-write handoff.
 
 The previous Obsidian `wiki` adapter layout is not bundled. Existing Obsidian
 vaults can still be used as sources, and LoreForge wiki instances can still be
@@ -186,8 +184,8 @@ The plugin layer is intentionally thin:
   `loreforge-domain` available as internal workflows for the entrypoint
 - provide boundary instructions for when to use LoreForge
 - keep actual knowledge in separate wiki instances
-- recover after context compaction from domain `SCHEMA.md`, `index.md`,
-  `log.md`, and relevant pages
+- recover after context compaction from `00_System/` policy, relevant Cards,
+  Atlas views, Sources, and Spaces
 
 Plugin metadata lives in:
 
@@ -199,14 +197,13 @@ Plugin metadata lives in:
 
 ## Component Contract
 
-External orchestrators can inspect LoreForge through a read-only component
-surface documented in `docs/component-contract.md`:
+External orchestrators can inspect LoreForge through read-only component
+operations documented in `docs/component-contract.md`:
 
 ```bash
 loreforge status --json
 loreforge validate --wiki /path/to/wiki --all-domains --json
 loreforge init --wiki /path/to/wiki --domain ai-research --json
-loreforge setup --wiki /path/to/wiki --domain ai-research --json
 ```
 
 `status` and `validate` are read-only doctor checks. `init` is proposal-only and
@@ -215,6 +212,10 @@ does not write registry files, wiki notes, domains, sync state, or fixes.
 the machine-local registry entry plus the minimal wiki/domain skeleton and
 returns a JSON report. It does not run capture, ingest, rclone sync, or git
 sync.
+
+```bash
+loreforge setup --wiki /path/to/wiki --domain ai-research --json
+```
 
 ## GitHub-Backed Wikis
 
@@ -247,11 +248,11 @@ one backend.
 ## Existing Repos And Vaults
 
 Existing repos or vaults should be treated as sources. Use `loreforge-import`
-and `loreforge-capture` to preserve raw material under `Shared/Raw/`, then
+and `loreforge-capture` to preserve raw material under `Sources/Raw/`, then
 route selected material through the main `loreforge` page-type decision so
-native `Domains/<domain>/` synthesis lands in `loreforge-card`,
-`loreforge-moc`, or conservative Source/Space workflows instead of keeping
-long-term alternate layouts or source mirrors.
+native root-layout synthesis lands in `loreforge-card`, `loreforge-moc`, or
+conservative Source/Space workflows instead of keeping long-term alternate
+layouts or source mirrors.
 
 ## License
 

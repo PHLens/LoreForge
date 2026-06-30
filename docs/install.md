@@ -13,36 +13,39 @@ Create a wiki root:
 
 ```bash
 mkdir -p /path/to/my-wiki/00_System \
+  /path/to/my-wiki/Atlas \
   /path/to/my-wiki/Calendar/dailynotes \
   /path/to/my-wiki/Calendar/weeklynotes \
-  /path/to/my-wiki/Shared/Raw \
-  /path/to/my-wiki/Shared/Templates
+  /path/to/my-wiki/Cards \
+  /path/to/my-wiki/Sources/Raw \
+  /path/to/my-wiki/Sources/Papers \
+  /path/to/my-wiki/Sources/Clippings \
+  /path/to/my-wiki/Spaces \
+  /path/to/my-wiki/Extras/Templates \
+  /path/to/my-wiki/Extras/Img \
+  /path/to/my-wiki/Extras/Excalidraw \
+  /path/to/my-wiki/z-Legacy
 ```
 
 Then ask LoreForge to initialize the target domain. The main entrypoint should
 resolve config and the `loreforge-domain` expert should create:
 
-- `00_System/index.md`, `00_System/domains.md`, and `00_System/wiki-layout.md`
-- shared `Calendar/dailynotes/`, `Calendar/weeklynotes/`, `Shared/Raw/`, and
-  `Shared/Templates/`
-- shared templates: `Shared/Templates/weekly.md` for weekly planning and
+- `00_System/index.md`, `00_System/domains.md`, `00_System/wiki-layout.md`,
+  `00_System/card-policy.md`, `00_System/card-domains.md`, and
+  `00_System/agent-policy.md`
+- root `Atlas/`, `Cards/<domain>/`, `Sources/Raw/`, `Sources/Papers/`,
+  `Sources/Clippings/`, `Spaces/`, `Extras/`, and `z-Legacy/`
+- shared templates: `Extras/Templates/weekly.md` for weekly planning and
   review; diary templates may be added by the wiki's Obsidian profile
-- domain `SCHEMA.md`, `index.md`, `log.md`, `Atlas/`, `Cards/`, and `Spaces/`
-  under `Domains/<domain>/`
-- optional `Sources/` under `Domains/<domain>/` when a source excerpt or
-  source-specific lens is useful
 
 Existing repos or vaults should be ingested as sources by first capturing raw
-source packages under the shared `Shared/Raw/<source-id>/` area, then compiling
-native domain synthesis under `Domains/<domain>/`. Capture should derive a
+source packages under the shared `Sources/Raw/<source-id>/` area, then
+compiling native root-layout synthesis. Capture should derive a
 stable source ID, write `origin.md` plus `manifest.md`, and stop before domain
 synthesis. Ingest should update that same package and compile durable notes from
-it. Use `Domains/<domain>/Sources/` only when a source is too large or
-source-specific excerpts are useful. Do not keep alternate layouts as long-term
-LoreForge structure.
-
-Create `Domains/<domain>/Extras/` only if the domain needs its own non-source
-attachments.
+it. Use root `Sources/` only when a source is too large or source-specific
+excerpts are useful. Do not keep alternate layouts as long-term LoreForge
+structure.
 
 ## Use With pamem
 
