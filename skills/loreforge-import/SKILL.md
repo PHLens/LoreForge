@@ -15,7 +15,7 @@ Always:
 - treat the source as read-only unless the user explicitly asks to convert in
   place
 - resolve source aliases from `~/.config/loreforge/registry.toml`
-- capture raw material into `Shared/Raw/` first
+- capture raw material into `Sources/Raw/` first
 - use `loreforge` to select target domains
 - use `loreforge` page-type decisions to choose `loreforge-card`,
   `loreforge-moc`, or `loreforge-domain` for durable domain synthesis
@@ -27,14 +27,16 @@ Always:
    - `[[sources]]` alias from the registry.
 2. Resolve the target wiki with `loreforge-config`.
 3. Inspect the source structure enough to identify candidate material.
-4. Capture source material into `Shared/Raw/<source-id>/` raw packages.
+4. Capture source material into `Sources/Raw/<source-id>/` raw packages.
 5. Route captured packages by candidate domain.
 6. Delegate each domain ingest to the selected leaf workflow:
    `loreforge-card`, `loreforge-moc`, or `loreforge-domain`.
 7. Ensure each domain expert:
-   - updates `Shared/Raw/<source-id>/origin.md` and `manifest.md`
-   - writes optional domain `Sources/` excerpts only when useful
-   - updates `Cards/`, `Atlas/`, `Spaces/`, `index.md`, and `log.md`
+   - updates `Sources/Raw/<source-id>/origin.md` and `manifest.md`
+   - writes optional root `Sources/` excerpts only when useful
+   - writes root-layout Cards, Atlas, and Spaces through the appropriate
+     workflow and relies on centralized policy plus validator output instead of
+     per-domain index/log edits
 
 ## Boundaries
 

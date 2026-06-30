@@ -1,13 +1,13 @@
 ---
 name: loreforge-capture
-description: Internal LoreForge workflow for turning URLs, files, pasted text, documents, or research outputs into raw source packages under Shared/Raw without compiling domain pages. Use before ingest when a source must be preserved first.
+description: Internal LoreForge workflow for turning URLs, files, pasted text, documents, or research outputs into raw source packages under Sources/Raw without compiling domain pages. Use before ingest when a source must be preserved first.
 user-invocable: false
 version: 0.2.0
 ---
 
 # LoreForge Capture
 
-Preserve source material once as a wiki-root `Shared/Raw/<source-id>/` package.
+Preserve source material once as a wiki-root `Sources/Raw/<source-id>/` package.
 Capture does not decide domain synthesis and does not create durable domain
 pages.
 
@@ -15,7 +15,7 @@ Always:
 
 - resolve the wiki root first, using `loreforge-config` rules
 - derive a stable, readable `source-id`
-- write only raw source packages under `Shared/Raw/<source-id>/`
+- write only raw source packages under `Sources/Raw/<source-id>/`
 - create `origin.md` and `manifest.md` for every capture
 - preserve source language, useful structure, links, metadata, and
   human-captured artifact filenames
@@ -27,8 +27,8 @@ Always:
 
 Do not:
 
-- create `Cards/`, `Atlas/`, `Spaces/`, or domain `Sources/`
-- update domain `index.md` or `log.md`
+- create or update root `Cards/`, `Atlas/`, `Spaces/`, or non-raw `Sources/`
+- update generated indexes or audit logs
 - route or choose final domain ownership
 
 ## Inputs
@@ -45,8 +45,8 @@ Accept:
 Do not accept research papers, conference PDFs, arXiv/DOI/OpenReview sources,
 or paper-like technical reports here. Delegate those to `loreforge-paper`,
 which uses Zotero-managed raw files outside the vault and writes notes under
-`Domains/research/Spaces/papers/`. It does not create paper raw packages,
-`Shared/Zotero/` vault bundles, copied PDFs, or paper manifests.
+`Sources/Papers/`. It does not create paper raw packages, wiki-local Zotero
+vault bundles, copied PDFs, or paper manifests.
 
 Use helper skills as needed:
 
@@ -79,8 +79,8 @@ Clipper's capture model:
    only a few note properties and uses `{{content}}` as the note body. Mirror
    that split. The stable generic properties are `title`, `source`, `author`,
    `published`, `created`, and `tags`. Add source-specific properties only when
-   they are useful human index fields, such as `year` or `arxiv` for an arXiv
-   note. Keep package lifecycle and provenance fields such as `source_id`,
+   they are useful human index fields, such as `publisher` or `category` for a
+   web article. Keep package lifecycle and provenance fields such as `source_id`,
    `source_type`, `source_language`, `retrieved_at`, `origin`,
    `candidate_domains`, `compiled_pages`, `status`, capture variables,
    selector/schema choices, fallback, and limitations in `manifest.md`, not
@@ -93,7 +93,7 @@ Clipper's capture model:
 5. **Localize important assets.** Save figures, diagrams, screenshots, or
    downloaded files under `assets/` or `original/` when they matter for later
    audit or offline reuse. Rewrite important references in `origin.md` to
-   wiki-local paths such as `Shared/Raw/<source-id>/assets/<name>`.
+   wiki-local paths such as `Sources/Raw/<source-id>/assets/<name>`.
 6. **Record extraction lineage.** `manifest.md` must say which capture route
    was used: helper skill or tool, extractor, source mode, selector choices,
    original artifact, extracted artifacts, asset handling, and any auth/session
@@ -145,7 +145,7 @@ keeps only note-facing metadata plus the cleaned source content.
 Write one package per source:
 
 ```text
-Shared/Raw/<source-id>/
+Sources/Raw/<source-id>/
   manifest.md
   origin.md
   original/
@@ -155,8 +155,8 @@ Shared/Raw/<source-id>/
 
 Only `manifest.md` and `origin.md` are required. Create `original/`,
 `extracted/`, and `assets/` only when useful. Paper PDFs stay in Zotero outside
-the vault, and paper notes belong under `Domains/research/Spaces/papers/`
-instead of `Shared/Raw/`; see `loreforge-paper` for the read-only PDF and
+the vault, and paper notes belong under `Sources/Papers/`
+instead of `Sources/Raw/`; see `loreforge-paper` for the read-only PDF and
 paper-note write policy.
 
 Use `origin.md` for canonical agent-readable source text or for a thin wrapper
@@ -181,7 +181,7 @@ retrieved_at: "YYYY-MM-DD"
 source_url: "<canonical url when available>"
 source_description: "<source description when no source_url is available>"
 content_hash: "<sha256 of origin.md>"
-origin: "Shared/Raw/<source-id>/origin.md"
+origin: "Sources/Raw/<source-id>/origin.md"
 candidate_domains: []
 compiled_pages: []
 status: captured
