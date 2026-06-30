@@ -18,6 +18,14 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(REPO_ROOT / "lib"))
 
 from loreforge_validator import Issue, validate_domain  # noqa: E402
+from loreforge_validator.paths import (  # noqa: E402
+    InvalidDomainName,
+    domain_entries,
+    domain_entry_dicts,
+    domain_names,
+    domain_path,
+    validate_domain_name,
+)
 
 
 CONTRACT_VERSION = "0.1"
@@ -71,13 +79,6 @@ def selected_wiki(
     return None, [issue("missing-wiki-selection", "no wiki name or registry default was provided")]
 
 
-def domain_names(wiki_path: Path) -> list[str]:
-    domains = wiki_path / "Domains"
-    if not domains.exists():
-        return []
-    return sorted(path.name for path in domains.iterdir() if path.is_dir())
-
-
 def component_envelope(operation: str) -> dict[str, Any]:
     return {
         "component": COMPONENT,
@@ -119,6 +120,7 @@ def cmd_status(args: argparse.Namespace) -> int:
     if wiki_entry:
         wiki_path = Path(str(wiki_entry.get("path", ""))).expanduser()
         domains = domain_names(wiki_path)
+        domain_details = domain_entry_dicts(wiki_path)
         result["selected_wiki"] = {
             "name": str(wiki_entry.get("name", "")),
             "path": wiki_path.as_posix(),
@@ -128,11 +130,18 @@ def cmd_status(args: argparse.Namespace) -> int:
             "sync_bootstrapped": bool(wiki_entry.get("sync_bootstrapped", False)),
             "default_domain": str(wiki_entry.get("default_domain", "")),
             "domains": domains,
+            "domain_entries": domain_details,
         }
         if not wiki_path.exists():
             result["issues"].append(issue("missing-wiki-root", "selected wiki path does not exist", path=wiki_path.as_posix()))
-        elif not (wiki_path / "Domains").exists():
-            result["issues"].append(issue("missing-domains-dir", "wiki has no Domains directory", path=(wiki_path / "Domains").as_posix()))
+        elif not (wiki_path / "Cards").exists() and not (wiki_path / "Domains").exists():
+            result["issues"].append(
+                issue(
+                    "missing-cards-dir",
+                    "wiki has no Cards directory",
+                    path=(wiki_path / "Cards").as_posix(),
+                )
+            )
 
     result["ok"] = not any(item["severity"] == "error" for item in result["issues"])
     return print_result(result, as_json=args.json)
@@ -163,27 +172,32 @@ def resolve_wiki(args: argparse.Namespace, result: dict[str, Any]) -> Path | Non
 
 def cmd_validate(args: argparse.Namespace) -> int:
     result = component_envelope("validate")
-    wiki_path = resolve_wiki(args, result)
     result["domains"] = []
+    if args.domain:
+        try:
+            validate_domain_name(args.domain)
+        except InvalidDomainName as exc:
+            result["issues"].append(issue("invalid-domain-name", str(exc), path=args.domain))
+            return print_result(result, as_json=args.json)
+    wiki_path = resolve_wiki(args, result)
     if wiki_path:
         if args.all_domains:
-            names = domain_names(wiki_path)
+            targets = domain_entries(wiki_path)
         else:
-            names = [args.domain] if args.domain else []
-        if not names:
+            targets = [(args.domain, domain_path(wiki_path, args.domain))] if args.domain else []
+        if not targets:
             result["issues"].append(issue("missing-domain-selection", "provide --domain or --all-domains"))
-        for name in names:
-            domain_path = wiki_path / "Domains" / name
+        for name, selected_domain_path in targets:
             domain_result: dict[str, Any] = {
                 "name": name,
-                "path": domain_path.as_posix(),
+                "path": selected_domain_path.as_posix(),
                 "ok": False,
                 "issues": [],
             }
-            if not domain_path.exists():
-                domain_result["issues"].append(issue("missing-domain", "domain path does not exist", path=domain_path.as_posix()))
+            if not selected_domain_path.exists():
+                domain_result["issues"].append(issue("missing-domain", "domain path does not exist", path=selected_domain_path.as_posix()))
             else:
-                domain_result["issues"].extend(issue_to_dict(item) for item in validate_domain(domain_path))
+                domain_result["issues"].extend(issue_to_dict(item) for item in validate_domain(selected_domain_path))
             domain_result["ok"] = not domain_result["issues"]
             result["domains"].append(domain_result)
 
@@ -196,6 +210,13 @@ def cmd_init(args: argparse.Namespace) -> int:
     wiki_path = Path(args.wiki).expanduser()
     sync = args.sync
     remote = args.remote or ""
+
+    try:
+        validate_domain_name(args.domain)
+    except InvalidDomainName as exc:
+        result["issues"].append(issue("invalid-domain-name", str(exc), path=args.domain))
+        result["writes"] = False
+        return print_result(result, as_json=args.json)
 
     if sync in {"rclone", "git"} and not remote:
         result["issues"].append(issue("missing-remote", f"{sync} init requires --remote"))
@@ -212,11 +233,25 @@ def cmd_init(args: argparse.Namespace) -> int:
     }
     result["actions"] = [
         {"kind": "directory", "path": (wiki_path / "00_System").as_posix()},
+        {"kind": "file", "path": (wiki_path / "00_System" / "index.md").as_posix()},
+        {"kind": "file", "path": (wiki_path / "00_System" / "wiki-layout.md").as_posix()},
+        {"kind": "file", "path": (wiki_path / "00_System" / "domains.md").as_posix()},
+        {"kind": "file", "path": (wiki_path / "00_System" / "card-policy.md").as_posix()},
+        {"kind": "file", "path": (wiki_path / "00_System" / "card-domains.md").as_posix()},
+        {"kind": "file", "path": (wiki_path / "00_System" / "agent-policy.md").as_posix()},
+        {"kind": "directory", "path": (wiki_path / "Atlas").as_posix()},
         {"kind": "directory", "path": (wiki_path / "Calendar" / "dailynotes").as_posix()},
         {"kind": "directory", "path": (wiki_path / "Calendar" / "weeklynotes").as_posix()},
-        {"kind": "directory", "path": (wiki_path / "Shared" / "Raw").as_posix()},
-        {"kind": "directory", "path": (wiki_path / "Shared" / "Templates").as_posix()},
-        {"kind": "domain", "path": (wiki_path / "Domains" / args.domain).as_posix()},
+        {"kind": "domain", "path": (wiki_path / "Cards" / args.domain).as_posix()},
+        {"kind": "directory", "path": (wiki_path / "Sources" / "Raw").as_posix()},
+        {"kind": "directory", "path": (wiki_path / "Sources" / "Papers").as_posix()},
+        {"kind": "directory", "path": (wiki_path / "Sources" / "Clippings").as_posix()},
+        {"kind": "directory", "path": (wiki_path / "Spaces").as_posix()},
+        {"kind": "directory", "path": (wiki_path / "Extras" / "Templates").as_posix()},
+        {"kind": "file", "path": (wiki_path / "Extras" / "Templates" / "weekly.md").as_posix()},
+        {"kind": "directory", "path": (wiki_path / "Extras" / "Img").as_posix()},
+        {"kind": "directory", "path": (wiki_path / "Extras" / "Excalidraw").as_posix()},
+        {"kind": "directory", "path": (wiki_path / "z-Legacy").as_posix()},
         {"kind": "registry", "path": default_registry().as_posix()},
     ]
     result["ok"] = not result["issues"]
