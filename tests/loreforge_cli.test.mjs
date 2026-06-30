@@ -133,11 +133,18 @@ test('setup command bootstraps registry, wiki, and domain skeleton', (t) => {
   assert.equal(payload.validation.ok, true);
   assert.equal(fs.existsSync(registry), true);
   assert.equal(fs.existsSync(path.join(wiki, '00_System', 'index.md')), true);
-  assert.equal(fs.existsSync(path.join(wiki, 'Shared', 'Templates', 'weekly.md')), true);
-  assert.equal(fs.existsSync(path.join(wiki, 'Shared', 'Templates', 'card.md')), false);
-  assert.equal(fs.existsSync(path.join(wiki, 'Shared', 'Templates', 'moc.md')), false);
-  assert.equal(fs.existsSync(path.join(wiki, 'Shared', 'Templates', 'relationship.md')), false);
-  assert.equal(fs.existsSync(path.join(wiki, 'Domains', 'ai-research', 'SCHEMA.md')), true);
+  assert.equal(fs.existsSync(path.join(wiki, '00_System', 'card-policy.md')), true);
+  assert.equal(fs.existsSync(path.join(wiki, '00_System', 'card-domains.md')), true);
+  assert.equal(fs.existsSync(path.join(wiki, '00_System', 'agent-policy.md')), true);
+  assert.equal(fs.existsSync(path.join(wiki, 'Extras', 'Templates', 'weekly.md')), true);
+  assert.equal(fs.existsSync(path.join(wiki, 'Extras', 'Templates', 'card.md')), false);
+  assert.equal(fs.existsSync(path.join(wiki, 'Extras', 'Templates', 'moc.md')), false);
+  assert.equal(fs.existsSync(path.join(wiki, 'Extras', 'Templates', 'relationship.md')), false);
+  assert.equal(fs.existsSync(path.join(wiki, 'Cards', 'ai-research')), true);
+  assert.equal(fs.existsSync(path.join(wiki, 'Cards', 'ai-research', 'SCHEMA.md')), false);
+  assert.equal(fs.existsSync(path.join(wiki, 'Domains', 'ai-research', 'SCHEMA.md')), false);
+  assert.equal(fs.existsSync(path.join(wiki, 'Sources', 'Raw')), true);
+  assert.equal(fs.existsSync(path.join(wiki, 'Sources', 'Papers')), true);
   assert.match(fs.readFileSync(registry, 'utf8'), /default_domain = "ai-research"/);
 
   const rerun = runLoreForge([
@@ -155,6 +162,48 @@ test('setup command bootstraps registry, wiki, and domain skeleton', (t) => {
     '--json',
   ]);
   assert.equal(JSON.parse(rerun.stdout).ok, true);
+
+  const second = runLoreForge([
+    'setup',
+    '--wiki',
+    wiki,
+    '--wiki-name',
+    'main-ml',
+    '--domain',
+    'ml-systems',
+    '--registry',
+    registry,
+    '--description',
+    'ML systems notes',
+    '--language',
+    'zh',
+    '--json',
+  ]);
+  assert.equal(JSON.parse(second.stdout).ok, true);
+  assert.equal(fs.existsSync(path.join(wiki, 'Cards', 'ml-systems')), true);
+  assert.match(fs.readFileSync(path.join(wiki, '00_System', 'domains.md'), 'utf8'), /\| ml-systems \| `Cards\/ml-systems\/` \| ML systems notes \| zh \| active \|/);
+  assert.match(fs.readFileSync(path.join(wiki, '00_System', 'card-domains.md'), 'utf8'), /^## ml-systems$/m);
+
+  const prefixCollision = runLoreForge([
+    'setup',
+    '--wiki',
+    wiki,
+    '--wiki-name',
+    'main-ml-short',
+    '--domain',
+    'ml',
+    '--registry',
+    registry,
+    '--description',
+    'ML notes',
+    '--language',
+    'zh',
+    '--json',
+  ]);
+  assert.equal(JSON.parse(prefixCollision.stdout).ok, true);
+  assert.equal(fs.existsSync(path.join(wiki, 'Cards', 'ml')), true);
+  assert.match(fs.readFileSync(path.join(wiki, '00_System', 'domains.md'), 'utf8'), /^\|\s*ml\s*\|\s*`Cards\/ml\/`\s*\|/m);
+  assert.match(fs.readFileSync(path.join(wiki, '00_System', 'card-domains.md'), 'utf8'), /^## ml$/m);
 });
 
 
@@ -186,6 +235,52 @@ default_target_domain = "ai-research"
   const registryText = fs.readFileSync(registry, 'utf8');
   assert.match(registryText, /\[\[sources\]\]/);
   assert.match(registryText, /name = "old-vault"/);
+});
+
+
+test('setup rejects unsafe domain names before writing', (t) => {
+  const root = tempRoot(t);
+  const wiki = path.join(root, 'wiki');
+  const registry = path.join(root, 'registry.toml');
+
+  const result = runLoreForge([
+    'setup',
+    '--wiki',
+    wiki,
+    '--domain',
+    '../../outside',
+    '--registry',
+    registry,
+    '--json',
+  ], { check: false });
+
+  assert.equal(result.status, 1);
+  assert.match(result.stderr, /domain name must be a slug/);
+  assert.equal(fs.existsSync(wiki), false);
+  assert.equal(fs.existsSync(path.join(root, 'outside')), false);
+  assert.equal(fs.existsSync(registry), false);
+});
+
+
+test('setup does not write registry when wiki bootstrap fails', (t) => {
+  const root = tempRoot(t);
+  const wiki = path.join(root, 'wiki-file');
+  const registry = path.join(root, 'registry.toml');
+  fs.writeFileSync(wiki, 'not a directory\n');
+
+  const result = runLoreForge([
+    'setup',
+    '--wiki',
+    wiki,
+    '--domain',
+    'ai-research',
+    '--registry',
+    registry,
+    '--json',
+  ], { check: false });
+
+  assert.equal(result.status, 1);
+  assert.equal(fs.existsSync(registry), false);
 });
 
 

@@ -27,12 +27,14 @@ def test_no_inline_caret_footnotes():
 
 
 def test_source_links_prefer_internal_wikilinks():
-    """Card source-link guidance should prefer filename/stem wikilinks for wiki-local sources."""
+    """Card source-link guidance should prefer path-qualified wikilinks for wiki-local sources."""
     content = CARD_SKILL_PATH.read_text()
     lower_content = content.lower()
     assert "Provenance" in content
     assert "prefer inline wikilinks" in lower_content
-    assert "[[source-artifact-or-manifest|readable source alias]]" in content
+    assert "[[Sources/Raw/<source-id>/manifest|readable source alias]]" in content
+    assert "[[Sources/Papers/<citekey>|paper alias]]" in content
+    assert "[[source-artifact-or-manifest|readable source alias]]" not in content
 
 
 def test_footnotes_are_exception_not_default():

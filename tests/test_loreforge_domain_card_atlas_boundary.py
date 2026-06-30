@@ -18,6 +18,22 @@ PAPER_BUNDLE_DOC_PATHS = [
     REPO_ROOT / "tests" / "README.md",
     REPO_ROOT / "tests" / "simulate_loreforge_entrypoint_flow.py",
 ]
+USER_FACING_DOC_PATHS = [
+    REPO_ROOT / "README.md",
+    REPO_ROOT / "docs" / "component-contract.md",
+    REPO_ROOT / "docs" / "config.md",
+    REPO_ROOT / "docs" / "install.md",
+    REPO_ROOT / "docs" / "philosophy.md",
+    REPO_ROOT / "docs" / "schema.md",
+    REPO_ROOT / "tests" / "README.md",
+]
+PAPER_USER_DOC_PATHS = [
+    REPO_ROOT / "README.md",
+    REPO_ROOT / "docs" / "install.md",
+    REPO_ROOT / "docs" / "philosophy.md",
+    REPO_ROOT / "docs" / "schema.md",
+    REPO_ROOT / "tests" / "README.md",
+]
 
 
 def test_card_skill_has_hard_authoring_contract():
@@ -43,7 +59,9 @@ def test_card_skill_has_hard_authoring_contract():
     assert "## Open Questions" in content
     assert "## Mechanism" not in content
     assert "## Example" not in content
-    assert "[[source-artifact-or-manifest|readable source alias]]" in content
+    assert "[[Sources/Raw/<source-id>/manifest|readable source alias]]" in content
+    assert "[[Sources/Papers/<citekey>|paper alias]]" in content
+    assert "[[source-artifact-or-manifest|readable source alias]]" not in content
     assert "Do not cite Cards with source-style footnote markers" in content
     assert "related:: [[concept-a]], [[concept-b|Readable label]]" in content
 
@@ -75,6 +93,8 @@ def test_card_skill_adapts_zettelkasten_permanent_notes():
     assert "self-contained enough to make sense later" in content
     assert "Write in the domain's own words" in content
     assert "semantic links whose nearby prose explains why the linked page matters" in collapsed
+    assert "`log.md`" not in content
+    assert "Stable filenames, aliases, natural wikilinks, root `Atlas/` MOCs" in content
     assert "Do not copy the physical Zettelkasten numbering/sequence system" in content
     assert "The Card is self-contained, written in domain words, and has one focus object" in content
 
@@ -135,9 +155,11 @@ def test_entrypoint_routes_directly_to_leaf_workflows():
     """The main entrypoint should choose Card/MOC leaves without a domain router hop."""
     content = ENTRY_SKILL_PATH.read_text()
     assert "`loreforge-card` | strict reusable Card authoring" in content
-    assert "`loreforge-moc` | strict Atlas/MOC view authoring" in content
+    assert "`loreforge-moc` | strict root Atlas/MOC view authoring" in content
     assert "Delegate directly to `loreforge-card`" in content
     assert "Delegate directly to `loreforge-moc`" in content
+    assert "Target page: <existing or proposed Cards/<domain>/<slug>.md>" in content
+    assert "Target page: <existing or proposed Cards/<slug>.md>" not in content
     assert "Page-Type Decision" in content
     assert "Do not force uncertain material into Cards or MOCs" in content
 
@@ -167,7 +189,7 @@ def test_compiled_page_language_gate_applies_to_all_wiki_pages():
     assert "## Compiled Page Language Gate" in entry
     assert "Apply this gate to every synthesized LoreForge wiki page" in entry
     assert "Cards, Atlas/MOCs, Sources, Spaces, paper notes, work items" in collapsed_entry
-    assert "Raw captures and `log.md` entries are exempt" in entry
+    assert "Raw captures, transaction snapshots, and system audit records are" in entry
     assert "Keep process, placement, routing, and edit-history commentary out of page bodies" in collapsed_entry
     assert "this page records" in entry
     assert "not X but Y" in entry
@@ -178,7 +200,7 @@ def test_compiled_page_language_gate_applies_to_all_wiki_pages():
     assert "Apply the `loreforge` Compiled Page Language Gate before handoff." in paper
     assert "Compiled Page Language Gate" in work_item
 
-    assert "Formal project artifacts under `Spaces/projects/`" in entry
+    assert "Formal project artifacts under root `Spaces/`" in entry
     assert "proposal*.md" in entry
     assert "research-plan*.md" in entry
     assert "literature-survey*.md" in entry
@@ -195,25 +217,29 @@ def test_compiled_page_language_gate_applies_to_all_wiki_pages():
 
 
 def test_paper_skill_uses_zotero_managed_raw_files_and_research_notes():
-    """Paper workflow should keep raw files in Zotero and notes in research Spaces."""
+    """Paper workflow should keep raw files in Zotero and notes in Sources/Papers."""
     content = PAPER_SKILL_PATH.read_text()
     collapsed = " ".join(content.split())
 
     assert "Shared/Papers" not in content
     assert "Shared/Zotero/<citekey>/" not in content
-    assert "Domains/research/Spaces/papers/<citekey>.md" in content
+    assert "Sources/Papers/<citekey>.md" in content
     assert "paper note template" in content
     assert "### How does this paper solved it?" in content
     assert "If the paper cannot be resolved to one Zotero item, stop" in content
     assert "Do not create paper raw packages" in content
     assert "Treat Zotero-managed PDF files, snapshots, and attachment directories as raw artifacts outside the vault" in collapsed
     assert "read-only" in content
-    assert "write only Markdown paper notes under `Domains/research/Spaces/papers/`" in content
+    assert "write only Markdown paper notes under `Sources/Papers/`" in content
     assert "Creating `<citekey>.md` is allowed" in content
-    assert "Do not use `Shared/Raw/` for paper PDFs or paper notes" in content
-    assert "Writable paths: Markdown note files under Domains/research/Spaces/papers/ only" in content
+    assert "Do not use `Sources/Raw/` for paper PDFs or paper notes" in content
+    assert "Writable paths: Markdown note files under Sources/Papers/ only" in content
+    assert "[[Sources/Papers/<citekey>|paper alias]]" in content
+    assert "using the file stem and alias syntax" not in content
+    assert "Ordinary downstream synthesis writes inside `Cards/<domain>/`" in content
+    assert "Do not write inside\n`Domains/<domain>/` unless the user explicitly asks for legacy repair or\nmigration." in content
     assert "[PDF](zotero://open-pdf/...)" in content
-    assert "Paper raw package: Shared/Raw/<source-id>/" not in content
+    assert "Paper raw package: Sources/Raw/<source-id>/" not in content
     assert "Save `original/<paper>.pdf` only when" not in content
 
 
@@ -221,7 +247,11 @@ def test_paper_docs_use_research_papers_path_consistently():
     """Published paper docs should not drift back to wiki-local Zotero bundles."""
     for path in PAPER_BUNDLE_DOC_PATHS:
         content = path.read_text()
-        assert "Domains/research/Spaces/papers" in content, f"{path} should mention research paper notes"
+        assert "Sources/Papers" in content, f"{path} should mention root paper notes"
+        if path.name == "schema.md":
+            assert "Domains/research/Spaces/papers/<citekey>.md` to" in content, f"{path} should mention legacy paper migration only"
+        else:
+            assert "Domains/research/Spaces/papers" not in content, f"{path} still mentions legacy paper notes"
         assert "Shared/Zotero/<citekey>/" not in content, f"{path} still mentions wiki-local Zotero bundles"
         assert "Shared/Papers" not in content, f"{path} still mentions Shared/Papers"
 
@@ -237,8 +267,33 @@ def test_entrypoint_preserves_paper_bundle_boundary():
     assert "`loreforge-capture`" in content
     assert "For ordinary paper ingest, stop after the paper-note update" in content
     assert "Only continue to Cards, Atlas, Sources, Spaces, or cross-domain synthesis" in collapsed
-    assert "do not create or update `Shared/Raw/` paper packages" in content
+    assert "do not create or update `Sources/Raw/` paper packages" in content
     assert "or paper manifests" in content
+
+
+def test_user_docs_keep_root_layout_and_setup_boundary():
+    """User-facing docs should separate read-only checks from write-capable setup."""
+    for path in PAPER_USER_DOC_PATHS:
+        content = path.read_text()
+        assert "Sources/Papers" in content, f"{path} should use root paper-note path when discussing papers"
+        assert "Shared/Papers" not in content, f"{path} still mentions Shared/Papers"
+        assert "Shared/Zotero/<citekey>/" not in content, f"{path} still mentions wiki-local Zotero bundles"
+
+    component = (REPO_ROOT / "docs" / "component-contract.md").read_text()
+    readme = (REPO_ROOT / "README.md").read_text()
+    collapsed_readme = " ".join(readme.split())
+    assert "Read-only operations:" in component
+    assert "Write-capable bootstrap operation:" in component
+    assert "`setup`: write the machine-local registry entry" in component
+    assert "The read-only `status`, `validate`, and\n`init` operations currently delegate through a Python component adapter" in component
+    assert "`setup` is implemented by the Node CLI bootstrap\npath and is write-capable" in component
+    assert "read-only component operations" in collapsed_readme
+    assert "`setup` is the component-facing bootstrap command" in readme
+
+    schema = (REPO_ROOT / "docs" / "schema.md").read_text()
+    assert "Domains/research/Spaces/papers/<citekey>.md` to" in schema
+    assert "Sources/Papers/<citekey>.md`; paper notes are not generic Space records" in schema
+    assert "[[Sources/Raw/<source-id>/manifest|readable source alias]]" in schema
 
 
 if __name__ == "__main__":
@@ -254,4 +309,5 @@ if __name__ == "__main__":
     test_paper_skill_uses_zotero_managed_raw_files_and_research_notes()
     test_paper_docs_use_research_papers_path_consistently()
     test_entrypoint_preserves_paper_bundle_boundary()
+    test_user_docs_keep_root_layout_and_setup_boundary()
     print("All Card / MOC authoring contract tests passed.")

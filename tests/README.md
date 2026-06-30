@@ -16,14 +16,16 @@ python3 tests/simulate_wiki_config_flow.py
 python3 tests/simulate_loreforge_entrypoint_flow.py
 ```
 
-These scripts check the minimum single-expert LoreForge domain contract used by
-the `loreforge-domain` skill, check skill-level Markdown conventions, verify
-the read-only external component contract, and smoke-test query, ingest, and
-update boundaries on a temporary fixture copy. They also smoke-test entrypoint
-routing, paper workflow delegation, config discovery, initialization, sync
-backend setup for new and existing wikis, raw source packages under
-`Shared/Raw/<source-id>/` with `origin.md` plus `manifest.md`, Zotero-managed
-paper notes under `Domains/research/Spaces/papers/` with read-only external
-PDFs and Zotero URI jump links, and source import behavior. The native domain validator can also clean orphan
-footnote definitions with `--fix`. The `validate_native_domain.py` command is a
-compatibility wrapper around the shared `loreforge_validator` module.
+These scripts check the current root layout through component, CLI, entrypoint,
+paper workflow, and documentation drift tests. The current layout uses
+`Cards/<domain>/`, `Sources/Raw/<source-id>/`, `Sources/Papers/`, root
+`Spaces/`, root `Atlas/`, and `Extras/Templates/`.
+
+`simulate_native_domain_operations.py` and `simulate_wiki_config_flow.py` are
+legacy compatibility smoke tests for the older `Domains/<domain>/` and
+`Shared/Raw/` fixture shape. They should not be treated as the current layout
+spec.
+
+The native domain validator can also clean orphan footnote definitions with
+`--fix`. The `validate_native_domain.py` command is a compatibility wrapper
+around the shared `loreforge_validator` module.

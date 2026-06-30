@@ -80,8 +80,8 @@ def assert_skill_contract() -> None:
         "Delegate work-item shaping and bounded domain write guidance to",
         "Compiled Page Language Gate",
         "Apply this gate to every synthesized LoreForge wiki page",
-        "Raw captures and `log.md` entries are exempt",
-        "Formal project artifacts under `Spaces/projects/`",
+        "Raw captures, transaction snapshots, and system audit records are",
+        "Formal project artifacts under root `Spaces/`",
         "proposals, research plans, literature surveys",
         "Delegate lint, audit, and check work to `loreforge-check`",
         "Delegate source discovery and capture planning to `loreforge-import`",
@@ -103,18 +103,18 @@ def assert_skill_contract() -> None:
         "loreforge-moc",
         "loreforge-domain",
         "ordinary articles, blogs, docs, transcripts, reports, local notes, or web",
-        "Domains/research/Spaces/papers/<citekey>.md",
+        "Sources/Papers/<citekey>.md",
         "If the paper cannot be resolved to one Zotero item, stop",
         "Do not create paper raw packages",
         "Treat Zotero-managed PDF files, snapshots, and attachment directories as",
         "read-only",
-        "write only Markdown paper notes under `Domains/research/Spaces/papers/`",
+        "write only Markdown paper notes under `Sources/Papers/`",
         "Creating `<citekey>.md` is allowed",
-        "Do not use `Shared/Raw/` for paper PDFs or paper notes",
+        "Do not use `Sources/Raw/` for paper PDFs or paper notes",
         "Paper Storage Policy",
         "Paper Page Shape",
         "Paper Note Handoff Prompt",
-        "Writable paths: Markdown note files under Domains/research/Spaces/papers/ only",
+        "Writable paths: Markdown note files under Sources/Papers/ only",
         "[PDF](zotero://open-pdf/...)",
     ]
     missing_paper = [item for item in paper_required if item not in paper_skill]
@@ -124,14 +124,14 @@ def assert_skill_contract() -> None:
         "Work-item notes are durable project records, not activity logs.",
         "project work, feature work, Jira, issue, task, bugfix, CI failure",
         "Spaces/projects",
-        "Domains/<domain>/Spaces/projects/<project>/<work-item>.md",
+        "Spaces/projects/<project>/<work-item>.md",
         "Problem Background",
         "Solution",
         "Bug Diagnosis And Fixes",
         "Verification",
         "Do not save chat transcripts",
         "Attach diagrams or artifacts only in the section that explains them",
-        "Use Shared/Raw/ only for diagrams, logs, screenshots, or source artifacts",
+        "Use Sources/Raw/ only for diagrams, logs, screenshots, or source artifacts",
         "Link And Citation Style",
         "Prefer inline wikilinks to wiki-local Jira/issue/MR/PR/design-doc/CI-log raw",
         "Weave concepts, systems, modules, files, failures, fixes, and related work",
@@ -151,30 +151,55 @@ def assert_skill_contract() -> None:
 
 def create_domain(wiki: Path, name: str, purpose: str, tags: str, index: str) -> None:
     write(
-        wiki / "Domains" / name / "SCHEMA.md",
-        f"""# Schema
+        wiki / "Cards" / name / "domain-overview.md",
+        f"""---
+title: {name} domain overview
+created: 2026-06-30
+updated: 2026-06-30
+type: card
+aliases:
+  - {name}
+tags: []
+confidence: medium
+status: active
+contested: false
+contradictions: []
+---
 
-## Domain
+# {name} domain overview
+
 {purpose}
 
 ## Tag Taxonomy
 - {tags}
 
 Rule: tags are coarse domain classification labels; keep them to 1-3 per page instead of keyword stacks.
+
+## Existing Pages
+{index}
 """,
     )
-    write(wiki / "Domains" / name / "index.md", f"# Domain Index\n\n{index}\n")
-    write(wiki / "Domains" / name / "log.md", "# Domain Log\n")
 
 
 def domain_names(wiki: Path) -> list[str]:
-    return sorted(path.name for path in (wiki / "Domains").iterdir() if path.is_dir())
+    root = wiki / "Cards"
+    return sorted(path.name for path in root.iterdir() if path.is_dir())
+
+
+def domain_policy_section(wiki: Path, domain: str) -> str:
+    path = wiki / "00_System" / "card-domains.md"
+    if not path.exists():
+        return ""
+    text = path.read_text(encoding="utf-8")
+    match = re.search(rf"(?ms)^##\s+{re.escape(domain)}\s*$.*?(?=^##\s+|\Z)", text)
+    return match.group(0) if match else ""
 
 
 def domain_text(wiki: Path, domain: str) -> str:
+    card_root = wiki / "Cards" / domain
     parts = [
-        (wiki / "Domains" / domain / "SCHEMA.md").read_text(encoding="utf-8"),
-        (wiki / "Domains" / domain / "index.md").read_text(encoding="utf-8"),
+        domain_policy_section(wiki, domain),
+        "\n".join(path.read_text(encoding="utf-8") for path in card_root.glob("*.md")),
     ]
     return "\n".join(parts).lower()
 
@@ -313,21 +338,36 @@ def main() -> int:
         )
         write(
             wiki / "00_System" / "index.md",
-            "# Wiki Index\n\n- Layout: [[wiki-layout]]\n- Domains: [[domains]]\n",
+            "# Wiki Index\n\n- Layout: [[wiki-layout]]\n- Domains: [[domains]]\n- Card domains: [[card-domains]]\n",
+        )
+        write(
+            wiki / "00_System" / "card-domains.md",
+            "# Card Domains\n\n"
+            "## gpu-arch-research\n"
+            "GPU architecture, CUDA, memory hierarchy, roofline, profiling.\n\n"
+            "## ml-systems\n"
+            "PyTorch, compiler runtime, distributed training, inference systems.\n\n"
+            "## product-strategy\n"
+            "Roadmaps, market positioning, customer research.\n",
+        )
+        write(
+            wiki / "00_System" / "card-policy.md",
+            "# Card Policy\n\nCards live under `Cards/<domain>/`.\n",
+        )
+        write(
+            wiki / "00_System" / "agent-policy.md",
+            "# Agent Policy\n\nUse pre-write gates and validator output.\n",
         )
         write(
             wiki / "00_System" / "wiki-layout.md",
             "# Wiki Layout\n\n"
-            "Canonical shared layer:\n\n"
-            "- `Shared/Raw/<source-id>/` for raw source packages and attachments\n"
-            "- `Shared/Templates/` for reusable templates\n\n"
-        "Domain layer:\n\n"
-        "- `Domains/<domain>/Atlas/`, `Cards/`, `Sources/`, and `Spaces/` for compiled durable knowledge\n\n"
-        "Compiled pages live in `Domains/<domain>/Atlas/`, `Cards/`, `Sources/`, and `Spaces/`. "
-        "Capture writes raw source packages into `Shared/Raw/<source-id>/` and stops there; ingest updates those packages; `Sources/` is optional for source excerpts.\n\n"
-        "Create `Domains/<domain>/Extras/` only when the domain needs its own\n"
-        "non-source attachments.\n",
-    )
+            "- `Cards/<domain>/` for agent-maintained reusable Cards\n"
+            "- `Atlas/` for human-facing view pages\n"
+            "- `Sources/Raw/<source-id>/` for raw source packages and attachments\n"
+            "- `Sources/Papers/` for Zotero-backed paper notes\n"
+            "- `Spaces/` for projects, people, tools, systems, and contexts\n"
+            "- `Extras/Templates/` for reusable templates\n",
+        )
         create_domain(
             wiki,
             "gpu-arch-research",
