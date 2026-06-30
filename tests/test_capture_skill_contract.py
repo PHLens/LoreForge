@@ -104,7 +104,7 @@ def test_domain_and_docs_reference_capture_plan() -> None:
 
 
 def test_golden_capture_fixture_shape() -> None:
-    raw = REPO_ROOT / "tests" / "fixtures" / "capture" / "web-clipper-like" / "Shared" / "Raw" / "moe-web-capture"
+    raw = REPO_ROOT / "tests" / "fixtures" / "capture" / "web-clipper-like" / "Sources" / "Raw" / "web-capture-example"
     origin = raw / "origin.md"
     manifest = raw / "manifest.md"
     defuddle = raw / "extracted" / "defuddle.md"
@@ -117,12 +117,12 @@ def test_golden_capture_fixture_shape() -> None:
         raise AssertionError("golden manifest content_hash does not match origin.md")
 
     required_origin = [
-        "source: \"https://arxiv.org/abs/2101.03961\"",
-        "author: \"William Fedus, Barret Zoph, Noam Shazeer\"",
-        "published: \"2021-01-11T16:11:52Z\"",
+        "source: \"https://example.com/research-lab/gpu-memory-notes\"",
+        "author: \"Example Research Lab\"",
+        "published: \"2026-06-01\"",
         "created: \"2026-06-10\"",
-        "year: 2021",
-        "arxiv: \"2101.03961\"",
+        "publisher: \"Example Research Lab\"",
+        "category: \"engineering note\"",
         "- \"clippings\"",
     ]
     origin_frontmatter = origin_text.split("---", 2)[1]
@@ -153,7 +153,7 @@ def test_golden_capture_fixture_shape() -> None:
     forbidden_content = [
         "## Title:",
         "Authors:",
-        "Cite as:",
+        "Download source archive:",
         "## Description",
         "## Content",
         "## Structured Metadata",
@@ -164,16 +164,16 @@ def test_golden_capture_fixture_shape() -> None:
     if found_forbidden:
         raise AssertionError(f"golden origin keeps duplicated extractor metadata: {found_forbidden}")
 
-    if "Abstract:" not in body or "Mixture of Experts (MoE)" not in body:
+    if "Practical GPU Memory Notes" not in body or "allocator behavior" not in body:
         raise AssertionError("golden origin content does not preserve filtered source substance")
 
-    if "## Title:" not in defuddle_text or "Cite as:" not in defuddle_text:
+    if "## Title:" not in defuddle_text or "Download source archive:" not in defuddle_text:
         raise AssertionError("golden defuddle artifact does not preserve unfiltered extractor output")
 
     required_manifest = [
         "primary_method:",
         "methods:",
-        "Shared/Raw/moe-web-capture/extracted/defuddle.md",
+        "Sources/Raw/web-capture-example/extracted/defuddle.md",
         "role: \"metadata-supplement\"",
         "role: \"manual-cleanup\"",
         "content_filters:",

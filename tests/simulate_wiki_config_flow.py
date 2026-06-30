@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
-"""Smoke-test LoreForge wiki config, initialization, and import flow.
+"""Legacy compatibility smoke-test for wiki config and import flow.
 
 The skill owns these behaviors as operating instructions rather than as a
-runtime library. This test makes the expected file effects concrete: registry
-discovery, environment overrides, wiki/domain initialization, and source-only
-import into a native domain.
+runtime library. This fixture intentionally exercises the pre-root-layout
+`Domains/<domain>/` and `Shared/Raw/` shape so the shared validator remains
+backward compatible during migration. The root `Cards/`, `Sources/`, and
+`Extras/` layout is covered by the component, CLI, and documentation drift
+tests.
 """
 
 from __future__ import annotations
@@ -202,6 +204,8 @@ def initialize_domain(
     wiki: Path,
     domain_name: str,
 ) -> Path:
+    """Create a legacy domain fixture, not the current root-layout skeleton."""
+
     domain = wiki / "Domains" / domain_name
     for directory in [
         wiki / "00_System",
@@ -314,6 +318,8 @@ tags:
 
 
 def import_source(source: Path, domain: Path) -> None:
+    """Import into the legacy fixture shape used for compatibility coverage."""
+
     source_text = (source / "notes" / "llm-wiki.md").read_text(encoding="utf-8")
     wiki = domain.parents[1]
 
@@ -387,7 +393,7 @@ created: {TODAY}
 updated: {TODAY}
 type: concept
 aliases:
-  - Compounding wiki
+  - accumulated source knowledge
 tags: [concept, wiki]
 confidence: medium
 status: active
@@ -473,11 +479,11 @@ def assert_skill_example_is_generic() -> None:
         if expected not in config_skill:
             raise AssertionError(f"config skill is missing config guidance: {expected}")
     for expected in [
-        "Shared/Raw/",
+        "Sources/Raw/",
         "raw source package",
         "origin.md",
         "manifest.md",
-        "create `Cards/`, `Atlas/`, `Spaces/`, or domain `Sources/`",
+        "create or update root `Cards/`, `Atlas/`, `Spaces/`, or non-raw `Sources/`",
         "route or choose final domain ownership",
     ]:
         if expected not in capture_skill:
@@ -621,7 +627,7 @@ def main() -> int:
         assert "ai-research" in (wiki / "00_System" / "domains.md").read_text(encoding="utf-8")
         local_plan = post_write_sync_plan(wiki, registry_wiki(registry, "main"), "initial wiki update")
         assert local_plan == [f"local-only: no remote sync ran for {wiki.as_posix()}"]
-        print("PASS initialization: 00_System, Calendar, shared raw layer, wiki layout, and native domain contract created")
+        print("PASS legacy initialization: 00_System, Calendar, Shared/Raw, wiki layout, and legacy domain contract created")
 
         bootstrap_plan = post_write_sync_plan(
             wiki,
@@ -733,9 +739,9 @@ def main() -> int:
         assert "source_alias: old-obsidian" in (domain / "log.md").read_text(encoding="utf-8")
         if not log_headings(domain)[0].startswith(f"## {TODAY} | ingest |"):
             raise AssertionError("import log entry was not inserted as newest entry")
-        print("PASS import: source stayed read-only and target domain remains valid")
+        print("PASS legacy import: source stayed read-only and target domain remains valid")
 
-    print("wiki config flow smoke test ok")
+    print("legacy wiki config flow smoke test ok")
     return 0
 
 

@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
-"""Smoke-test native domain query, ingest, and update boundaries.
+"""Legacy compatibility smoke-test for native domain operation boundaries.
 
 The test copies the valid fixture into /tmp, simulates the file effects expected
-from loreforge-domain operations, and asserts that only the selected domain changes.
+from legacy `Domains/<domain>/` operations, and asserts that only the selected
+domain or legacy shared raw area changes. New root-layout behavior is covered by
+the component, CLI, and documentation drift tests.
 """
 
 from __future__ import annotations
@@ -190,7 +192,7 @@ created: {TODAY}
 updated: {TODAY}
 type: concept
 aliases:
-  - Agent domain boundary note
+  - selected-domain boundary source
 tags: [wiki, agent, source]
 confidence: medium
 status: active
@@ -213,7 +215,7 @@ created: {TODAY}
 updated: {TODAY}
 type: concept
 aliases:
-  - Domain boundary discipline
+  - selected-domain write discipline
 tags: [wiki, agent, concept]
 confidence: medium
 status: active
@@ -321,7 +323,7 @@ def main() -> int:
         assert_selected_domain_only(wiki_before_update, digest_tree(wiki), selected)
         assert_no_changes(other_before, digest_tree(other_domain), "other-domain after update")
 
-    print("native operation smoke test ok")
+    print("legacy native operation smoke test ok")
     return 0
 
 
