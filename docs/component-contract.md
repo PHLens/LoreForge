@@ -1,8 +1,9 @@
 # LoreForge Component Contract
 
-This document defines the read-only surface external orchestrators can use to
-inspect LoreForge readiness. Noesis may call this surface from `doctor` without
-owning LoreForge config or wiki files.
+This document defines the component surface external orchestrators can use to
+inspect LoreForge readiness and, with explicit user intent, bootstrap a wiki.
+Noesis may call the read-only operations from `doctor` without owning
+LoreForge config or wiki files.
 
 ## Ownership
 
@@ -10,7 +11,8 @@ LoreForge owns:
 
 - `~/.config/loreforge/registry.toml`
 - LoreForge wiki roots listed in that registry
-- `Calendar/`, `Shared/`, and `Domains/` inside a wiki root
+- `00_System/`, `Calendar/`, `Cards/`, `Sources/`, `Spaces/`, `Atlas/`, and
+  `Extras/` inside a wiki root
 - domain validation through the shared Python `loreforge_validator` module
 - sync helpers such as `skills/loreforge-domain/scripts/sync_rclone.sh`
 
@@ -20,13 +22,13 @@ doctor/status checks.
 
 ## Commands
 
-The stable read-only CLI is:
+The stable component CLI is:
 
 ```bash
 loreforge <operation> --json
 ```
 
-Operations:
+Read-only operations:
 
 - `status`: report registry availability, selected wiki, sync backend, and
   discovered domains.
@@ -34,6 +36,9 @@ Operations:
   domains.
 - `init`: return an init plan and registry entry shape. This operation is
   intentionally proposal-only; it does not write files.
+
+Write-capable bootstrap operation:
+
 - `setup`: write the machine-local registry entry plus minimal wiki/domain
   skeleton for an external bootstrapper. This operation is a LoreForge-owned
   bootstrap path; it does not run capture, ingest, rclone sync, or git sync.
@@ -48,10 +53,11 @@ loreforge init --wiki /path/to/wiki --domain ai-research --sync rclone --remote 
 loreforge setup --wiki /path/to/wiki --domain ai-research --sync local --json
 ```
 
-The CLI is the external contract. Its current implementation delegates through a
-Python component adapter under `skills/loreforge-domain/scripts/`, which imports
-the shared `loreforge_validator` module; callers should not depend on either
-internal path.
+The CLI is the external contract. The read-only `status`, `validate`, and
+`init` operations currently delegate through a Python component adapter under
+`skills/loreforge-domain/scripts/`, which imports the shared
+`loreforge_validator` module. `setup` is implemented by the Node CLI bootstrap
+path and is write-capable. Callers should not depend on either internal path.
 
 ## JSON Shape
 

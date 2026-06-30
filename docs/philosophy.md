@@ -20,9 +20,9 @@ pamem
 LoreForge wiki instance
   professional knowledge
   raw source packages
-  optional domain source notes
+  optional source notes
   durable concepts
-  maps, indexes, logs
+  maps, indexes, validator output
 
 LoreForge framework repo
   plugin metadata
@@ -80,38 +80,41 @@ LoreForge
 | Agent operating experience | `pamem` or host agent memory |
 | Current task state | session, project files, or `pamem` |
 | Reusable professional concept | LoreForge wiki |
-| Raw source package | LoreForge wiki `Shared/Raw/<source-id>/origin.md` + `manifest.md` |
-| Raw source artifact | LoreForge wiki `Shared/Raw/<source-id>/` |
+| Raw source package | LoreForge wiki `Sources/Raw/<source-id>/origin.md` + `manifest.md` |
+| Raw source artifact | LoreForge wiki `Sources/Raw/<source-id>/` |
 | Zotero paper PDF/raw attachments | Zotero storage outside the LoreForge vault |
-| Zotero-managed paper note | LoreForge wiki `Domains/research/Spaces/papers/<citekey>.md` |
-| Reusable template | LoreForge wiki `Shared/Templates/` |
-| Optional domain source note | LoreForge domain `Sources/` note |
+| Zotero-managed paper note | LoreForge wiki `Sources/Papers/<citekey>.md` |
+| Reusable template | LoreForge wiki `Extras/Templates/` |
+| Optional source note | LoreForge wiki `Sources/` note |
 | Durable domain view | LoreForge wiki |
 
 ## Current Design
 
 LoreForge now follows a small core:
 
-1. One shared wiki root can contain many domains.
+1. One shared wiki root can contain many Card domains under `Cards/`.
 2. The `loreforge` main entrypoint handles domain selection, config, capture
    handoff, batch grouping, and bounded fan-out to domain experts.
-3. Shared raw sources live as packages in `Shared/Raw/<source-id>/`; capture
+3. Shared raw sources live as packages in `Sources/Raw/<source-id>/`; capture
    creates `origin.md` plus `manifest.md`, and ingest updates the same package
    while compiling domain knowledge. Reusable templates live in
-   `Shared/Templates/`.
+   `Extras/Templates/`.
 4. Zotero owns paper PDFs and other raw attachments outside the vault. Paper
    workflows read those files as read-only raw artifacts, write Markdown notes
-   under `Domains/research/Spaces/papers/`, and use `zotero://` PDF jump links.
-5. Optional domain source notes live in `Domains/<domain>/Sources/` when a raw
-   package is large or needs a stable excerpt.
-6. One expert agent owns and maintains one domain.
+   under `Sources/Papers/`, and use `zotero://` PDF jump links.
+5. Optional source notes live under root `Sources/` when a raw package is large
+   or needs a stable excerpt.
+6. Card domains live under `Cards/<domain>/`; root `Atlas/` and `Spaces/` are
+   shared across domains.
 7. The main `loreforge` entrypoint makes page-type decisions before compiled
    writes.
 8. `loreforge-card` and `loreforge-moc` own strict Card/MOC authoring
-   contracts and acceptance gates. `loreforge-domain` handles domain
-   initialization, generic orientation, Sources/Spaces updates, and repair.
-9. Human supervision happens through `log.md`, `index.md`, confidence metadata,
-   contradiction records, checks, and git diffs.
+   contracts and acceptance gates. `loreforge-domain` handles Card-domain
+   orientation, root-layout initialization, Sources/Spaces updates, and legacy
+   repair.
+9. Human supervision happens through centralized policy, confidence metadata,
+   contradiction records, validator output, optional high-risk transactions,
+   and git diffs when the wiki is git-backed.
 
 The old staged package pipeline is not part of the active core workflow.
 Focused helper workflows may exist for config, capture, paper-specific ingest,
@@ -122,8 +125,8 @@ behind the main entrypoint instead of becoming user surface area.
 
 Borrow:
 
-- **Session orientation**: before operating on a wiki, read schema, indexes, and
-  recent meaningful log entries.
+- **Session orientation**: before operating on a wiki, read centralized policy,
+  generated indexes when available, and relevant Markdown pages.
 - **Question-driven capture and ingest**: frame source capture around the
   problem being solved, then decide whether the raw package, an optional domain
   Source note, or durable synthesis is actually needed.
@@ -133,7 +136,8 @@ Borrow:
   into pages.
 - **Quality signals**: use `confidence`, `contested`, and contradiction markers
   for weak or conflicting knowledge.
-- **Log hygiene**: keep logs useful as an evolution timeline.
+- **Audit hygiene**: keep validator output and high-risk transaction snapshots
+  useful without turning routine edits into a large log stream.
 - **Skill evolution discipline**: update skills from repeated real usage pain,
   not speculative design.
 

@@ -62,11 +62,14 @@ Fields:
 2. Otherwise use `WIKI_PATH` and the requested domain name.
 3. Otherwise read `~/.config/loreforge/registry.toml`, if available.
 4. Otherwise fall back to `~/wiki`.
-5. Enter `Domains/<domain>/`.
-6. Orient on `SCHEMA.md`, `index.md`, recent `log.md`, and relevant pages.
+5. Enter `Cards/<domain>/` when a Card domain is selected.
+6. Orient on `00_System/card-domains.md`, `00_System/card-policy.md`,
+   `00_System/agent-policy.md`, optional `00_System/card-index.json`, and
+   relevant Cards, Atlas views, Sources, and Spaces.
 
-Wiki-local metadata files are optional. The active core workflow is defined by
-the selected domain's files, not by a copied template.
+Wiki-local metadata files are optional except for the core `00_System/`
+policies created by setup. The active core workflow is defined by centralized
+policy plus selected Markdown pages, not by copied per-domain templates.
 
 ## Sync Backend Setup
 
